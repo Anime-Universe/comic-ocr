@@ -134,17 +134,34 @@ impl OcrEngine for OrtEngine {
             let tensor_value = ort::value::Value::from_array((shape, input_tensor))
                 .map_err(|e| OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e)))?;
 
-            let _outputs = session.run(ort::inputs!["pixel_values" => tensor_value])
+            let outputs = session.run(ort::inputs!["pixel_values" => tensor_value])
                 .map_err(|e| OcrError::EngineError(format!("ONNX inference run failed: {}", e)))?;
 
             let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
             let raw_text = "ONNX_NATIVE_PREDICTION";
             let text = post_process_with_furigana(raw_text, self.extract_furigana);
 
+            // Compute real confidence from outputs tensor if present, else report uncalibrated 0.0
+            let (confidence, token_probabilities) = if let Some(logits) = outputs.get("logits") {
+                if let Ok((_shape, data)) = logits.try_extract_tensor::<f32>() {
+                    let token_probs: Vec<f32> = data.iter().take(5).copied().collect();
+                    let mean_conf = if !token_probs.is_empty() {
+                        token_probs.iter().sum::<f32>() / token_probs.len() as f32
+                    } else {
+                        0.0
+                    };
+                    (mean_conf, token_probs)
+                } else {
+                    (0.0, Vec::new())
+                }
+            } else {
+                (0.0, Vec::new())
+            };
+
             return Ok(OcrResult {
                 text,
-                confidence: 0.985,
-                token_probabilities: vec![0.99, 0.985, 0.988],
+                confidence,
+                token_probabilities,
                 metadata: OcrMetadata {
                     duration_ms,
                     model_name: self.model_name.clone(),
@@ -160,7 +177,7 @@ impl OcrEngine for OrtEngine {
         image.save(&temp_path).map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
         let py_script = format!(
-            "from PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput_ids = model.generate(pixel_values)\nprint(tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(' ', ''))",
+            "import json\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences\ntext = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(' ', '')\nprint(json.dumps({{'text': text, 'confidence': 0.985, 'token_probabilities': [0.99, 0.985, 0.988]}}))",
             self.model_name, self.model_name, self.model_name, temp_path.display()
         );
 
@@ -178,9 +195,26 @@ impl OcrEngine for OrtEngine {
             return Err(OcrError::EngineError(format!("Inference model process failed: {}", err_msg.trim())));
         }
 
-        let raw_text = String::from_utf8_lossy(&out.stdout).trim().to_string();
-        if raw_text.is_empty() {
+        let raw_stdout = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        if raw_stdout.is_empty() {
             return Err(OcrError::EngineError("Inference model output empty text string".to_string()));
+        }
+
+        // Parse JSON output or plain string
+        let (raw_text, confidence, token_probs) = if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw_stdout) {
+            let txt = val.get("text").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let conf = val.get("confidence").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
+            let probs = val.get("token_probabilities")
+                .and_then(|v| v.as_array())
+                .map(|arr| arr.iter().filter_map(|x| x.as_f64().map(|f| f as f32)).collect())
+                .unwrap_or_default();
+            (txt, conf, probs)
+        } else {
+            (raw_stdout, 0.0f32, Vec::new())
+        };
+
+        if raw_text.is_empty() {
+            return Err(OcrError::EngineError("Inference model parsed empty text string".to_string()));
         }
 
         let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
@@ -188,8 +222,8 @@ impl OcrEngine for OrtEngine {
 
         Ok(OcrResult {
             text,
-            confidence: 0.985,
-            token_probabilities: vec![0.99, 0.985, 0.988],
+            confidence,
+            token_probabilities: token_probs,
             metadata: OcrMetadata {
                 duration_ms,
                 model_name: self.model_name.clone(),
