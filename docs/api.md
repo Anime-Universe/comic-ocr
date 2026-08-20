@@ -314,3 +314,89 @@ docker build -t comic-ocr-runtime:v0.2.0 .
 # Run container
 docker run -d -p 8000:8000 --name manga-runtime comic-ocr-runtime:v0.2.0
 ```
+
+---
+
+## 7. Benchmark Ground Truth Dataset (`tests/data/expected_results.json`)
+
+The test suite includes a canonical benchmark dataset located at [`tests/data/expected_results.json`](file:///Users/zachshallbetter/Projects/comic-ocr-rust/tests/data/expected_results.json) alongside baseline crop images in `tests/data/images/`.
+
+### Expected Results Schema & Sample Pairs
+
+```json
+[
+  {
+    "filename": "00.jpg",
+    "result": "素直にあやまるしか"
+  },
+  {
+    "filename": "01.jpg",
+    "result": "立川で見た〝穴〟の下の巨大な眼は："
+  },
+  {
+    "filename": "02.jpg",
+    "result": "実戦剣術も一流です"
+  },
+  {
+    "filename": "03.jpg",
+    "result": "第３０話重苦しい闇の奥で静かに呼吸づきながら"
+  },
+  {
+    "filename": "04.jpg",
+    "result": "きのうハンパーヶとって、ゴメン！！！"
+  },
+  {
+    "filename": "05.jpg",
+    "result": "ぎゃっ"
+  },
+  {
+    "filename": "06.jpg",
+    "result": "ピンポーーン"
+  },
+  {
+    "filename": "07.jpg",
+    "result": "ＬＩＮＫ！私達７人の力でガノンの塔の結界をやぶります"
+  },
+  {
+    "filename": "08.jpg",
+    "result": "ファイアパンチ"
+  },
+  {
+    "filename": "09.jpg",
+    "result": "少し黙っている"
+  },
+  {
+    "filename": "10.jpg",
+    "result": "わかるかな〜？"
+  },
+  {
+    "filename": "11.jpg",
+    "result": "警察にも先生にも町中の人達に！！"
+  }
+]
+```
+
+### Programmatic Usage in Rust Tests
+
+```rust
+use serde::Deserialize;
+use std::fs;
+
+#[derive(Deserialize)]
+struct GroundTruthPair {
+    filename: String,
+    result: String,
+}
+
+#[test]
+fn test_expected_results_dataset() {
+    let json_str = fs::read_to_string("tests/data/expected_results.json")
+        .expect("Failed to read expected_results.json");
+    let pairs: Vec<GroundTruthPair> = serde_json::from_str(&json_str)
+        .expect("Failed to parse expected_results.json");
+
+    assert_eq!(pairs.len(), 12);
+    assert_eq!(pairs[0].filename, "00.jpg");
+    assert_eq!(pairs[0].result, "素直にあやまるしか");
+}
+```
