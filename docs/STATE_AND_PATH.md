@@ -185,42 +185,129 @@ Both are in Management's repo and need coordinating.
 
 ---
 
-## The path
+## The next big step
 
-**Now — ingest more documents.** This was previously advised against on a
-mistaken reading. It is in fact the useful move: every new page is free
-`panel-detector` coverage and a bigger pool for the confirm surface. Region
-detection still costs Gemini calls per page until a local engine lands, which is
-an argument for pace, not for stopping.
+**A clean, measured detection baseline, watchable at
+`https://stage.animeuniverse.com/?tool=pipeline`.**
 
-**Now, in parallel — the register guard**, because it is small and prevents
-recurrence.
+That is the milestone. Everything currently measurable about detection is
+either damaged, unreadable, or uncomparable, so no tuning decision can be made
+from it. The step ends when the corpus has a baseline that can be trusted and
+seen, which is also what makes the decoder loop's arrival measurable when it
+lands.
 
-**Next — the decoder loop.** Turns `NotImplemented` into a transcription and
-makes every downstream number real. Validate against any same-architecture
-checkpoint; weights of our own are not a prerequisite.
+### 0. The register guard — first, and blocking
 
-**Next — settle replace-or-join** with a fresh bounded run of both detectors over
-the same pages. Free detector is instant; a small `vision-worker` re-run is the
-only cost.
+A failed CAS upload is currently **survivable**: `register_envelope` records a
+digest with no `blob_url` and reports success, so `transcription_count` reads
+healthy while the body is unreachable. That is what produced 836 orphaned
+envelopes between 08-18 11:00 and 08-19 00:00.
 
-**Then — ground truth.** Request Manga109-s now for the lead time. The confirm
-control is the only source of labels that are ours, and the `attested` count is
-the size of the training corpus, not a dashboard number.
+Fix: refuse to register an envelope whose upload did not yield a URL. Return
+`Err`, let the job fail and retry, rather than persisting a row that reads as
+success.
 
-**Then — Track A.** Japanese first. English may not need training in v1 at all;
-measure an off-the-shelf engine behind the same trait before spending on it.
+Owner: `manga-service` — another session. **Must be coordinated.** It is first
+because a re-run without it can leave exactly the same scar, and then the whole
+step is repeated.
 
-**Throughout — the chain that matters.**
+### 1. Make it watchable — before anything is purged
+
+`GET /api/broker/detection/coverage` and `/detection/queue` are deployed and
+verified reachable. `services/detectionClient.ts` is written and calls both.
+**Nothing imports it — the client is dead code**, so neither route has a reader.
+
+Build the two views into the Observatory, extending `#743` rather than adding a
+tool:
+
+- **Corpus coverage** — per publication and per engine: pages, regions by kind,
+  regions by assertion state, envelopes with and without retrievable bodies.
+  The last column is the one that would have surfaced the orphan window on the
+  day it happened.
+- **Queue health** — states, lease ages, attempt distribution, failure codes
+  grouped. The first surface in the system to read `vision_detection_job`.
+
+Frontend only. Both routes exist; this is the consumer.
+
+### 2. Purge the machine semantic layer
+
+Safe, and sanctioned rather than worked around:
+
+- **Zero human-tier envelopes.** Everything is `machine`/`candidate`, so no
+  review work is destroyed.
+- Migration `0020` explicitly permits `DELETE` of `page-semantics` rows on a
+  published revision — the side index was designed to be rebuilt.
+
+Keep publications, revisions, reading items and page bytes. Those are the
+source and are untouched by any of this.
+
+Purge because it cannot be tuned against: 836 of ~2,905 envelopes have no body,
+`ocr-detector` is 74% unreadable, `vision-worker` found nothing on 335 pages
+(44% of its own successful jobs), and the over-segmentation cannot even be
+investigated because the evidence is in the damaged window.
+
+### 3. Re-run what is free
+
+`image-stats` and `panel-detector`. Deterministic, no API, no rate limit. The
+panel backfill did 831 jobs in about six minutes with zero failures, so this is
+minutes. Watch it land in the coverage view built in step 1.
+
+### 4. Re-run Gemini only where it answers a question
+
+A bounded `vision-worker` run — ~100 pages that also carry panel-detector
+coverage. Two questions, both currently unanswerable:
+
+- **Panels versus panels.** Zero pages today have retrievable bodies from both
+  engines, so replace-or-join has no evidence behind it. Manifest counts do not
+  substitute: 17.6 includes text regions, 3.3 does not.
+- **Is the over-segmentation real?** 117 regions on one page, 42 pages over 25.
+
+**Hold `ocr-detector`.** Re-buying transcriptions we intend to replace with a
+local engine is spending twice. Run it only to compare against comic-ocr once
+that reads.
+
+### 5. First attested regions
+
+The confirm control is deployed and has never been used. Until someone reviews a
+page, `attested` stays 0 and the training export has nothing to export — that is
+a function of usage, not capability. This is also the step that needs no code.
+
+### Done when
+
+- No envelope in the corpus lacks a retrievable body, and a guard makes that
+  state unreachable.
+- Coverage and queue health are visible at `?tool=pipeline` without a database
+  session.
+- Panels-versus-panels has a number behind it.
+- At least one region is `accepted` or `verified`.
+
+---
+
+## After that
+
+**The decoder loop.** Turns `NotImplemented` into a transcription. Validate
+against any same-architecture checkpoint — weights of our own are not a
+prerequisite, so this can proceed in parallel with everything above.
+
+**Manga109-s.** Request now for the week of lead time; it is a quality baseline,
+not the durable corpus.
+
+**Track A.** Japanese first — the track that justifies training rather than
+adopting. English may not need training in v1; measure an off-the-shelf engine
+behind the same trait before spending on it.
+
+**The chain that matters, throughout.**
 
 ```
 detection → confirm-in-reader → accepted/verified regions → training export → own model
 ```
 
-Every link exists except the last, and the fourth is the training-set stage in
-the Observatory. That is why the assertion vocabulary mattered enough to fix:
-`confirmed` being a state that could never be true did not break a display, it
-meant the training corpus could never grow.
+Every link exists except the last, and the fourth is
+[`TRAINING_EXPORT.md`](TRAINING_EXPORT.md) against
+[`schemas/training_pair.json`](../schemas/training_pair.json). That is why the
+assertion vocabulary mattered enough to fix: `confirmed` being a state that
+could never be true did not break a display, it meant the training corpus could
+never grow.
 
 ---
 
