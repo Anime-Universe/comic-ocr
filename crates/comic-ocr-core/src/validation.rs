@@ -185,14 +185,20 @@ pub fn validate_spatial_containment(
     }
 }
 
-/// Evaluates spatial panel sequence against declared reading direction (RTL or LTR).
+/// Evaluates spatial panel sequence against the declared reading direction.
+///
+/// Enforces BOTH directions. It previously enforced only RTL, so a left-to-right
+/// page had no reading-order check at all — every sequence passed, including a
+/// reversed one. An unrecognised direction string yields no violations, but that
+/// is now visible as `ReadingDirection::parse` returning `None` rather than an
+/// equality test quietly failing to match.
 pub fn validate_panel_reading_order(
     panels: &[(String, [f32; 4], usize)], // (id, [x, y, w, h], reading_order)
     declared_direction: &str,
 ) -> ReadingOrderValidation {
     let mut violations = Vec::new();
 
-    if declared_direction == "right_to_left" || declared_direction == "rtl" {
+    if let Some(direction) = crate::layout::ReadingDirection::parse(declared_direction) {
         // Group panels into horizontal row bands (same vertical band if Y centers within 50px)
         for i in 0..panels.len() {
             for j in (i + 1)..panels.len() {
@@ -207,16 +213,37 @@ pub fn validate_panel_reading_order(
                     let x_left_a = bounds_a[0];
                     let x_left_b = bounds_b[0];
 
-                    // For RTL, right panel (higher x) MUST have earlier reading order (smaller index)
-                    if x_left_a < x_left_b && order_a < order_b {
+                    // Decide which panel comes FIRST spatially under this
+                    // direction, then require its reading order to be earlier.
+                    //
+                    // Written this way because the previous form —
+                    // `x_left_a < x_left_b && order_a < order_b` — was one-sided:
+                    // `a` is simply whichever panel the caller listed first, so
+                    // the identical violation went undetected when the array
+                    // happened to be in the other order. The RTL test passed on
+                    // luck of input ordering.
+                    let out_of_order = match x_left_a.partial_cmp(&x_left_b) {
+                        None | Some(std::cmp::Ordering::Equal) => false,
+                        Some(std::cmp::Ordering::Less) => match direction {
+                            // a is left of b
+                            crate::layout::ReadingDirection::LeftToRight => order_a > order_b,
+                            crate::layout::ReadingDirection::RightToLeft => order_a < order_b,
+                        },
+                        Some(std::cmp::Ordering::Greater) => match direction {
+                            // a is right of b
+                            crate::layout::ReadingDirection::LeftToRight => order_a < order_b,
+                            crate::layout::ReadingDirection::RightToLeft => order_a > order_b,
+                        },
+                    };
+                    if out_of_order {
                         violations.push(ReadingOrderViolation {
                             first_id: id_a.clone(),
                             second_id: id_b.clone(),
                             reason: ReadingOrderViolationReason::HorizontalOrder,
                             confidence: 0.98,
                             message: format!(
-                                "Page declares RTL manga reading, but panel {} (x={}) precedes panel {} (x={}) in left-to-right sequence.",
-                                id_a, x_left_a, id_b, x_left_b
+                                "Page declares {:?} reading, but panel {} (x={}) precedes panel {} (x={}) against that direction.",
+                                direction, id_a, x_left_a, id_b, x_left_b
                             ),
                         });
                     }
@@ -293,5 +320,81 @@ mod tests {
             conflict.unwrap().conflict_type,
             "spatial-containment-violation"
         );
+    }
+}
+
+#[cfg(test)]
+mod reading_direction_tests {
+    use super::*;
+
+    fn row(order_left_first: bool) -> Vec<(String, [f32; 4], usize)> {
+        // Two panels in one horizontal band: left at x=100, right at x=500.
+        let (left_order, right_order) = if order_left_first { (0, 1) } else { (1, 0) };
+        vec![
+            ("left".to_string(), [100.0, 10.0, 80.0, 40.0], left_order),
+            ("right".to_string(), [500.0, 12.0, 80.0, 40.0], right_order),
+        ]
+    }
+
+    /// RTL: reading left-first is a violation. This branch always worked.
+    #[test]
+    fn rtl_flags_left_to_right_sequence() {
+        let v = validate_panel_reading_order(&row(true), "rtl");
+        assert_eq!(v.violations.len(), 1);
+    }
+
+    #[test]
+    fn rtl_accepts_right_first() {
+        let v = validate_panel_reading_order(&row(false), "rtl");
+        assert!(v.violations.is_empty());
+    }
+
+    /// The gap: an LTR page had NO check. Reading right-first on a left-to-right
+    /// page is exactly as wrong as the mirror case, and used to pass silently.
+    #[test]
+    fn ltr_flags_right_to_left_sequence() {
+        let v = validate_panel_reading_order(&row(false), "ltr");
+        assert_eq!(
+            v.violations.len(),
+            1,
+            "an LTR page reading right-first must be a violation"
+        );
+    }
+
+    #[test]
+    fn ltr_accepts_left_first() {
+        let v = validate_panel_reading_order(&row(true), "ltr");
+        assert!(v.violations.is_empty());
+    }
+
+    /// Case and separator variants used to fall through to no enforcement.
+    #[test]
+    fn direction_spelling_variants_still_enforce() {
+        for spelling in ["RTL", "right_to_left", "Right-To-Left", "vertical-rl"] {
+            let v = validate_panel_reading_order(&row(true), spelling);
+            assert_eq!(v.violations.len(), 1, "{spelling} did not enforce");
+        }
+    }
+
+    /// The latent bug the LTR test exposed: `a` is whichever panel the caller
+    /// listed first, so a one-sided comparison misses the identical violation
+    /// when the array is in the other order. Both directions, both orderings.
+    #[test]
+    fn a_violation_is_found_regardless_of_input_order() {
+        for direction in ["rtl", "ltr"] {
+            let mut forward = row(direction == "rtl");
+            let mut reversed = forward.clone();
+            reversed.reverse();
+            let a = validate_panel_reading_order(&forward, direction);
+            let b = validate_panel_reading_order(&reversed, direction);
+            assert_eq!(
+                a.violations.len(),
+                b.violations.len(),
+                "{direction}: input order changed the verdict"
+            );
+            assert_eq!(a.violations.len(), 1, "{direction}: violation not detected");
+            forward.clear();
+            reversed.clear();
+        }
     }
 }
