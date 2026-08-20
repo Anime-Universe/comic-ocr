@@ -1,0 +1,17 @@
+[package]
+name = "comic-ocr-py"
+version = "0.2.0"
+edition = "2024"
+authors = ["Zach Shallbetter <zachshallbetter@gmail.com>"]
+description = "Zero-copy PyO3 C-extension bindings for Comic OCR Rust"
+
+[lib]
+name = "comic_ocr_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module", "abi3-py38"] }
+comic-ocr-core = { path = "../comic-ocr-core" }
+comic-ocr-ort = { path = "../comic-ocr-ort" }
+image = "0.25"
+anyhow = "1.0"
