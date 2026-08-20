@@ -58,34 +58,35 @@ impl OcrEngine for OrtEngine {
     fn predict(&self, image: &image::DynamicImage) -> Result<OcrResult, OcrError> {
         let start_time = std::time::Instant::now();
 
-        // Save temporary buffer to execute ONNX inference model
+        // Save temporary buffer to execute ONNX / neural inference model
         let temp_dir = std::env::temp_dir();
-        let temp_path = temp_dir.join(format!("ocr_input_{}.png", std::process::id()));
-        let raw_text = if image.save(&temp_path).is_ok() {
-            let py_script = format!(
-                "from PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput_ids = model.generate(pixel_values)\nprint(tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(' ', ''))",
-                self.model_name, self.model_name, self.model_name, temp_path.display()
-            );
+        let temp_path = temp_dir.join(format!("ocr_input_{}_{}.png", std::process::id(), start_time.elapsed().as_nanos()));
 
-            let output = Command::new("python3")
-                .arg("-c")
-                .arg(&py_script)
-                .output();
+        image.save(&temp_path).map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
-            let _ = std::fs::remove_file(&temp_path);
+        let py_script = format!(
+            "from PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput_ids = model.generate(pixel_values)\nprint(tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(' ', ''))",
+            self.model_name, self.model_name, self.model_name, temp_path.display()
+        );
 
-            if let Ok(out) = output {
-                if out.status.success() {
-                    String::from_utf8_lossy(&out.stdout).trim().to_string()
-                } else {
-                    "…".to_string()
-                }
-            } else {
-                "…".to_string()
-            }
-        } else {
-            "…".to_string()
-        };
+        let output = Command::new("python3")
+            .arg("-c")
+            .arg(&py_script)
+            .output();
+
+        let _ = std::fs::remove_file(&temp_path);
+
+        let out = output.map_err(|e| OcrError::EngineError(format!("Failed to execute inference process: {}", e)))?;
+
+        if !out.status.success() {
+            let err_msg = String::from_utf8_lossy(&out.stderr);
+            return Err(OcrError::EngineError(format!("Inference model process failed: {}", err_msg.trim())));
+        }
+
+        let raw_text = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        if raw_text.is_empty() {
+            return Err(OcrError::EngineError("Inference model output empty text string".to_string()));
+        }
 
         let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
         let text = post_process_with_furigana(&raw_text, self.extract_furigana);
@@ -95,7 +96,7 @@ impl OcrEngine for OrtEngine {
             confidence: 0.985,
             token_probabilities: vec![0.99, 0.985, 0.988],
             metadata: OcrMetadata {
-                duration_ms: if duration_ms > 0.1 { duration_ms } else { 12.4 },
+                duration_ms,
                 model_name: self.model_name.clone(),
                 engine_type: self.engine_type,
             },
