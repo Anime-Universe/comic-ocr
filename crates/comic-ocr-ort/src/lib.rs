@@ -46,11 +46,17 @@ impl OrtEngine {
     pub fn from_onnx_file(model_path: impl AsRef<Path>) -> Result<Self, OcrError> {
         let path = model_path.as_ref();
         let name = path.to_string_lossy().to_string();
-        let mut builder = Session::builder()
-            .map_err(|e| OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e)))?;
+        let mut builder = Session::builder().map_err(|e| {
+            OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e))
+        })?;
 
-        let session = builder.commit_from_file(path)
-            .map_err(|e| OcrError::EngineError(format!("Failed to load ONNX model from file {}: {}", path.display(), e)))?;
+        let session = builder.commit_from_file(path).map_err(|e| {
+            OcrError::EngineError(format!(
+                "Failed to load ONNX model from file {}: {}",
+                path.display(),
+                e
+            ))
+        })?;
 
         Ok(Self {
             model_name: name,
@@ -63,11 +69,13 @@ impl OrtEngine {
 
     /// Loads OrtEngine with native in-memory ONNX Runtime session from byte buffer.
     pub fn from_onnx_bytes(model_bytes: &[u8]) -> Result<Self, OcrError> {
-        let mut builder = Session::builder()
-            .map_err(|e| OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e)))?;
+        let mut builder = Session::builder().map_err(|e| {
+            OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e))
+        })?;
 
-        let session = builder.commit_from_memory(model_bytes)
-            .map_err(|e| OcrError::EngineError(format!("Failed to load ONNX model from byte buffer: {}", e)))?;
+        let session = builder.commit_from_memory(model_bytes).map_err(|e| {
+            OcrError::EngineError(format!("Failed to load ONNX model from byte buffer: {}", e))
+        })?;
 
         Ok(Self {
             model_name: "in-memory-onnx-bytes".to_string(),
@@ -126,30 +134,34 @@ impl OcrEngine for OrtEngine {
 
         // 1. Native ONNX Runtime C++ Session execution path (if model weights loaded)
         if let Some(ref session_mutex) = self.session {
-            let mut session = session_mutex.lock().map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
+            let mut session = session_mutex
+                .lock()
+                .map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
 
             // Preprocess input image to 3x224x224 RGB float buffer
             let resized = image.resize_exact(224, 224, image::imageops::FilterType::Triangle);
             let rgb = resized.to_rgb8();
-            let mut input_tensor = vec![0.0f32; 1 * 3 * 224 * 224];
+            let plane = 224 * 224;
+            let mut input_tensor = vec![0.0f32; 3 * plane];
 
             for (x, y, pixel) in rgb.enumerate_pixels() {
                 let r = (pixel[0] as f32 / 255.0 - 0.485) / 0.229;
                 let g = (pixel[1] as f32 / 255.0 - 0.456) / 0.224;
                 let b = (pixel[2] as f32 / 255.0 - 0.406) / 0.225;
-                let idx_r = (0 * 3 + 0) * 224 * 224 + y as usize * 224 + x as usize;
-                let idx_g = (0 * 3 + 1) * 224 * 224 + y as usize * 224 + x as usize;
-                let idx_b = (0 * 3 + 2) * 224 * 224 + y as usize * 224 + x as usize;
-                input_tensor[idx_r] = r;
-                input_tensor[idx_g] = g;
-                input_tensor[idx_b] = b;
+                let offset = y as usize * 224 + x as usize;
+                input_tensor[offset] = r;
+                input_tensor[plane + offset] = g;
+                input_tensor[2 * plane + offset] = b;
             }
 
             let shape = vec![1, 3, 224, 224];
-            let tensor_value = ort::value::Value::from_array((shape, input_tensor))
-                .map_err(|e| OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e)))?;
+            let tensor_value =
+                ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
+                    OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))
+                })?;
 
-            let outputs = session.run(ort::inputs!["pixel_values" => tensor_value])
+            let outputs = session
+                .run(ort::inputs!["pixel_values" => tensor_value])
                 .map_err(|e| OcrError::EngineError(format!("ONNX inference run failed: {}", e)))?;
 
             let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
@@ -177,7 +189,8 @@ impl OcrEngine for OrtEngine {
                         }
 
                         let geom_mean = if !step_max_probs.is_empty() {
-                            let log_sum: f32 = step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
+                            let log_sum: f32 =
+                                step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
                             (log_sum / step_max_probs.len() as f32).exp()
                         } else {
                             0.0
@@ -207,49 +220,77 @@ impl OcrEngine for OrtEngine {
 
         // 2. Subprocess inference path with strict status honesty & real softmax extraction
         let temp_dir = std::env::temp_dir();
-        let temp_path = temp_dir.join(format!("ocr_input_{}_{}.png", std::process::id(), start_time.elapsed().as_nanos()));
+        let temp_path = temp_dir.join(format!(
+            "ocr_input_{}_{}.png",
+            std::process::id(),
+            start_time.elapsed().as_nanos()
+        ));
 
-        image.save(&temp_path).map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
+        image
+            .save(&temp_path)
+            .map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
         let py_script = format!(
             "import json, math, torch\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences[0]\ntext = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')\ntoken_probs = []\nif hasattr(output, 'scores') and output.scores:\n    for score in output.scores:\n        probs = torch.softmax(score[0], dim=-1)\n        token_probs.append(float(probs.max().item()))\nconf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0\nprint(json.dumps({{'text': text, 'confidence': conf, 'token_probabilities': token_probs}}))",
-            self.model_name, self.model_name, self.model_name, temp_path.display()
+            self.model_name,
+            self.model_name,
+            self.model_name,
+            temp_path.display()
         );
 
-        let output = Command::new("python3")
-            .arg("-c")
-            .arg(&py_script)
-            .output();
+        let output = Command::new("python3").arg("-c").arg(&py_script).output();
 
         let _ = std::fs::remove_file(&temp_path);
 
-        let out = output.map_err(|e| OcrError::EngineError(format!("Failed to execute inference process: {}", e)))?;
+        let out = output.map_err(|e| {
+            OcrError::EngineError(format!("Failed to execute inference process: {}", e))
+        })?;
 
         if !out.status.success() {
             let err_msg = String::from_utf8_lossy(&out.stderr);
-            return Err(OcrError::EngineError(format!("Inference model process failed: {}", err_msg.trim())));
+            return Err(OcrError::EngineError(format!(
+                "Inference model process failed: {}",
+                err_msg.trim()
+            )));
         }
 
         let raw_stdout = String::from_utf8_lossy(&out.stdout).trim().to_string();
         if raw_stdout.is_empty() {
-            return Err(OcrError::EngineError("Inference model output empty text string".to_string()));
+            return Err(OcrError::EngineError(
+                "Inference model output empty text string".to_string(),
+            ));
         }
 
         // Parse JSON output or plain string
-        let (raw_text, confidence, token_probs) = if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw_stdout) {
-            let txt = val.get("text").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let conf = val.get("confidence").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
-            let probs = val.get("token_probabilities")
-                .and_then(|v| v.as_array())
-                .map(|arr| arr.iter().filter_map(|x| x.as_f64().map(|f| f as f32)).collect())
-                .unwrap_or_default();
-            (txt, conf, probs)
-        } else {
-            (raw_stdout, 0.0f32, Vec::new())
-        };
+        let (raw_text, confidence, token_probs) =
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw_stdout) {
+                let txt = val
+                    .get("text")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let conf = val
+                    .get("confidence")
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(0.0) as f32;
+                let probs = val
+                    .get("token_probabilities")
+                    .and_then(|v| v.as_array())
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|x| x.as_f64().map(|f| f as f32))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                (txt, conf, probs)
+            } else {
+                (raw_stdout, 0.0f32, Vec::new())
+            };
 
         if raw_text.is_empty() {
-            return Err(OcrError::EngineError("Inference model parsed empty text string".to_string()));
+            return Err(OcrError::EngineError(
+                "Inference model parsed empty text string".to_string(),
+            ));
         }
 
         let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;

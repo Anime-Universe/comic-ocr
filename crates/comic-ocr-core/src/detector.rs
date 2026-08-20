@@ -42,8 +42,8 @@ impl TextDetector {
         // Horizontal & Vertical Connected Component Dilation Grid
         let grid_w = 32;
         let grid_h = 32;
-        let cell_w = (width as usize + grid_w - 1) / grid_w;
-        let cell_h = (height as usize + grid_h - 1) / grid_h;
+        let cell_w = (width as usize).div_ceil(grid_w);
+        let cell_h = (height as usize).div_ceil(grid_h);
 
         let mut active_cells = vec![false; grid_w * grid_h];
 
@@ -114,8 +114,10 @@ impl TextDetector {
 
                     let px_x = (min_gx * cell_w) as f64;
                     let px_y = (min_gy * cell_h) as f64;
-                    let px_w = (((max_gx + 1) * cell_w).min(width as usize) - min_gx * cell_w) as f64;
-                    let px_h = (((max_gy + 1) * cell_h).min(height as usize) - min_gy * cell_h) as f64;
+                    let px_w =
+                        (((max_gx + 1) * cell_w).min(width as usize) - min_gx * cell_w) as f64;
+                    let px_h =
+                        (((max_gy + 1) * cell_h).min(height as usize) - min_gy * cell_h) as f64;
                     let area = px_w * px_h;
 
                     // Filter out full-page container or tiny noise

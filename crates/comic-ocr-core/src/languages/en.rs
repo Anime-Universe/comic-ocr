@@ -14,13 +14,10 @@ pub fn post_process_en(input: &str) -> String {
     let mut chars = normalized.chars().peekable();
 
     while let Some(ch) = chars.next() {
-        if ch == ' ' {
-            // If space is followed by punctuation or another space, skip it
-            if let Some(&next_ch) = chars.peek() {
-                if matches!(next_ch, ',' | '.' | '!' | '?' | ';' | ':' | ' ') {
-                    continue;
-                }
-            }
+        if ch == ' '
+            && matches!(chars.peek(), Some(&next_ch) if matches!(next_ch, ',' | '.' | '!' | '?' | ';' | ':' | ' '))
+        {
+            continue;
         }
         cleaned.push(ch);
     }
@@ -56,6 +53,9 @@ mod tests {
     fn test_post_process_en_normalization() {
         assert_eq!(post_process_en("  Hello ,  world !  "), "Hello, world!");
         assert_eq!(post_process_en("It’s  a   test…"), "It's a test...");
-        assert_eq!(post_process_en("im sure you dont know"), "I'm sure you don't know");
+        assert_eq!(
+            post_process_en("im sure you dont know"),
+            "I'm sure you don't know"
+        );
     }
 }

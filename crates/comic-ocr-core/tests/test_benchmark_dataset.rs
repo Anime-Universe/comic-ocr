@@ -36,7 +36,11 @@ pub fn compute_cer(expected: &str, actual: &str) -> f64 {
 
     for i in 1..=m {
         for j in 1..=n {
-            let cost = if exp_chars[i - 1] == act_chars[j - 1] { 0 } else { 1 };
+            let cost = if exp_chars[i - 1] == act_chars[j - 1] {
+                0
+            } else {
+                1
+            };
             dp[i][j] = (dp[i - 1][j] + 1)
                 .min(dp[i][j - 1] + 1)
                 .min(dp[i - 1][j - 1] + cost);
@@ -66,20 +70,40 @@ fn test_benchmark_schema_integrity() {
     };
 
     let json_filenames: HashSet<String> = records.iter().map(|p| p.filename.clone()).collect();
-    assert_eq!(records.len(), 17, "Expected 17 benchmark entries in benchmark_results.json");
+    assert_eq!(
+        records.len(),
+        17,
+        "Expected 17 benchmark entries in benchmark_results.json"
+    );
 
     for record in &records {
         let img_file = target_dir.join(&record.filename);
-        assert!(img_file.exists(), "Image file {} specified in benchmark_results.json does not exist", record.filename);
-        assert!(!record.expected_text.trim().is_empty(), "Expected text for {} is empty", record.filename);
-        
+        assert!(
+            img_file.exists(),
+            "Image file {} specified in benchmark_results.json does not exist",
+            record.filename
+        );
+        assert!(
+            !record.expected_text.trim().is_empty(),
+            "Expected text for {} is empty",
+            record.filename
+        );
+
         // Assert CER math consistency
         let calculated_cer = compute_cer(&record.expected_text, &record.actual_text);
-        assert!((calculated_cer - record.cer_divergence).abs() < 1e-4, "CER mismatch for {}", record.filename);
+        assert!(
+            (calculated_cer - record.cer_divergence).abs() < 1e-4,
+            "CER mismatch for {}",
+            record.filename
+        );
     }
 
     for required in &["12.jpg", "13.jpg", "14.jpg", "cc-100.jpg", "random.jpg"] {
-        assert!(json_filenames.contains(*required), "Missing required image {} in benchmark_results.json", required);
+        assert!(
+            json_filenames.contains(*required),
+            "Missing required image {} in benchmark_results.json",
+            required
+        );
     }
 }
 
@@ -112,9 +136,18 @@ fn test_benchmark_model_inference_evaluation() {
             cer * 100.0
         );
 
-        assert!(cer <= 0.20, "Character Error Rate for {} exceeded maximum 20% tolerance: {:.2}%", record.filename, cer * 100.0);
+        assert!(
+            cer <= 0.20,
+            "Character Error Rate for {} exceeded maximum 20% tolerance: {:.2}%",
+            record.filename,
+            cer * 100.0
+        );
     }
 
     let avg_cer = total_cer / records.len() as f64;
-    assert!(avg_cer <= 0.05, "Average dataset CER exceeded maximum 5% threshold: {:.2}%", avg_cer * 100.0);
+    assert!(
+        avg_cer <= 0.05,
+        "Average dataset CER exceeded maximum 5% threshold: {:.2}%",
+        avg_cer * 100.0
+    );
 }

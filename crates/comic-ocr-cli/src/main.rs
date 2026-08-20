@@ -1,5 +1,5 @@
 use clap::Parser;
-use comic_ocr_core::{TextDetector, OcrEngine};
+use comic_ocr_core::{OcrEngine, TextDetector};
 use comic_ocr_ort::OrtEngine;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -84,19 +84,22 @@ fn main() -> anyhow::Result<()> {
     if cli.all || (target_files.is_empty() && !cli.gate) {
         let default_dir = Path::new("tests/data/images");
         let fallback_dir = Path::new("../../tests/data/images");
-        let target_dir = if default_dir.exists() { default_dir } else { fallback_dir };
+        let target_dir = if default_dir.exists() {
+            default_dir
+        } else {
+            fallback_dir
+        };
 
-        if target_dir.exists() {
-            if let Ok(entries) = fs::read_dir(target_dir) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if let Some(ext) = path.extension() {
-                        if ext == "jpg" || ext == "png" {
-                            if !target_files.contains(&path) {
-                                target_files.push(path);
-                            }
-                        }
-                    }
+        if target_dir.exists()
+            && let Ok(entries) = fs::read_dir(target_dir)
+        {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if let Some(ext) = path.extension()
+                    && (ext == "jpg" || ext == "png")
+                    && !target_files.contains(&path)
+                {
+                    target_files.push(path);
                 }
             }
         }
@@ -106,9 +109,15 @@ fn main() -> anyhow::Result<()> {
 
     // 1. Quality Verification Gate Mode
     if cli.gate {
-        println!("\n==========================================================================================");
-        println!("                         QUALITY VERIFICATION GATE EVALUATION                             ");
-        println!("==========================================================================================");
+        println!(
+            "\n=========================================================================================="
+        );
+        println!(
+            "                         QUALITY VERIFICATION GATE EVALUATION                             "
+        );
+        println!(
+            "=========================================================================================="
+        );
 
         let benchmark_file = if Path::new("tests/data/benchmark_results.json").exists() {
             "tests/data/benchmark_results.json"
@@ -121,27 +130,65 @@ fn main() -> anyhow::Result<()> {
             let json_val: serde_json::Value = serde_json::from_str(&content)?;
             if let Some(arr) = json_val.as_array() {
                 let mut total_passed = 0;
-                println!("{:<12} | {:<12} | {:<8} | {:<10} | {:<30}", "FILENAME", "STATUS", "CER DIVERG", "DURATION", "EXPECTED TEXT");
-                println!("------------------------------------------------------------------------------------------");
+                println!(
+                    "{:<12} | {:<12} | {:<8} | {:<10} | {:<30}",
+                    "FILENAME", "STATUS", "CER DIVERG", "DURATION", "EXPECTED TEXT"
+                );
+                println!(
+                    "------------------------------------------------------------------------------------------"
+                );
                 for item in arr {
-                    let fn_name = item.get("filename").and_then(|v| v.as_str()).unwrap_or("unknown");
-                    let status = item.get("status").and_then(|v| v.as_str()).unwrap_or("fail");
-                    let cer = item.get("cer_divergence").and_then(|v| v.as_f64()).unwrap_or(1.0);
-                    let duration = item.get("duration_ms").and_then(|v| v.as_f64()).unwrap_or(0.0);
-                    let exp = item.get("expected_text").and_then(|v| v.as_str()).unwrap_or("");
+                    let fn_name = item
+                        .get("filename")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("unknown");
+                    let status = item
+                        .get("status")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("fail");
+                    let cer = item
+                        .get("cer_divergence")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(1.0);
+                    let duration = item
+                        .get("duration_ms")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0);
+                    let exp = item
+                        .get("expected_text")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
 
                     if status == "success" && cer <= 0.05 {
                         total_passed += 1;
                     }
 
-                    println!("{:<12} | {:<12} | {:<7.2}% | {:<7.2} ms | \"{}\"", fn_name, status, cer * 100.0, duration, exp);
+                    println!(
+                        "{:<12} | {:<12} | {:<7.2}% | {:<7.2} ms | \"{}\"",
+                        fn_name,
+                        status,
+                        cer * 100.0,
+                        duration,
+                        exp
+                    );
                 }
-                println!("------------------------------------------------------------------------------------------");
-                println!(" VERIFICATION RESULT: [{}/{}] TEST SUITES PASSED CLEANLY (CER <= 0.05%)", total_passed, arr.len());
-                println!("==========================================================================================\n");
+                println!(
+                    "------------------------------------------------------------------------------------------"
+                );
+                println!(
+                    " VERIFICATION RESULT: [{}/{}] TEST SUITES PASSED CLEANLY (CER <= 0.05%)",
+                    total_passed,
+                    arr.len()
+                );
+                println!(
+                    "==========================================================================================\n"
+                );
             }
         } else {
-            println!("[WARN] benchmark_results.json file not found at {}", benchmark_file);
+            println!(
+                "[WARN] benchmark_results.json file not found at {}",
+                benchmark_file
+            );
         }
         return Ok(());
     }
@@ -151,12 +198,20 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!("\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===", target_files.len());
+    println!(
+        "\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===",
+        target_files.len()
+    );
 
     let engine = OrtEngine::new("kha-white/comic-ocr-base").with_furigana(cli.extract_furigana);
 
     for (idx, img_path) in target_files.iter().enumerate() {
-        println!(" [{:02}/{:02}] Processing: {:?}", idx + 1, target_files.len(), img_path);
+        println!(
+            " [{:02}/{:02}] Processing: {:?}",
+            idx + 1,
+            target_files.len(),
+            img_path
+        );
 
         if let Ok(img) = image::open(img_path) {
             let regions = TextDetector::detect_regions(&img);

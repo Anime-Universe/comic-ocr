@@ -35,8 +35,10 @@ pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
 
     for box_item in bubbles.iter() {
         if let Some(current_row) = rows.last_mut() {
-            let row_y_avg = current_row.iter().map(|b| b.y as f64).sum::<f64>() / current_row.len() as f64;
-            let threshold = current_row.iter().map(|b| b.height as f64).sum::<f64>() / current_row.len() as f64;
+            let row_y_avg =
+                current_row.iter().map(|b| b.y as f64).sum::<f64>() / current_row.len() as f64;
+            let threshold =
+                current_row.iter().map(|b| b.height as f64).sum::<f64>() / current_row.len() as f64;
             let max_delta = (threshold * 0.75).max(40.0);
 
             if (box_item.y as f64 - row_y_avg).abs() <= max_delta {
@@ -50,7 +52,7 @@ pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
     // Sort within each row bucket: Right-to-Left (x descending)
     let mut idx = 0;
     for mut row in rows {
-        row.sort_by(|a, b| b.x.cmp(&a.x));
+        row.sort_by_key(|b| std::cmp::Reverse(b.x));
         for item in row {
             bubbles[idx] = item;
             idx += 1;

@@ -1,3 +1,5 @@
+#![allow(deprecated, unsafe_op_in_unsafe_fn)]
+
 use comic_ocr_core::OcrEngine;
 use comic_ocr_ort::OrtEngine;
 use pyo3::prelude::*;
@@ -39,10 +41,9 @@ impl PyComicOcr {
             for buf in images {
                 let img = image::load_from_memory(&buf)
                     .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-                let res = self
-                    .engine
-                    .predict(&img)
-                    .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+                let res = self.engine.predict(&img).map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string())
+                })?;
                 results.push(res.text);
             }
             Ok(results)

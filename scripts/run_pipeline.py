@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, argparse, json, time, glob
-from PIL import Image
+import os, sys, argparse, json, time, glob, math
 
 def run_gate(benchmark_file="tests/data/benchmark_results.json"):
     print("\n==========================================================================================")
@@ -51,8 +50,18 @@ def process_images(image_paths, out_dir=None):
 
     def run_ocr(crop_img):
         pixel_values = processor(crop_img, return_tensors="pt").pixel_values
-        output_ids = model.generate(pixel_values)
-        return tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(" ", "")
+        output = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)
+        output_ids = output.sequences[0]
+        text = tokenizer.decode(output_ids, skip_special_tokens=True).replace(" ", "")
+
+        token_probs = []
+        if hasattr(output, "scores") and output.scores:
+            for score in output.scores:
+                probs = torch.softmax(score[0], dim=-1)
+                token_probs.append(float(probs.max().item()))
+
+        conf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0
+        return text, conf
 
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
@@ -68,7 +77,7 @@ def process_images(image_paths, out_dir=None):
 
         h, w, _ = img_bgr.shape
         start_t = time.time()
-        text = run_ocr(Image.fromarray(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)))
+        text, conf = run_ocr(Image.fromarray(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)))
         dur_ms = (time.time() - start_t) * 1000.0
 
         res = {
@@ -76,11 +85,11 @@ def process_images(image_paths, out_dir=None):
             "path": path,
             "dimensions": {"width": w, "height": h},
             "recognized_text": text,
-            "confidence": 0.9850,
+            "confidence": round(conf, 4),
             "duration_ms": round(dur_ms, 2)
         }
 
-        print(f"  -> Recognized Text: \"{text}\" ({res['duration_ms']} ms)")
+        print(f"  -> Recognized Text: \"{text}\" (Confidence: {res['confidence']}, {res['duration_ms']} ms)")
 
         if out_dir:
             out_file = os.path.join(out_dir, f"{os.path.splitext(fn)[0]}_result.json")

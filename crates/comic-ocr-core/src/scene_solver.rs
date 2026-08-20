@@ -72,10 +72,8 @@ pub fn evaluate_art_protection_penalty(
     let mut hard_violation = false;
 
     for art in art_regions {
-        if let (Some(p_id), Some(art_panel)) = (panel_id, &art.panel_id) {
-            if art_panel != p_id {
-                continue;
-            }
+        if matches!((panel_id, &art.panel_id), (Some(p_id), Some(art_panel)) if art_panel != p_id) {
+            continue;
         }
 
         let overlap = if let Some(ref art_bounds) = art.bounds {
