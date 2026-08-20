@@ -177,3 +177,9 @@ onnx/
 !.agents/
 
 
+
+# Exported training pairs. `--export-pairs` writes crops (PNG per region) plus a
+# manifest here; it is derived from the graph and regenerable, and the manga109s
+# split must never be committed at all — redistribution of that corpus is
+# forbidden by its agreement.
+dataset/

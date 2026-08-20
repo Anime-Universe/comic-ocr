@@ -102,7 +102,9 @@ pub trait OcrEngine: Send + Sync {
     fn predict_batch(
         &self,
         images: &[image::DynamicImage],
-        batch_size: usize,
-    ) -> Result<Vec<OcrResult>, OcrError>;
+        _batch_size: usize,
+    ) -> Result<Vec<OcrResult>, OcrError> {
+        images.iter().map(|img| self.predict(img)).collect()
+    }
 }
 

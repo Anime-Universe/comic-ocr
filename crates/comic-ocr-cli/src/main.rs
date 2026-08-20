@@ -51,6 +51,18 @@ struct Cli {
     #[arg(long)]
     out_dir: Option<PathBuf>,
 
+    /// Export (crop, text) training pairs matching schemas/training_pair.json
+    #[arg(long, default_value_t = false)]
+    export_pairs: bool,
+
+    /// Output directory for exported training pairs (default: dataset/export)
+    #[arg(long)]
+    export_out: Option<PathBuf>,
+
+    /// Minimum confidence threshold for exported training pairs (default: 0.0)
+    #[arg(long, default_value_t = 0.0)]
+    min_confidence: f32,
+
     /// Force CPU execution
     #[arg(long, default_value_t = false)]
     force_cpu: bool,
@@ -331,10 +343,34 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     println!("{}", json_str);
                 }
-            } else {
-                println!("  Recognized Text: {}", full_page_text);
-                println!("  Confidence     : {:.4}", avg_conf);
-                println!("  Duration       : {:.2} ms", total_duration_ms);
+            }
+
+            if cli.export_pairs {
+                let text_layer = comic_ocr_core::TextLayer {
+                    id: "tl-co-001".to_string(),
+                    language: if cli.extract_furigana { "ja".to_string() } else { "en".to_string() },
+                    kind: "transcription".to_string(),
+                    regions: region_readings,
+                };
+                let export_dir = cli.export_out.clone().unwrap_or_else(|| PathBuf::from("dataset/export"));
+                let filter = comic_ocr_core::ExportFilter {
+                    min_confidence: cli.min_confidence,
+                    include_candidates: true,
+                    language: None,
+                    min_crop_px: 16,
+                };
+                let report = comic_ocr_core::export_pairs(
+                    Some("pub_manga"),
+                    img_path.file_stem().map(|s| s.to_str().unwrap()),
+                    None,
+                    &[text_layer],
+                    &filter,
+                    &export_dir,
+                ).map_err(|e| anyhow::anyhow!(e))?;
+                println!(
+                    "  [EXPORT] Written: {} pairs | Skipped Rejected: {} | Skipped Low Conf: {}",
+                    report.pairs_written, report.skipped_rejected, report.skipped_low_confidence
+                );
             }
         } else {
             println!("  [ERROR] Failed to open image at {:?}", img_path);

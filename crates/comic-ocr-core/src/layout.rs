@@ -17,6 +17,58 @@ impl BoundingBox {
             height,
         }
     }
+
+    pub fn area(&self) -> u64 {
+        self.width as u64 * self.height as u64
+    }
+}
+
+/// Polygonal contour mask for exact non-rectangular speech balloons and sound effects.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ContourPolygon {
+    pub points: Vec<[f32; 2]>,
+}
+
+impl ContourPolygon {
+    pub fn new(points: Vec<[f32; 2]>) -> Self {
+        Self { points }
+    }
+
+    /// Calculates polygonal area via Shoelace formula.
+    pub fn area(&self) -> f32 {
+        let n = self.points.len();
+        if n < 3 {
+            return 0.0;
+        }
+        let mut area = 0.0f32;
+        for i in 0..n {
+            let j = (i + 1) % n;
+            area += self.points[i][0] * self.points[j][1];
+            area -= self.points[j][0] * self.points[i][1];
+        }
+        (area / 2.0).abs()
+    }
+
+    /// Point-in-polygon ray-casting test.
+    pub fn contains_point(&self, px: f32, py: f32) -> bool {
+        let n = self.points.len();
+        if n < 3 {
+            return false;
+        }
+        let mut inside = false;
+        let mut j = n - 1;
+        for i in 0..n {
+            let (xi, yi) = (self.points[i][0], self.points[i][1]);
+            let (xj, yj) = (self.points[j][0], self.points[j][1]);
+            let intersect = ((yi > py) != (yj > py))
+                && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-7) + xi);
+            if intersect {
+                inside = !inside;
+            }
+            j = i;
+        }
+        inside
+    }
 }
 
 /// Which way a page reads horizontally.
@@ -183,5 +235,18 @@ mod tests {
         );
         assert_eq!(ReadingDirection::parse("sideways"), None);
         assert_eq!(ReadingDirection::parse(""), None);
+    }
+
+    #[test]
+    fn test_contour_polygon() {
+        let poly = ContourPolygon::new(vec![
+            [0.0, 0.0],
+            [10.0, 0.0],
+            [10.0, 10.0],
+            [0.0, 10.0],
+        ]);
+        assert_eq!(poly.area(), 100.0);
+        assert!(poly.contains_point(5.0, 5.0));
+        assert!(!poly.contains_point(15.0, 5.0));
     }
 }
