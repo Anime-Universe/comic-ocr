@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+  "page_id": "223e4567-e89b-12d3-a456-426614174001",
+  "page_number": 1,
+  "panels": [
+    {
+      "id": "523e4567-e89b-12d3-a456-426614174004",
+      "reading_order": 1,
+      "bounds": [100.0, 100.0, 1000.0, 800.0],
+      "bubbles": [
+        {
+          "id": "623e4567-e89b-12d3-a456-426614174005",
+          "reading_order": 1,
+          "bounds": [700.0, 150.0, 300.0, 400.0],
+          "text": "立川で見た〝穴〟の下の巨大な眼は:",
+          "confidence": 0.9850
+        }
+      ]
+    }
+  ]
+}

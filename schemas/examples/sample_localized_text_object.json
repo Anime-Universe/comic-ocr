@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+  "id": "723e4567-e89b-12d3-a456-426614174006",
+  "panelId": "523e4567-e89b-12d3-a456-426614174004",
+  "containerId": "623e4567-e89b-12d3-a456-426614174005",
+  "placementMode": "flow-inside-container",
+  "role": "dialogue",
+  "logicalOrder": 1,
+  "source": {
+    "language": "ja",
+    "raw": "立川で見た〝穴〟の下の巨大な眼は:",
+    "normalized": "立川で見た〝穴〟の下の巨大な眼は:",
+    "reading": "立[たち]川[かわ]で見[み]た〝穴[あな]〟の根[ね]元[もと]の巨[きょ]大[だい]な眼[め]は:",
+    "writing": {
+      "mode": "vertical-rl",
+      "characterDirection": "top-to-bottom"
+    }
+  },
+  "translation": {
+    "language": "en",
+    "literal": "The giant eye under the hole seen in Tachikawa was:",
+    "localized": "The giant eye beneath the hole seen in Tachikawa was...",
+    "displayText": "The giant eye beneath the hole seen in Tachikawa was..."
+  },
+  "geometry": {
+    "bounds": {
+      "preferred": {
+        "px": { "x": 710.0, "y": 160.0, "width": 280.0, "height": 380.0 },
+        "normalized": { "x": 0.5916, "y": 0.0888, "width": 0.2333, "height": 0.2111 }
+      }
+    },
+    "transform": {
+      "position": { "x": 0.0, "y": 0.0 },
+      "rotation": 0.0,
+      "scale": { "x": 1.0, "y": 1.0 },
+      "anchor": "top-left"
+    }
+  },
+  "layout": {
+    "writingMode": "horizontal-tb",
+    "textAlign": "center",
+    "verticalAlign": "middle",
+    "flow": "wrap"
+  },
+  "typography": {
+    "font": { "family": "Wild Words", "fallback": ["Comic Sans MS", "sans-serif"] },
+    "fontSize": 14.0,
+    "lineHeight": 1.2
+  }
+}

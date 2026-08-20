@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+  "text": "立川で見た〝穴〟の下の巨大な眼は:",
+  "confidence": 0.9850,
+  "token_probabilities": [0.99, 0.98, 0.985, 0.992],
+  "metadata": {
+    "duration_ms": 42.5,
+    "model_name": "kha-white/manga-ocr-base",
+    "engine_type": "BaseInt8Onnx"
+  }
+}

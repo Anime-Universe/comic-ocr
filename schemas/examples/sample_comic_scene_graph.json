@@ -1,0 +1,151 @@
+{
+  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "metadata": {
+    "title": "Demon Slayer: Kimetsu no Yaiba",
+    "series": "Kimetsu no Yaiba",
+    "volume": "1",
+    "chapter": "1",
+    "sourceLanguage": "ja",
+    "targetLanguage": "en"
+  },
+  "reading": {
+    "binding": "right",
+    "pageDirection": "rtl",
+    "defaultPanelFlow": {
+      "strategy": "manga-rtl",
+      "primaryAxis": "vertical",
+      "secondaryAxis": "rtl"
+    },
+    "sourceWriting": {
+      "mode": "vertical-rl",
+      "characterDirection": "top-to-bottom",
+      "columnDirection": "right-to-left"
+    },
+    "targetWriting": {
+      "mode": "horizontal-tb",
+      "characterDirection": "left-to-right",
+      "lineDirection": "top-to-bottom"
+    }
+  },
+  "pages": [
+    {
+      "id": "223e4567-e89b-12d3-a456-426614174001",
+      "pageNumber": 1,
+      "source": {
+        "imageId": "323e4567-e89b-12d3-a456-426614174002",
+        "filename": "01.jpg",
+        "nativeSize": { "width": 1200.0, "height": 1800.0 },
+        "dpi": 300.0,
+        "colorSpace": "rgb"
+      },
+      "bands": [
+        {
+          "id": "423e4567-e89b-12d3-a456-426614174003",
+          "order": 1,
+          "direction": "rtl",
+          "panelIds": ["523e4567-e89b-12d3-a456-426614174004"]
+        }
+      ],
+      "panels": [
+        {
+          "id": "523e4567-e89b-12d3-a456-426614174004",
+          "logicalOrder": 1,
+          "frame": {
+            "bounds": {
+              "px": { "x": 100.0, "y": 100.0, "width": 1000.0, "height": 800.0 },
+              "normalized": { "x": 0.0833, "y": 0.0556, "width": 0.8333, "height": 0.4444 }
+            },
+            "borderWidth": 2.0
+          },
+          "zIndex": 1
+        }
+      ],
+      "containers": [
+        {
+          "id": "623e4567-e89b-12d3-a456-426614174005",
+          "panelId": "523e4567-e89b-12d3-a456-426614174004",
+          "type": "speech-balloon",
+          "geometry": {
+            "shape": "ellipse",
+            "bounds": {
+              "px": { "x": 700.0, "y": 150.0, "width": 300.0, "height": 400.0 },
+              "normalized": { "x": 0.5833, "y": 0.0833, "width": 0.2500, "height": 0.2222 }
+            }
+          },
+          "padding": { "top": 10.0, "right": 10.0, "bottom": 10.0, "left": 10.0 }
+        }
+      ],
+      "text_regions": [
+        {
+          "id": "723e4567-e89b-12d3-a456-426614174006",
+          "panelId": "523e4567-e89b-12d3-a456-426614174004",
+          "containerId": "623e4567-e89b-12d3-a456-426614174005",
+          "placementMode": "flow-inside-container",
+          "role": "dialogue",
+          "logicalOrder": 1,
+          "source": {
+            "language": "ja",
+            "raw": "立川で見た〝穴〟の下の巨大な眼は:",
+            "normalized": "立川で見た〝穴〟の下の巨大な眼は:",
+            "reading": "立[たち]川[かわ]で見[み]た〝穴[あな]〟の根[ね]元[もと]の巨[きょ]大[だい]な眼[め]は:",
+            "writing": {
+              "mode": "vertical-rl",
+              "characterDirection": "top-to-bottom"
+            }
+          },
+          "translation": {
+            "language": "en",
+            "literal": "The giant eye under the hole seen in Tachikawa was:",
+            "localized": "The giant eye beneath the hole seen in Tachikawa was...",
+            "displayText": "The giant eye beneath the hole seen in Tachikawa was..."
+          },
+          "geometry": {
+            "bounds": {
+              "preferred": {
+                "px": { "x": 710.0, "y": 160.0, "width": 280.0, "height": 380.0 },
+                "normalized": { "x": 0.5916, "y": 0.0888, "width": 0.2333, "height": 0.2111 }
+              }
+            },
+            "transform": {
+              "position": { "x": 0.0, "y": 0.0 },
+              "rotation": 0.0,
+              "scale": { "x": 1.0, "y": 1.0 },
+              "anchor": "top-left"
+            }
+          },
+          "layout": {
+            "writingMode": "horizontal-tb",
+            "textAlign": "center",
+            "verticalAlign": "middle",
+            "flow": "wrap"
+          },
+          "typography": {
+            "font": { "family": "Wild Words", "fallback": ["Comic Sans MS", "sans-serif"] },
+            "fontSize": 14.0,
+            "lineHeight": 1.2
+          }
+        }
+      ],
+      "art_regions": [
+        {
+          "id": "823e4567-e89b-12d3-a456-426614174007",
+          "panelId": "523e4567-e89b-12d3-a456-426614174004",
+          "role": "character-face",
+          "protection": "hard",
+          "penalty": 1000.0
+        }
+      ],
+      "masks": [
+        {
+          "id": "923e4567-e89b-12d3-a456-426614174008",
+          "panelId": "523e4567-e89b-12d3-a456-426614174004",
+          "textRegionId": "723e4567-e89b-12d3-a456-426614174006",
+          "type": "clean-balloon",
+          "expansion": 4.0,
+          "feather": 1.5
+        }
+      ]
+    }
+  ]
+}

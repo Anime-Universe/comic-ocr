@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+  "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
+  "confidence": 0.9850,
+  "is_validated": true,
+  "candidates": [
+    {
+      "engine_type": "base_int8_onnx",
+      "text": "立川で見た〝穴〟の下の巨大な眼は:",
+      "raw_confidence": 0.9850,
+      "acs_score": 0.9900
+    },
+    {
+      "engine_type": "nano_mobilenet",
+      "text": "立川で見た穴の下の巨大な眼は:",
+      "raw_confidence": 0.9120,
+      "acs_score": 0.9200
+    }
+  ]
+}
