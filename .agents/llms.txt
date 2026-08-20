@@ -1,6 +1,6 @@
 # Comic OCR Rust Context Manifest (llms.txt)
 
-> HEAD: 38d70ea Complete the generation loop, with the session layer isolated  [WORKING TREE DIRTY — this corpus is not any committed state]
+> HEAD: 7b0e98c Derive the context manifest from the tree instead of asserting it (#1)  [WORKING TREE DIRTY — this corpus is not any committed state]
 > Generated from the tree. Do not hand-edit; edit the generator.
 
 ## Documents (19)
