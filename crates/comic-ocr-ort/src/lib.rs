@@ -83,6 +83,21 @@ impl OrtEngine {
         self
     }
 
+    /// Computes numerically stable softmax probabilities over a 1D slice of raw logits.
+    pub fn softmax(logits: &[f32]) -> Vec<f32> {
+        if logits.is_empty() {
+            return Vec::new();
+        }
+        let max_val = logits.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+        let exps: Vec<f32> = logits.iter().map(|&x| (x - max_val).exp()).collect();
+        let sum_exps: f32 = exps.iter().sum();
+        if sum_exps > 0.0 {
+            exps.iter().map(|&x| x / sum_exps).collect()
+        } else {
+            vec![1.0 / logits.len() as f32; logits.len()]
+        }
+    }
+
     /// Calculates normalized Shannon token entropy H_k = -\sum P(v) log2 P(v).
     pub fn calculate_token_entropy(probs: &[f32]) -> f32 {
         let mut entropy = 0.0f32;
@@ -141,16 +156,36 @@ impl OcrEngine for OrtEngine {
             let raw_text = "ONNX_NATIVE_PREDICTION";
             let text = post_process_with_furigana(raw_text, self.extract_furigana);
 
-            // Compute real confidence from outputs tensor if present, else report uncalibrated 0.0
+            // Compute real softmax probabilities & geometric mean confidence from outputs tensor
             let (confidence, token_probabilities) = if let Some(logits) = outputs.get("logits") {
-                if let Ok((_shape, data)) = logits.try_extract_tensor::<f32>() {
-                    let token_probs: Vec<f32> = data.iter().take(5).copied().collect();
-                    let mean_conf = if !token_probs.is_empty() {
-                        token_probs.iter().sum::<f32>() / token_probs.len() as f32
+                if let Ok((shape, data)) = logits.try_extract_tensor::<f32>() {
+                    let shape_vec = shape.to_vec();
+                    if shape_vec.len() >= 2 {
+                        let vocab_size = *shape_vec.last().unwrap() as usize;
+                        let seq_len = data.len() / vocab_size;
+                        let mut step_max_probs = Vec::with_capacity(seq_len);
+
+                        for step in 0..seq_len {
+                            let start_idx = step * vocab_size;
+                            let end_idx = (step + 1) * vocab_size;
+                            if end_idx <= data.len() {
+                                let step_logits = &data[start_idx..end_idx];
+                                let step_probs = Self::softmax(step_logits);
+                                let max_p = step_probs.iter().copied().fold(0.0f32, f32::max);
+                                step_max_probs.push(max_p);
+                            }
+                        }
+
+                        let geom_mean = if !step_max_probs.is_empty() {
+                            let log_sum: f32 = step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
+                            (log_sum / step_max_probs.len() as f32).exp()
+                        } else {
+                            0.0
+                        };
+                        (geom_mean, step_max_probs)
                     } else {
-                        0.0
-                    };
-                    (mean_conf, token_probs)
+                        (0.0, Vec::new())
+                    }
                 } else {
                     (0.0, Vec::new())
                 }
@@ -170,14 +205,14 @@ impl OcrEngine for OrtEngine {
             });
         }
 
-        // 2. Subprocess inference path with strict status honesty
+        // 2. Subprocess inference path with strict status honesty & real softmax extraction
         let temp_dir = std::env::temp_dir();
         let temp_path = temp_dir.join(format!("ocr_input_{}_{}.png", std::process::id(), start_time.elapsed().as_nanos()));
 
         image.save(&temp_path).map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
         let py_script = format!(
-            "import json\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences\ntext = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].replace(' ', '')\nprint(json.dumps({{'text': text, 'confidence': 0.985, 'token_probabilities': [0.99, 0.985, 0.988]}}))",
+            "import json, math, torch\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences[0]\ntext = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')\ntoken_probs = []\nif hasattr(output, 'scores') and output.scores:\n    for score in output.scores:\n        probs = torch.softmax(score[0], dim=-1)\n        token_probs.append(float(probs.max().item()))\nconf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0\nprint(json.dumps({{'text': text, 'confidence': conf, 'token_probabilities': token_probs}}))",
             self.model_name, self.model_name, self.model_name, temp_path.display()
         );
 
@@ -250,6 +285,14 @@ mod tests {
         let probs = vec![0.5f32, 0.5f32];
         let entropy = OrtEngine::calculate_token_entropy(&probs);
         assert!((entropy - 1.0).abs() < 1e-4);
+    }
+
+    #[test]
+    fn test_softmax() {
+        let logits = vec![1.0f32, 2.0f32, 3.0f32];
+        let probs = OrtEngine::softmax(&logits);
+        assert!((probs.iter().sum::<f32>() - 1.0).abs() < 1e-4);
+        assert!(probs[2] > probs[1] && probs[1] > probs[0]);
     }
 
     #[test]
