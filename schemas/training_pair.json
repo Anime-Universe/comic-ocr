@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/training_pair.json",
+  "title": "ComicOcrTrainingPair",
+  "description": "One (crop, label) pair for training. Deliberately NOT ocr_result.json: that schema describes what a model produced — text with confidence, token probabilities, duration and engine type — and every one of those fields is a property of an inference run. A training pair is the opposite direction: an image and the string a human stands behind. Carrying the output fields here would mean six members that either cannot be filled or get filled with plausible values, which is the failure this codebase has repeatedly had to remove.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["crop", "text", "language", "direction", "source", "provenance"],
+  "properties": {
+    "crop": {
+      "type": "string",
+      "description": "Path to the cropped text region, relative to the dataset root. The crop is the model input; it is derived from the region's normalized polygon against the stored page, so no separate capture step exists.",
+      "minLength": 1
+    },
+    "text": {
+      "type": "string",
+      "description": "The label — what the region actually says. May be empty only when `empty_is_intentional` is true, which marks a hard negative rather than a missing label.",
+      "minLength": 0
+    },
+    "empty_is_intentional": {
+      "type": "boolean",
+      "default": false,
+      "description": "True when an empty `text` is a deliberate negative example (a region a reviewer confirmed carries no text). Without this flag an empty label is indistinguishable from a dropped one, and a dropped label teaches the model to emit nothing."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["ja", "en"],
+      "description": "Selects the track. The two engines have different vocabularies, so a pair belongs to exactly one."
+    },
+    "direction": {
+      "type": "string",
+      "enum": ["ttb", "ltr", "rtl"],
+      "description": "How the text within this region reads. A label, not a hint: vertical Japanese and horizontal English are different reading problems and the crop geometry differs accordingly."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["own-corpus", "manga109s", "synthetic"],
+      "description": "Where the pair came from. Load-bearing rather than descriptive: manga109s crops are licence-encumbered — redistribution forbidden, no more than 20% of any volume — and own-corpus crops are not. Training runs must be able to filter on this, and to prove they did."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "description": "Enough to walk back to where the label came from, so a bad one is fixed at source rather than only in the export.",
+      "properties": {
+        "publication_id": { "type": "string" },
+        "item_id": {
+          "type": "string",
+          "description": "The reading item — the page this region sits on."
+        },
+        "region_id": {
+          "type": "string",
+          "description": "The region id within the page's semantic envelope, e.g. `text-004`."
+        },
+        "envelope_digest": {
+          "type": "string",
+          "description": "The semantic envelope this label was read from. Makes the export reproducible against a specific document rather than against whatever the graph holds now."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["accepted", "verified"],
+          "description": "The assertion state at export time. `candidate` is NOT permitted and is not in this enum — a machine guess is not a label, and exporting one trains a model to reproduce the engine that guessed it, mistakes included. `rejected` is likewise excluded: it was reviewed and thrown out. This enum is the gate, expressed where a validator can enforce it.",
+          "$comment": "The platform's full vocabulary is candidate|accepted|verified|rejected. Only two of the four may become training data."
+        },
+        "reviewed_by": {
+          "type": "string",
+          "description": "Who stood behind the label, when the source is own-corpus."
+        }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The region's normalized polygon on its page, retained so a crop can be regenerated at a different resolution without re-reviewing. Absent for sources with no page context, such as synthetic pairs.",
+      "properties": {
+        "normalized_bounds": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "number", "minimum": 0, "maximum": 1 },
+              "y": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}
