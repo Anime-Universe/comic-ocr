@@ -29,10 +29,16 @@ impl OrtEngine {
             .unwrap_or_else(|_| name.clone());
 
         let session = if Path::new(&onnx_path).exists() {
-            Session::builder()
-                .ok()
-                .and_then(|mut builder| builder.commit_from_file(&onnx_path).ok())
-                .map(|sess| Arc::new(Mutex::new(sess)))
+            match Session::builder().and_then(|mut builder| builder.commit_from_file(&onnx_path)) {
+                Ok(sess) => Some(Arc::new(Mutex::new(sess))),
+                Err(e) => {
+                    eprintln!(
+                        "[WARN] [comic-ocr-ort] Failed to load ONNX Runtime session from '{}': {}. Falling back to Python subprocess path.",
+                        onnx_path, e
+                    );
+                    None
+                }
+            }
         } else {
             None
         };
