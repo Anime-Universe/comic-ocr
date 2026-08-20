@@ -6,7 +6,9 @@
 
 # Manga & Comic OCR Rust
 
-High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of **Manga, Western Comics, Graphic Novels, Manhwa, and Webtoons** in both **Japanese** and **English**.
+High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of **Manga, Western Comics, and Graphic Novels** in both **Japanese** and **English**.
+
+Paged formats. Long-strip webtoons are out of scope for v1 — they are a different page geometry, not just another language, and the corpus this serves contains none (0 of 1,019 pages are strip-shaped).
 
 ---
 
@@ -14,7 +16,7 @@ High-performance, zero-cost, multi-crate Rust workspace for optical character re
 
 - **Japanese Manga & Manhua**: Vertical reading mode (`vertical-rl`), horizontal text, Furigana reading extraction (`漢[かん]字[じ]`), Tate-chū-yoko patch rotation, dynamic sound effect (*onomatopoeia*) LM bypass.
 - **English Comics & Graphic Novels**: Western reading order, speech bubble text, ASCII punctuation normalization, contraction standardization, and clean formatting.
-- **Webtoons & Long-Strip Comics**: Multi-tile aspect-ratio preserving sliding window resampling ($\delta = 0.20$ overlap) for tall vertical bubbles (aspect ratio $> 3:1$).
+- **Tall text regions**: Multi-tile aspect-ratio preserving sliding window resampling ($\delta = 0.20$ overlap) for text regions too tall to survive a square encoder input — principally vertical Japanese columns. *Currently unwired; see `resample.rs`.*
 - **Full Page & Speech Bubble Topology**: 2-Level topological reading order graph sorting speech bubbles Right-to-Left / Left-to-Right and Top-to-Bottom.
 
 ---
@@ -960,6 +962,332 @@ gantt
 ```
 
 
+--- FILE: docs/STATE_AND_PATH.md ---
+
+# Comic OCR — state of play and the path
+
+2026-08-20. Spans two repositories: this one, and the Infinite Verse platform
+that consumes it. Written to be re-read; everything below is either **verified**
+(measured today, command in hand) or **decided** (a call made, with its reason).
+
+---
+
+## The decisions
+
+**Two engines, not one bilingual model.** Japanese and English behind the
+existing `OcrEngine` trait, selected per publication from metadata and per region
+from the detector.
+
+Why: the vocabularies differ in kind (Japanese char-level ~6k; English comic
+lettering is near-universally uppercase, so ~70–100 tokens). English is close to
+a solved problem and cheap; vertical Japanese with furigana is where training
+earns its keep. Mixed pages — English dialogue with untranslated Japanese SFX,
+which is what the corpus actually contains — are solved downstream, because the
+consuming pipeline already attaches multiple engines to one page with none
+superseding another.
+
+**Pages are the target. Long-strip webtoons are deferred**, with evidence rather
+than vaguely: 0 of 1,019 pages in the corpus are strip-shaped (avg aspect 1.44,
+tallest 2.25; a webtoon runs 5:1 to 50:1). Revisit when the corpus contains one.
+
+**Model identity is configuration with no default.** `COMIC_OCR_MODEL` and
+`COMIC_OCR_ONNX_PATH` have no fallback. An unconfigured runtime reports
+`degraded` / `inference_available: false` rather than loading a model nobody
+chose.
+
+**Manga109-s is research and validation only — not the durable corpus.** It buys
+a quality baseline (human ground truth to measure CER against). The durable
+corpus is our own: `accepted`/`verified` regions out of the iPub graph. Requires
+an agreement the owner accepts personally; never vendored, never in an image,
+never on a shared volume.
+
+**The reference checkpoint is fully purged.** Zero `kha-white` references remain.
+
+---
+
+## Verified state — this repository
+
+| Area | State |
+| --- | --- |
+| Build | compiles; **73 tests pass, 2 ignored**; `fmt` clean; `clippy --workspace --all-targets --all-features -D warnings` clean |
+| Weights | **none exist.** No checkpoint on disk, none under any HF account, no training code in this repo (`comic_ocr_dev/training/` is referenced but absent; nearest is a reference project) |
+| Native ONNX path | loads a session, runs one forward pass, computes real softmax confidence — then returns `OcrError::NotImplemented`, because VisionEncoderDecoder generation (decoder loop with KV cache) is not written |
+| Subprocess path | works locally, needs `python3` + torch + transformers, which the shipped image does not carry |
+| Tokenizer | **real and verified.** Vocab-file driven, derives special-token ids rather than assuming them. Differentially tested against the reference Python tokenizer: 304/304 exact match, both skip modes |
+| Preprocessing | **real and measured.** 81–91% of tensor elements bit-identical to `ViTImageProcessor`, mean error 0.09–0.19 LSB. Constants marked as model properties to re-read per checkpoint |
+| `resample_tiles` | **unwired** — exported and tested, no production caller. `max_aspect_ratio = 3.0` is provisional |
+| Reading direction | fixed today; see below |
+| Guards | fabrication scanner (4 tests) + CI (`fmt`, `clippy --all-targets`, `test`, `--no-run` so ignored tests can't rot) |
+
+### Defects found and fixed today
+
+- **Failure returned success.** `predict()` returned `Ok` with `"…"` as the
+  transcription and a hardcoded `confidence: 0.985` — including on total
+  inference failure. Now `Err`.
+- **Confidence was a constant**, later relocated into the generated Python where
+  the surrounding Rust read like genuine extraction. Both paths now compute real
+  softmax: per-position over the vocab axis, geometric mean of max probability.
+- **The native path returned a placeholder.** `let raw_text =
+  "ONNX_NATIVE_PREDICTION"` with a *genuine* confidence beside it — the most
+  dangerous shape available. Now a typed `NotImplemented`.
+- **The benchmark test compared a JSON file to itself** and printed a CER column
+  read from the fixture. Now runs live inference and computes CER.
+- **The quality gate did the same thing**, in CI. Now runs the model.
+- **Preprocessing used ImageNet mean/std** where the checkpoint wanted 0.5/0.5 —
+  a systematic shift of the whole tensor, invisible mid-range (at byte 128 the
+  two differ by 0.07). Found by checking `preprocessor_config.json`, which I had
+  read past.
+- **Reading direction was silently wrong on LTR pages.**
+  `sort_bubble_reading_order` was hardcoded right-to-left with no parameter,
+  while the validator only enforced RTL — so an English page got reversed
+  reading order *and* a clean bill of health. Now one shared `ReadingDirection`
+  type. Writing the LTR test exposed a latent bug in the RTL rule too: it was
+  one-sided, so the same violation went undetected when the input array was in
+  the other order — the existing RTL test passed on luck.
+
+---
+
+## Verified state — the platform corpus
+
+Measured on staging today.
+
+| Fact | Number |
+| --- | --- |
+| Pages | 1,019 across 9 publications |
+| `panel-detector` coverage | **830 pages, 2,715 regions, 831 jobs, zero failures** |
+| `vision-worker` coverage | 272 pages, 3,646 regions (rate-limit damage: 229 jobs failed, 181 burning all five attempts in one window because `mark_failed` re-queues with no backoff) |
+| `ocr-detector` coverage | 264 pages, 406 envelopes, 2,397 claimed transcriptions |
+| Pages claiming >25 text regions | 42, worst is **117** (avg 12.9) |
+| Regions `accepted` or `verified` | **0** |
+
+### Envelope bodies: 836 lost, in one window, already over
+
+Missing `blob_url` by engine — the envelope exists, carries a digest and a count,
+and has no pointer to a body:
+
+| engine | envelopes | with body | missing |
+| --- | ---: | ---: | ---: |
+| `image-stats` | 1,245 | 851 | 394 |
+| `vision-worker` | 424 | 282 | 142 |
+| `ocr-detector` | 406 | 106 | **300** |
+| `panel-detector` | 830 | **830** | **0** |
+
+**Every loss falls between 2026-08-18 11:00 and 2026-08-19 00:00 UTC**, across
+all three Gemini-era engines. From 08-19 01:00 onward every engine is 100%
+clean, including today's 830 panel-detector envelopes.
+
+So this is **historical damage, not a live defect**. The shared
+`register_envelope` path works — `panel-detector` uses it and is perfect. Most
+likely blob-service or CAS was unreachable during that window while
+registration proceeded regardless, recording a digest with no URL.
+
+> **Correction.** This document previously said more documents should not be
+> ingested until this was fixed. That was wrong, and it was wrong in the
+> expensive direction — it would have halted ingestion over a scar rather than
+> an open wound. Nothing is currently corrupting data.
+
+Zero regions are attested, so there is still no ground truth. The judge control
+that produces it is deployed and unused.
+
+### The comparison that cannot yet be made
+
+Free detector versus Gemini, panels against panels: **zero pages have
+retrievable bodies from both engines.** The overlap falls entirely inside the
+damaged window. Manifest counts don't substitute — `vision-worker`'s
+`region_count` includes text regions, `panel-detector`'s does not, so the raw
+averages (17.6 vs 3.3) compare different things.
+
+Settling replace-or-join needs a fresh run of both over the same bounded page
+set. That is cheap: the free detector is instant and costs nothing.
+
+---
+
+## The blockers, in order
+
+1. **No decoder loop.** The native path cannot produce text — it runs a forward
+   pass and returns `NotImplemented`. Needs encoder run → decoder loop with KV
+   cache → beam search (`num_beams: 4`, `length_penalty: 2.0`,
+   `no_repeat_ngram_size: 3`; greedy is not equivalent) → detokenise. This is the
+   one that gates everything measurable.
+2. **No weights.** Track A training has not started. Independent of (1) — the
+   loop can be built and validated against any same-architecture checkpoint.
+3. **No ground truth.** Nothing attested. The confirm control is deployed and has
+   never been used, so the training corpus is empty by usage, not by design.
+4. **Over-segmentation, unexplained.** 117 text regions on one page, 42 pages
+   over 25, average 12.9. `vision-worker` finds the regions and `ocr-detector`
+   transcribes them, so this points at region detection. Cannot be diagnosed from
+   stored data — the bodies for those pages are in the damaged window.
+
+Note what is **not** on this list: the missing `blob_url`. It is historical, the
+window closed on 08-19 01:00, and nothing is currently producing it.
+
+---
+
+## Two scoped jobs from the envelope damage
+
+### A. Repair — 836 envelopes, but only some are worth it
+
+| engine | missing | re-derivable? | worth re-running? |
+| --- | ---: | --- | --- |
+| `image-stats` | 394 | deterministic, free, no API | **yes** — pure compute, no reason not to |
+| `vision-worker` | 142 | costs Gemini calls | **partly** — enough to enable the panels-vs-panels comparison |
+| `ocr-detector` | 300 | costs Gemini calls | **probably not** — a local engine is coming; re-buying transcriptions we intend to replace is spending twice |
+
+The re-run mechanism already exists and is proven: enqueue jobs with a fresh
+idempotency key, as the panel-detector backfill did (831 jobs, zero failures,
+about six minutes).
+
+### B. Harden — one guard, in `manga-service`
+
+The real defect is that **a failed upload was survivable**. `register_envelope`
+recorded a digest with no `blob_url` and reported success, so
+`transcription_count` still looked healthy while the body was unreachable.
+
+The guard: refuse to register an envelope whose upload did not yield a URL —
+return `Err`, let the job fail and retry, rather than persisting a row that reads
+as success. Small, and it is what stops the next outage leaving the same scar.
+
+Both are in Management's repo and need coordinating.
+
+---
+
+## The next big step
+
+**A clean, measured detection baseline, watchable at
+`https://stage.animeuniverse.com/?tool=pipeline`.**
+
+That is the milestone. Everything currently measurable about detection is
+either damaged, unreadable, or uncomparable, so no tuning decision can be made
+from it. The step ends when the corpus has a baseline that can be trusted and
+seen, which is also what makes the decoder loop's arrival measurable when it
+lands.
+
+### 0. The register guard — first, and blocking
+
+A failed CAS upload is currently **survivable**: `register_envelope` records a
+digest with no `blob_url` and reports success, so `transcription_count` reads
+healthy while the body is unreachable. That is what produced 836 orphaned
+envelopes between 08-18 11:00 and 08-19 00:00.
+
+Fix: refuse to register an envelope whose upload did not yield a URL. Return
+`Err`, let the job fail and retry, rather than persisting a row that reads as
+success.
+
+Owner: `manga-service` — another session. **Must be coordinated.** It is first
+because a re-run without it can leave exactly the same scar, and then the whole
+step is repeated.
+
+### 1. Make it watchable — before anything is purged
+
+`GET /api/broker/detection/coverage` and `/detection/queue` are deployed and
+verified reachable. `services/detectionClient.ts` is written and calls both.
+**Nothing imports it — the client is dead code**, so neither route has a reader.
+
+Build the two views into the Observatory, extending `#743` rather than adding a
+tool:
+
+- **Corpus coverage** — per publication and per engine: pages, regions by kind,
+  regions by assertion state, envelopes with and without retrievable bodies.
+  The last column is the one that would have surfaced the orphan window on the
+  day it happened.
+- **Queue health** — states, lease ages, attempt distribution, failure codes
+  grouped. The first surface in the system to read `vision_detection_job`.
+
+Frontend only. Both routes exist; this is the consumer.
+
+### 2. Purge the machine semantic layer
+
+Safe, and sanctioned rather than worked around:
+
+- **Zero human-tier envelopes.** Everything is `machine`/`candidate`, so no
+  review work is destroyed.
+- Migration `0020` explicitly permits `DELETE` of `page-semantics` rows on a
+  published revision — the side index was designed to be rebuilt.
+
+Keep publications, revisions, reading items and page bytes. Those are the
+source and are untouched by any of this.
+
+Purge because it cannot be tuned against: 836 of ~2,905 envelopes have no body,
+`ocr-detector` is 74% unreadable, `vision-worker` found nothing on 335 pages
+(44% of its own successful jobs), and the over-segmentation cannot even be
+investigated because the evidence is in the damaged window.
+
+### 3. Re-run what is free
+
+`image-stats` and `panel-detector`. Deterministic, no API, no rate limit. The
+panel backfill did 831 jobs in about six minutes with zero failures, so this is
+minutes. Watch it land in the coverage view built in step 1.
+
+### 4. Re-run Gemini only where it answers a question
+
+A bounded `vision-worker` run — ~100 pages that also carry panel-detector
+coverage. Two questions, both currently unanswerable:
+
+- **Panels versus panels.** Zero pages today have retrievable bodies from both
+  engines, so replace-or-join has no evidence behind it. Manifest counts do not
+  substitute: 17.6 includes text regions, 3.3 does not.
+- **Is the over-segmentation real?** 117 regions on one page, 42 pages over 25.
+
+**Hold `ocr-detector`.** Re-buying transcriptions we intend to replace with a
+local engine is spending twice. Run it only to compare against comic-ocr once
+that reads.
+
+### 5. First attested regions
+
+The confirm control is deployed and has never been used. Until someone reviews a
+page, `attested` stays 0 and the training export has nothing to export — that is
+a function of usage, not capability. This is also the step that needs no code.
+
+### Done when
+
+- No envelope in the corpus lacks a retrievable body, and a guard makes that
+  state unreachable.
+- Coverage and queue health are visible at `?tool=pipeline` without a database
+  session.
+- Panels-versus-panels has a number behind it.
+- At least one region is `accepted` or `verified`.
+
+---
+
+## After that
+
+**The decoder loop.** Turns `NotImplemented` into a transcription. Validate
+against any same-architecture checkpoint — weights of our own are not a
+prerequisite, so this can proceed in parallel with everything above.
+
+**Manga109-s.** Request now for the week of lead time; it is a quality baseline,
+not the durable corpus.
+
+**Track A.** Japanese first — the track that justifies training rather than
+adopting. English may not need training in v1; measure an off-the-shelf engine
+behind the same trait before spending on it.
+
+**The chain that matters, throughout.**
+
+```
+detection → confirm-in-reader → accepted/verified regions → training export → own model
+```
+
+Every link exists except the last, and the fourth is
+[`TRAINING_EXPORT.md`](TRAINING_EXPORT.md) against
+[`schemas/training_pair.json`](../schemas/training_pair.json). That is why the
+assertion vocabulary mattered enough to fix: `confirmed` being a state that
+could never be true did not break a display, it meant the training corpus could
+never grow.
+
+---
+
+## Standing constraints
+
+- Staging only, never production.
+- `manga-service` and `universe-broker` are owned by another session; coordinate
+  before any write.
+- Manga109-s: owner accepts personally; never vendored, never redistributed,
+  ≤20% of any volume published, attribution required.
+- Anything that cannot be computed returns `Err` — never a placeholder, never a
+  default confidence. The fabrication guard enforces this on the engine.
+
+
 --- FILE: docs/TODO.md ---
 
 # Comic & Manga OCR Rust: Implementation & Audit Master TODO
@@ -1076,6 +1404,132 @@ gantt
 ### D. Advanced Cover & Editorial Typography Reconstruction
 - [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
 - [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.
+
+
+--- FILE: docs/TRAINING_EXPORT.md ---
+
+# Exporting training pairs from the iPub graph
+
+How `accepted`/`verified` regions become `(crop, label)` pairs. Schema:
+[`schemas/training_pair.json`](../schemas/training_pair.json).
+
+## Why this is not `ocr_result.json`
+
+`ocr_result.json` requires `text`, `confidence`, `token_probabilities` and
+`metadata{duration_ms, model_name, engine_type}`. Every one of those describes an
+inference *run*. A training pair has no model behind it — confidence and token
+probabilities are not merely unknown, they are category errors, and filling them
+is how `confidence: 0.985` ended up across 150KB of fixtures that no model ever
+produced.
+
+Two schemas, two lifecycle stages. The export writes pairs; the engine writes
+results; nothing converts one into the other.
+
+## The source
+
+Everything needed is already in the graph. No new capture step:
+
+```
+publication_revision
+  └── reading_item                     the page
+        ├── reading_item_resource role='reader-medium'   → page bytes in CAS
+        └── reading_item_resource role='page-semantics'  → envelope in CAS
+              └── regions[]            id, kind, geometry.normalizedBounds, state
+              └── textLayers[].regions[]  regionId → text, direction
+```
+
+The label is `textLayers[].regions[].text`. The crop is
+`regions[].geometry.normalizedBounds` applied to the page bytes. The gate is
+`regions[].state`.
+
+## The one rule
+
+**Only `accepted` and `verified` regions may be exported.** Not `candidate`,
+which is a machine guess — exporting those trains a model to reproduce the engine
+that produced them, including its mistakes, and that is a slower and less visible
+version of no training at all. Not `rejected`, which was reviewed and thrown out;
+exporting those trains the model on precisely the boxes a human said were wrong.
+
+The schema encodes this as an enum of two values so a validator refuses the other
+two rather than relying on the exporter to remember.
+
+## Shape
+
+```rust
+pub struct ExportFilter {
+    /// Only these states are ever eligible. Not configurable — the point of the
+    /// gate is that it cannot be widened by a flag on a bad day.
+    pub language: Option<Language>,
+    pub source: Source,
+    /// Skip regions whose crop would be smaller than the encoder input, which
+    /// upsample into blur and teach nothing.
+    pub min_crop_px: u32,
+}
+
+pub struct ExportReport {
+    pub pairs_written: usize,
+    /// Counted, never silently dropped — a filtered corpus that does not say
+    /// what it filtered is indistinguishable from a small one.
+    pub skipped_candidate: usize,
+    pub skipped_rejected: usize,
+    pub skipped_too_small: usize,
+    pub skipped_no_geometry: usize,
+    pub skipped_body_unretrievable: usize,
+}
+
+pub fn export_pairs(
+    graph: &SemanticSource,
+    filter: &ExportFilter,
+    out: &Path,
+) -> Result<ExportReport, ExportError>;
+```
+
+`ExportReport` is the deliverable as much as the pairs are. An export that writes
+400 pairs from 3,000 regions has made 2,600 decisions, and the run needs to say
+what they were — otherwise a corpus that shrank because of a geometry bug looks
+identical to one that shrank because the corpus is young.
+
+## Crop derivation
+
+1. Fetch page bytes via `reader-medium` → CAS.
+2. Take `geometry.normalizedBounds`, already in `[0,1]`.
+3. Multiply by the **stored** page dimensions — not the served image's, which may
+   differ. Where they disagree, skip and count it rather than guessing.
+4. Bounding box of the polygon, plus a small margin, clamped to the page.
+5. Write PNG; the path goes in `crop`.
+
+`geometry.normalized_bounds` is retained in the pair so crops can be regenerated
+at another resolution without re-reviewing anything.
+
+## Licence separation
+
+`source` is enforced at write time, not documented and hoped for:
+
+- `manga109s` pairs are written to a **separate dataset root** from `own-corpus`.
+  Redistribution of that data is forbidden, so the two must never share a
+  directory that could be archived or copied as one unit.
+- The export refuses to write a mixed manifest. A training run selects roots
+  explicitly and records which it used.
+
+## Where it runs
+
+The export reads the platform's semantic envelopes, so it belongs on the platform
+side, next to the training-set stage in the Observatory that already counts what
+is eligible. That stage's `attested` figure is precisely this export's input
+size — not a dashboard number, the corpus.
+
+This repository consumes the output. It does not need to know how the graph is
+shaped, only how to read `training_pair.json`.
+
+## Current expected yield
+
+**Zero.** No region in the corpus is `accepted` or `verified`; every one is
+`machine`/`candidate`. The confirm control that produces attested regions is
+deployed and has never been used.
+
+That is the honest state and it is worth stating plainly: the exporter is
+correct, has nothing to export, and will continue to have nothing until someone
+reviews a page. The number is a function of usage, not of capability.
 
 
 --- FILE: docs/agent_and_skill_methods.md ---
@@ -2568,91 +3022,189 @@ python -m comic_ocr_dev.synthetic_data_generator.run_generate \
 
 --- FILE: docs/training.md ---
 
-# Comic OCR Training Pipeline
+# Comic OCR Training
 
-This document describes the model architecture, dataset construction, data augmentation, evaluation metrics, and training procedure in [`comic_ocr_dev/training/`](comic_ocr_dev/training).
+Two engines, not one bilingual model. This document describes both tracks, what
+they share, and what is not built yet.
+
+> **Status.** The training code this document describes does **not exist in this
+> repository**. `comic_ocr_dev/training/` is referenced throughout the older
+> version of this doc and is not present; the nearest implementation is a
+> reference project at `_Reference-Projects/MangaOCR/TrOCR/training/`. Treat the
+> file paths below as the intended layout, not as links to working code. Sections
+> marked **Built** describe things that exist in this workspace today.
 
 ---
 
-## Model Architecture
+## Why two engines
 
-Comic OCR is built using Hugging Face's [`VisionEncoderDecoderModel`](comic_ocr_dev/training/get_model.py#L6) framework, which pairs a Vision Transformer encoder with a Causal Language Model decoder.
+The corpus this serves is bilingual and mostly English-localised — scans carry
+English dialogue with Japanese sound effects left untranslated. One model
+straddling both is the wrong shape, for four reasons:
+
+1. **The vocabularies differ in kind.** Japanese needs char-level at ~6k tokens.
+   English comic lettering is near-universally uppercase — a char-level vocab is
+   under 100 tokens. A merged vocab makes both languages worse at their own job.
+2. **English is close to free; Japanese is where training earns its keep.**
+   Block uppercase Latin is a largely solved problem. Vertical Japanese with
+   furigana and integrated SFX is not.
+3. **Mixed pages are solved downstream, not in the model.** The consuming
+   pipeline attaches *multiple engines to the same page with none superseding
+   another*. A page with English dialogue and Japanese SFX is two engines both
+   contributing — which is the existing design.
+4. **The trait already exists.** `OcrEngine` is pluggable and
+   `comic-ocr-core/src/languages/{en,jp}.rs` already splits post-processing by
+   language. Two engines is the shape the workspace already has.
+
+Selection is per publication from metadata, and per region from the detector.
+
+---
+
+## What both tracks share
+
+### Architecture
+
+Both are `VisionEncoderDecoderModel` — a vision encoder paired with a causal
+text decoder.
 
 ```mermaid
 graph LR
-    Image["Input Image Crop"] --> VisionEncoder["Vision Encoder (DeiT / ViT)"]
-    VisionEncoder --> CrossAttention["Cross-Attention Memory States"]
-    CrossAttention --> TextDecoder["Causal Text Decoder (Japanese BERT)"]
-    TextDecoder --> BeamSearch["Beam Search Generation (num_beams=4)"]
-    BeamSearch --> TextTokens["Japanese Token Sequence"]
+    Crop["Text-region crop"] --> Enc["Vision encoder (DeiT / ViT)"]
+    Enc --> Cross["Cross-attention memory"]
+    Cross --> Dec["Causal text decoder"]
+    Dec --> Beam["Beam search (num_beams=4)"]
+    Beam --> Tokens["Token sequence"]
 ```
 
-### Components ([`get_model.py`](comic_ocr_dev/training/get_model.py))
+Encoder: `facebook/deit-tiny-patch16-224` for the Nano profile, ViT-base for
+Base. `is_decoder=False`, `add_cross_attention=False`.
+Decoder: per track (below). `is_decoder=True`, `add_cross_attention=True`, depth
+trimmable via `num_decoder_layers` — taking the top 2 layers is the standard
+latency cut and is what the Nano profile assumes.
 
-1. **Vision Encoder**:
-   - Default checkpoint: `facebook/deit-tiny-patch16-224` (or ViT base).
-   - Configured with `is_decoder=False` and `add_cross_attention=False`.
-2. **Text Decoder**:
-   - Default checkpoint: `cl-tohoku/bert-base-japanese-char-v2`.
-   - Configured with `is_decoder=True` and `add_cross_attention=True`.
-   - Supports trimming decoder depth via `num_decoder_layers` (e.g. taking the top 2 layers to reduce model latency).
-3. **Custom Processor ([`TrOCRProcessorCustom`](comic_ocr_dev/training/get_model.py#L13-L20))**:
-   - Wraps `AutoFeatureExtractor` (vision) and `AutoTokenizer` (text) while bypassing base class type restriction checks.
-4. **Generation & Beam Search Config**:
-   - `decoder_start_token_id`: `cls_token_id`
-   - `pad_token_id`: `pad_token_id`
-   - `eos_token_id`: `sep_token_id`
-   - `num_beams`: 4
-   - `length_penalty`: 2.0
-   - `no_repeat_ngram_size`: 3
+### Generation config
 
----
+Identical for both tracks. **Greedy decoding is not equivalent** and will
+under-report quality against these targets:
 
-## Dataset & Augmentations ([`dataset.py`](comic_ocr_dev/training/dataset.py))
+| Field | Value |
+| :--- | :--- |
+| `decoder_start_token_id` | `cls_token_id` |
+| `pad_token_id` | `pad_token_id` |
+| `eos_token_id` | `sep_token_id` |
+| `num_beams` | 4 |
+| `length_penalty` | 2.0 |
+| `no_repeat_ngram_size` | 3 |
+| `max_length` | 300 |
 
-`MangaDataset` dynamically concatenates synthetic dataset packages with real manga line annotations from the Manga109-s dataset.
+### Augmentations
 
-### Package Selection Strategy
-- **Synthetic Data**: Reads metadata from [`<DATA_SYNTHETIC_ROOT>/meta/*.csv`](comic_ocr_dev/training/dataset.py#L34).
-- **Manga109-s Data**: Reads image crop annotations from [`<MANGA109_ROOT>/data.csv`](comic_ocr_dev/training/dataset.py#L48).
-- **Package Holdout**: Package `0000` is excluded from training (`skip_packages=[0]`) and reserved exclusively for evaluation/validation.
+Language-agnostic — this is scan-artifact robustness, and it applies unchanged to
+both tracks.
 
-### Label Masking
-Labels are padded to `max_target_length` (default 300). Padding tokens are assigned token ID `-100` so that PyTorch cross-entropy loss functions ignore them during backpropagation.
-
-### Albumentations Pipeline ([`get_transforms`](comic_ocr_dev/training/dataset.py#L118-L161))
-
-Training images are randomly transformed to ensure robustness against scan artifacts, blur, compression, and tilt:
-
-| Augmentation Tier | Probability | Operations |
+| Tier | Probability | Operations |
 | :--- | :--- | :--- |
 | **None** | 18% | Standard grayscale conversion (`ToGray`). |
 | **Medium** | 80% | Slight rotation (5°), perspective distortion, image inversion (5%), downscaling, blur, sharpening, brightness/contrast shift, Gaussian noise, JPEG compression (Q 0-30). |
 | **Heavy** | 2% | Stronger rotation (10°), extreme downscaling (0.1x), heavy blur, intense noise, severe JPEG compression (Q 0-10). |
 
+### Label masking
+
+Labels padded to `max_target_length` (300). Padding tokens get id `-100` so
+cross-entropy ignores them in backprop.
+
+### Metrics
+
+1. **Character Error Rate (CER)** — the headline number.
+2. **Exact character accuracy** — `(pred_str == label_str).mean()`.
+
+Report per-track and never pooled: a bilingual average hides a track that has
+stopped working.
+
+### Holdout
+
+Package `0000` is excluded from training (`skip_packages=[0]`) and reserved for
+evaluation. Applies to both tracks independently.
+
 ---
 
-## Evaluation Metrics ([`metrics.py`](comic_ocr_dev/training/metrics.py))
+## Track A — Japanese
 
-During training evaluation, model output token IDs are batch-decoded and evaluated using:
-1. **Character Error Rate (CER)**: Computed via the Hugging Face `cer` metric.
-2. **Exact Character Accuracy**: `(pred_str == label_str).mean()`.
+The track that justifies training rather than adopting.
+
+- **Decoder vocab:** char-level, ~6k tokens. Covers kana, common kanji,
+  punctuation and the ruby bracket forms.
+- **Text geometry:** vertical right-to-left (`vertical-rl`) as the dominant mode,
+  with horizontal runs and tate-chū-yoko patches.
+- **Corpus:** synthetic packages plus real line annotations.
+  **Manga109-s requires an agreement the project owner accepts personally** — it
+  is not redistributable, cannot be vendored into this repository, and 87 of 109
+  volumes carry the commercial grant. Do not add it to the pipeline before that
+  agreement exists.
+- **What makes it worth training:** furigana extraction, vertical reading order,
+  and SFX handling. These are the capabilities no off-the-shelf checkpoint sells.
+
+## Track B — English
+
+- **Decoder vocab:** char-level, ~70–100 tokens — uppercase Latin, digits,
+  punctuation, and the small set of glyphs comic lettering actually uses. This
+  tiny decoder is most of how the Nano profile reaches its size target.
+- **Text geometry:** horizontal left-to-right, Western panel reading order.
+- **Corpus:** synthetic comic lettering is the realistic v1 source — rendered
+  from comic display faces over scanned-paper backgrounds, run through the shared
+  augmentation tiers. There is no English equivalent of Manga109-s to license.
+- **Consider not training this at all in v1.** An off-the-shelf English OCR
+  behind the same `OcrEngine` trait may be good enough to ship, and would free
+  the entire training budget for Track A. Measure before committing.
 
 ---
 
-## Training Runner ([`train.py`](comic_ocr_dev/training/train.py))
+## Deferred — Manhwa / Webtoon
 
-Training is orchestrated using `transformers.Seq2SeqTrainer` with Weights & Biases (`wandb`) experiment tracking.
+Korean, vertical-scroll, full colour. In the project's stated scope but **not in
+the v1 architecture**. It is a third vocabulary *and* a different page geometry —
+long-strip rather than paged — which affects the region detector, not just the
+decoder. Recorded here so it is a deliberate deferral rather than an oversight.
 
-```python
+---
+
+## Runner
+
+```bash
 python -m comic_ocr_dev.training.train \
-  --run_name="comic-ocr-v1" \
+  --track=ja \
+  --run_name="comic-ocr-ja-v1" \
   --encoder_name="facebook/deit-tiny-patch16-224" \
-  --decoder_name="cl-tohoku/bert-base-japanese-char-v2" \
+  --decoder_name="<japanese-char-decoder>" \
   --batch_size=64 \
   --num_epochs=8 \
   --fp16=True
 ```
+
+`--track` selects vocab, corpus and post-processing profile. Orchestrated with
+`transformers.Seq2SeqTrainer` and `wandb` tracking.
+
+---
+
+## Export and serving — **Built**
+
+Exported weights are consumed by `comic-ocr-ort` through ONNX Runtime. Two things
+about that boundary are already true in this workspace and constrain what a
+training run must emit:
+
+- **Model identity is configuration with no default.** `COMIC_OCR_ONNX_PATH` and
+  `COMIC_OCR_MODEL` have no built-in fallback; an unconfigured runtime reports
+  `degraded` with `inference_available: false` rather than loading a model nobody
+  chose. Each track ships its own artefact and its own path.
+- **The tokenizer is vocab-file driven.** `comic-ocr-core::tokenizer` loads a
+  BERT WordPiece `vocab.txt` and derives `cls`/`sep`/`pad`/`unk`/`mask` ids from
+  it rather than assuming them, so both tracks use it unchanged. It refuses to
+  load a vocab missing any required special token — which means `eos_token_id`
+  above is always read, never assumed.
+
+A `VisionEncoderDecoder` does not export to a single runnable ONNX graph. Expect
+separate encoder / decoder / decoder-with-past graphs, with the autoregressive
+loop living in the caller.
 
 
 --- RUST SOURCE: crates/comic-ocr-cli/src/main.rs ---
@@ -3055,6 +3607,334 @@ mod tests {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-core/src/decode.rs ---
+
+//! Sequence-decoding logic, with no session and no model.
+//!
+//! Split out deliberately. The previous generation loop was deleted in the
+//! reference-checkpoint purge because every constant in it — layer count, start
+//! token, encoder sequence length — had been *measured from one model* and was
+//! therefore worthless the moment the model changed. Nothing here is measured
+//! from a checkpoint: the graph shape is derived from the graph's own tensor
+//! names, the special tokens come from the vocabulary, and the decode rules are
+//! arithmetic.
+//!
+//! The consequence is that all of this is testable with no weights present,
+//! which is the whole point — the parts that need a live session are confined to
+//! `comic-ocr-ort::generate`, and are the only parts that stay unverified until
+//! a checkpoint exists.
+
+use crate::OcrError;
+
+/// The shape of a VisionEncoderDecoder ONNX export, read off the graphs.
+///
+/// Derived rather than declared. A decoder trimmed to two layers and one trimmed
+/// to four differ only in how many cache tensors they name, so counting the
+/// names is both simpler and more durable than a constant somebody has to
+/// remember to update.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GraphContract {
+    /// Decoder layers, each contributing four cache tensors (self key/value,
+    /// cross key/value).
+    pub num_layers: usize,
+}
+
+impl GraphContract {
+    /// Count decoder layers from the with-past graph's input names.
+    ///
+    /// Inputs are named `past_key_values.{layer}.{decoder|encoder}.{key|value}`,
+    /// so the layer count is one more than the highest index seen. Counting the
+    /// names and dividing by four would give the same answer on a well-formed
+    /// graph and a wrong one on a malformed export; taking the maximum index and
+    /// then checking every expected name is present catches a truncated export
+    /// instead of silently believing it.
+    pub fn from_input_names(names: &[impl AsRef<str>]) -> Result<Self, OcrError> {
+        let mut highest: Option<usize> = None;
+        for name in names {
+            let name = name.as_ref();
+            let Some(rest) = name.strip_prefix("past_key_values.") else {
+                continue;
+            };
+            let Some((index, _)) = rest.split_once('.') else {
+                continue;
+            };
+            let Ok(index) = index.parse::<usize>() else {
+                return Err(OcrError::EngineError(format!(
+                    "cache tensor {name} has a non-numeric layer index"
+                )));
+            };
+            highest = Some(highest.map_or(index, |current: usize| current.max(index)));
+        }
+
+        let Some(highest) = highest else {
+            return Err(OcrError::EngineError(
+                "no past_key_values.* inputs on the decoder graph — this export has no KV cache, \
+                 so single-token decoding is impossible"
+                    .to_string(),
+            ));
+        };
+        let num_layers = highest + 1;
+
+        // Every layer must contribute all four tensors. A gap means a partial
+        // export, which would otherwise surface as a shape error deep in the
+        // first decode step.
+        for layer in 0..num_layers {
+            for side in ["decoder", "encoder"] {
+                for part in ["key", "value"] {
+                    let expected = format!("past_key_values.{layer}.{side}.{part}");
+                    if !names.iter().any(|n| n.as_ref() == expected) {
+                        return Err(OcrError::EngineError(format!(
+                            "decoder graph declares {num_layers} layers but is missing {expected}"
+                        )));
+                    }
+                }
+            }
+        }
+
+        Ok(Self { num_layers })
+    }
+
+    /// The `present.*` output name whose value feeds `past_key_values.*` on the
+    /// next step. Pairing is exact prefix substitution.
+    pub fn present_for(layer: usize, side: &str, part: &str) -> String {
+        format!("present.{layer}.{side}.{part}")
+    }
+
+    pub fn past_for(layer: usize, side: &str, part: &str) -> String {
+        format!("past_key_values.{layer}.{side}.{part}")
+    }
+}
+
+/// Token ids a no-repeat-ngram rule forbids at the next step.
+///
+/// `generation_config` for this architecture sets `no_repeat_ngram_size: 3`, and
+/// greedy argmax without it does not reproduce the reference implementation's
+/// output — so this is part of correctness, not a refinement.
+///
+/// The rule: if the last `n-1` tokens have occurred before, whatever followed
+/// them then may not be emitted now.
+pub fn banned_by_no_repeat_ngram(generated: &[u32], ngram_size: usize) -> Vec<u32> {
+    if ngram_size == 0 || generated.len() < ngram_size {
+        return Vec::new();
+    }
+    let prefix_len = ngram_size - 1;
+    let suffix = &generated[generated.len() - prefix_len..];
+
+    let mut banned = Vec::new();
+    // Every position where the same prefix occurred and something followed it.
+    for start in 0..generated.len().saturating_sub(prefix_len) {
+        if &generated[start..start + prefix_len] == suffix {
+            let next = start + prefix_len;
+            if next < generated.len() && !banned.contains(&generated[next]) {
+                banned.push(generated[next]);
+            }
+        }
+    }
+    banned
+}
+
+/// A beam under consideration.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Beam {
+    pub tokens: Vec<u32>,
+    /// Sum of log probabilities. Kept unnormalised; length penalty is applied
+    /// only when ranking finished beams, matching the reference behaviour.
+    pub logprob: f32,
+    pub finished: bool,
+}
+
+impl Beam {
+    pub fn start(start_token: u32) -> Self {
+        Self {
+            tokens: vec![start_token],
+            logprob: 0.0,
+            finished: false,
+        }
+    }
+
+    /// Length-penalised score used to rank finished beams.
+    ///
+    /// `score = logprob / len^penalty`. With `length_penalty = 2.0` this favours
+    /// longer sequences, which is what the reference config asks for; using the
+    /// raw logprob instead systematically prefers short truncated readings.
+    pub fn score(&self, length_penalty: f32) -> f32 {
+        let len = self.tokens.len().max(1) as f32;
+        self.logprob / len.powf(length_penalty)
+    }
+}
+
+/// Pick the `beam_width` best continuations across all live beams.
+///
+/// Takes `(beam_index, token, logprob)` candidates already computed by the
+/// caller — which keeps every session detail out of this function and makes the
+/// selection rule testable on its own.
+pub fn select_beams(
+    beams: &[Beam],
+    candidates: &[(usize, u32, f32)],
+    beam_width: usize,
+    eos_token: u32,
+) -> Vec<Beam> {
+    let mut next: Vec<Beam> = candidates
+        .iter()
+        .filter_map(|&(beam_index, token, logprob)| {
+            let parent = beams.get(beam_index)?;
+            if parent.finished {
+                return None;
+            }
+            let mut tokens = parent.tokens.clone();
+            tokens.push(token);
+            Some(Beam {
+                finished: token == eos_token,
+                tokens,
+                logprob: parent.logprob + logprob,
+            })
+        })
+        .collect();
+
+    // Finished beams stay in contention — they are carried forward so a short
+    // high-probability reading is not discarded before ranking.
+    next.extend(beams.iter().filter(|b| b.finished).cloned());
+
+    next.sort_by(|a, b| {
+        b.logprob
+            .partial_cmp(&a.logprob)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    next.truncate(beam_width.max(1));
+    next
+}
+
+/// Whether decoding should stop: every beam finished, or the cap is reached.
+pub fn should_stop(beams: &[Beam], step: usize, max_length: usize) -> bool {
+    step >= max_length || (!beams.is_empty() && beams.iter().all(|b| b.finished))
+}
+
+/// The best beam by length-penalised score.
+pub fn best_beam(beams: &[Beam], length_penalty: f32) -> Option<&Beam> {
+    beams.iter().max_by(|a, b| {
+        a.score(length_penalty)
+            .partial_cmp(&b.score(length_penalty))
+            .unwrap_or(std::cmp::Ordering::Equal)
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn names_for(layers: usize) -> Vec<String> {
+        let mut v = vec!["input_ids".to_string(), "encoder_hidden_states".to_string()];
+        for layer in 0..layers {
+            for side in ["decoder", "encoder"] {
+                for part in ["key", "value"] {
+                    v.push(GraphContract::past_for(layer, side, part));
+                }
+            }
+        }
+        v
+    }
+
+    #[test]
+    fn layer_count_is_derived_from_the_graph_not_assumed() {
+        for layers in [1usize, 2, 4, 12] {
+            let contract = GraphContract::from_input_names(&names_for(layers)).unwrap();
+            assert_eq!(contract.num_layers, layers);
+        }
+    }
+
+    /// A truncated export must be refused, not believed. Deleting one tensor
+    /// leaves a name set that a naive count-and-divide would accept.
+    #[test]
+    fn a_missing_cache_tensor_is_an_error() {
+        let mut names = names_for(2);
+        names.retain(|n| n != "past_key_values.1.encoder.value");
+        let error = GraphContract::from_input_names(&names).unwrap_err();
+        assert!(format!("{error}").contains("past_key_values.1.encoder.value"));
+    }
+
+    #[test]
+    fn a_graph_with_no_cache_is_an_error_naming_why() {
+        let error =
+            GraphContract::from_input_names(&["input_ids", "encoder_hidden_states"]).unwrap_err();
+        assert!(format!("{error}").contains("no KV cache"));
+    }
+
+    #[test]
+    fn no_repeat_ngram_bans_the_token_that_followed_a_repeated_prefix() {
+        // "a b c ... a b" -> c is banned
+        let generated = [10u32, 11, 12, 20, 10, 11];
+        assert_eq!(banned_by_no_repeat_ngram(&generated, 3), vec![12]);
+    }
+
+    #[test]
+    fn no_repeat_ngram_is_inert_below_its_window() {
+        assert!(banned_by_no_repeat_ngram(&[10, 11], 3).is_empty());
+        assert!(banned_by_no_repeat_ngram(&[10, 11, 12], 0).is_empty());
+    }
+
+    #[test]
+    fn no_repeat_ngram_collects_every_distinct_follower() {
+        // prefix (10,11) occurred twice, followed by 12 and then 13
+        let generated = [10u32, 11, 12, 99, 10, 11, 13, 99, 10, 11];
+        let mut banned = banned_by_no_repeat_ngram(&generated, 3);
+        banned.sort_unstable();
+        assert_eq!(banned, vec![12, 13]);
+    }
+
+    /// Length penalty is why this is not just argmax: with penalty 2.0 a longer
+    /// sequence at the same total logprob must win.
+    #[test]
+    fn length_penalty_favours_the_longer_reading() {
+        let short = Beam {
+            tokens: vec![2, 5, 3],
+            logprob: -3.0,
+            finished: true,
+        };
+        let long = Beam {
+            tokens: vec![2, 5, 6, 7, 3],
+            logprob: -3.0,
+            finished: true,
+        };
+        assert!(long.score(2.0) > short.score(2.0));
+        // and with no penalty they tie
+        assert!((long.score(0.0) - short.score(0.0)).abs() < 1e-6);
+    }
+
+    #[test]
+    fn select_keeps_the_best_and_respects_the_width() {
+        let beams = vec![Beam::start(2)];
+        let next = select_beams(&beams, &[(0, 10, -0.1), (0, 11, -2.0), (0, 12, -0.5)], 2, 3);
+        assert_eq!(next.len(), 2);
+        assert_eq!(next[0].tokens, vec![2, 10]);
+        assert_eq!(next[1].tokens, vec![2, 12]);
+    }
+
+    #[test]
+    fn a_beam_ending_in_eos_is_finished_and_carried_forward() {
+        let beams = vec![Beam::start(2)];
+        let next = select_beams(&beams, &[(0, 3, -0.2)], 4, 3);
+        assert!(next[0].finished);
+        // it survives the following step rather than being dropped
+        let after = select_beams(&next, &[], 4, 3);
+        assert_eq!(after.len(), 1);
+        assert!(after[0].finished);
+    }
+
+    #[test]
+    fn stopping_requires_every_beam_finished_or_the_cap() {
+        let live = vec![Beam::start(2)];
+        assert!(!should_stop(&live, 1, 300));
+        assert!(should_stop(&live, 300, 300));
+        let done = vec![Beam {
+            tokens: vec![2, 3],
+            logprob: -1.0,
+            finished: true,
+        }];
+        assert!(should_stop(&done, 1, 300));
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-core/src/detector.rs ---
 
 use crate::scene_graph::Rect;
@@ -3373,10 +4253,47 @@ impl BoundingBox {
     }
 }
 
-/// Sorts a slice of manga speech bubble bounding boxes in Japanese Reading Order:
-/// Primary Axis: Top-to-Bottom (Row Bucket Clustering)
-/// Secondary Axis: Right-to-Left (x descending within row)
-pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
+/// Which way a page reads horizontally.
+///
+/// Shared with `validation`, deliberately. The two used to disagree: the sorter
+/// hardcoded right-to-left while the validator took the direction as a string
+/// and only enforced its rule when that string said RTL. On a left-to-right page
+/// the sorter therefore emitted reversed reading order AND the validator's only
+/// branch never fired — wrong output with a clean bill of health. One type, used
+/// by both, is what makes that state unrepresentable.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReadingDirection {
+    /// Japanese manga: rightmost first within a row.
+    RightToLeft,
+    /// Western comics: leftmost first within a row.
+    LeftToRight,
+}
+
+impl ReadingDirection {
+    /// Parse a declared direction. Accepts the spellings that actually occur in
+    /// the corpus and in the iPub schema, case-insensitively.
+    ///
+    /// Returns `None` for anything unrecognised rather than defaulting. A
+    /// silent default is how `"RTL"` in the wrong case, or `"vertical-rl"`,
+    /// ends up reading as left-to-right with nothing said about it.
+    pub fn parse(declared: &str) -> Option<Self> {
+        match declared
+            .trim()
+            .to_ascii_lowercase()
+            .replace('_', "-")
+            .as_str()
+        {
+            "rtl" | "right-to-left" | "vertical-rl" => Some(Self::RightToLeft),
+            "ltr" | "left-to-right" | "horizontal-tb" => Some(Self::LeftToRight),
+            _ => None,
+        }
+    }
+}
+
+/// Sorts speech bubble bounding boxes into reading order.
+/// Primary axis: top-to-bottom (row bucket clustering).
+/// Secondary axis: within a row, per `direction`.
+pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox], direction: ReadingDirection) {
     if bubbles.len() <= 1 {
         return;
     }
@@ -3406,7 +4323,10 @@ pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
     // Sort within each row bucket: Right-to-Left (x descending)
     let mut idx = 0;
     for mut row in rows {
-        row.sort_by_key(|b| std::cmp::Reverse(b.x));
+        match direction {
+            ReadingDirection::RightToLeft => row.sort_by_key(|b| std::cmp::Reverse(b.x)),
+            ReadingDirection::LeftToRight => row.sort_by_key(|b| b.x),
+        }
         for item in row {
             bubbles[idx] = item;
             idx += 1;
@@ -3426,12 +4346,77 @@ mod tests {
             BoundingBox::new(200, 200, 50, 50),
         ];
 
-        sort_bubble_reading_order(&mut bubbles);
+        sort_bubble_reading_order(&mut bubbles, ReadingDirection::RightToLeft);
 
         // Expect right-most top bubble first (x=300, y=10)
         assert_eq!(bubbles[0].x, 300);
         assert_eq!(bubbles[1].x, 100);
         assert_eq!(bubbles[2].x, 200);
+    }
+
+    /// The case that used to be silently wrong: an LTR page sorted RTL, with the
+    /// validator's only branch not firing, so nothing reported it.
+    #[test]
+    fn ltr_sorts_leftmost_first_within_a_row() {
+        let mut bubbles = vec![
+            BoundingBox::new(500, 10, 80, 40),
+            BoundingBox::new(100, 12, 80, 40),
+            BoundingBox::new(300, 11, 80, 40),
+        ];
+        sort_bubble_reading_order(&mut bubbles, ReadingDirection::LeftToRight);
+        assert_eq!(
+            bubbles.iter().map(|b| b.x).collect::<Vec<_>>(),
+            vec![100, 300, 500]
+        );
+    }
+
+    #[test]
+    fn rtl_and_ltr_are_mirror_images_of_each_other() {
+        let make = || {
+            vec![
+                BoundingBox::new(500, 10, 80, 40),
+                BoundingBox::new(100, 12, 80, 40),
+                BoundingBox::new(300, 11, 80, 40),
+            ]
+        };
+        let (mut rtl, mut ltr) = (make(), make());
+        sort_bubble_reading_order(&mut rtl, ReadingDirection::RightToLeft);
+        sort_bubble_reading_order(&mut ltr, ReadingDirection::LeftToRight);
+        let rtl_x: Vec<_> = rtl.iter().map(|b| b.x).collect();
+        let mut ltr_x: Vec<_> = ltr.iter().map(|b| b.x).collect();
+        ltr_x.reverse();
+        assert_eq!(rtl_x, ltr_x);
+    }
+
+    /// An unrecognised direction must not silently become one of them.
+    #[test]
+    fn parse_refuses_what_it_does_not_recognise() {
+        assert_eq!(
+            ReadingDirection::parse("rtl"),
+            Some(ReadingDirection::RightToLeft)
+        );
+        assert_eq!(
+            ReadingDirection::parse("RTL"),
+            Some(ReadingDirection::RightToLeft)
+        );
+        assert_eq!(
+            ReadingDirection::parse("right_to_left"),
+            Some(ReadingDirection::RightToLeft)
+        );
+        assert_eq!(
+            ReadingDirection::parse("vertical-rl"),
+            Some(ReadingDirection::RightToLeft)
+        );
+        assert_eq!(
+            ReadingDirection::parse("ltr"),
+            Some(ReadingDirection::LeftToRight)
+        );
+        assert_eq!(
+            ReadingDirection::parse("left-to-right"),
+            Some(ReadingDirection::LeftToRight)
+        );
+        assert_eq!(ReadingDirection::parse("sideways"), None);
+        assert_eq!(ReadingDirection::parse(""), None);
     }
 }
 
@@ -3439,10 +4424,12 @@ mod tests {
 --- RUST SOURCE: crates/comic-ocr-core/src/lib.rs ---
 
 pub mod ambiguity;
+pub mod decode;
 pub mod detector;
 pub mod languages;
 pub mod layout;
 pub mod post_process;
+pub mod preprocess;
 pub mod resample;
 pub mod scene_graph;
 pub mod scene_solver;
@@ -3453,7 +4440,7 @@ pub mod validation;
 pub use ambiguity::*;
 pub use detector::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
-pub use layout::{BoundingBox, sort_bubble_reading_order};
+pub use layout::{BoundingBox, ReadingDirection, sort_bubble_reading_order};
 pub use post_process::{post_process, post_process_with_furigana};
 pub use resample::resample_tiles;
 pub use scene_graph::*;
@@ -3599,11 +4586,525 @@ mod tests {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-core/src/preprocess.rs ---
+
+//! Image preprocessing for a ViT/DeiT-family vision encoder.
+//!
+//! Every constant here mirrors a field of the model's `preprocessor_config.json`
+//! on the HuggingFace Hub, or a documented default that `ViTImageProcessor`
+//! applies when the field is absent. The file was fetched from
+//! Values below MUST be re-read from the target checkpoint's own
+//! `preprocessor_config.json` — they are model properties, not constants.
+//! and reads, in full:
+//!
+//! ```json
+//! {
+//!   "do_normalize": true,
+//!   "do_resize": true,
+//!   "feature_extractor_type": "ViTFeatureExtractor",
+//!   "image_mean": [0.5, 0.5, 0.5],
+//!   "image_std": [0.5, 0.5, 0.5],
+//!   "resample": 2,
+//!   "size": 224
+//! }
+//! ```
+//!
+//! Note what is *not* in that file: `do_rescale` and `rescale_factor`. This is
+//! the legacy `ViTFeatureExtractor` serialisation, and the missing keys are
+//! filled in by `ViTImageProcessor`'s own defaults rather than skipped. Loading
+//! the config above through `transformers` 4.42.4 resolves it to:
+//!
+//! ```text
+//! do_normalize: true, do_rescale: true, do_resize: true,
+//! image_mean: [0.5, 0.5, 0.5], image_std: [0.5, 0.5, 0.5],
+//! rescale_factor: 0.00392156862745098, resample: 2,
+//! size: {"height": 224, "width": 224}
+//! ```
+//!
+//! so rescaling by 1/255 does happen, and the scalar `size: 224` expands to a
+//! square 224x224 target (`get_size_dict(..., default_to_square=True)`) — the
+//! aspect ratio of the input is *not* preserved.
+//!
+//! # Pipeline
+//!
+//! The order below is the order the upstream reference pipeline applies, which is
+//! the reference implementation this crate is trying to match:
+//!
+//! 1. Greyscale round-trip — `img.convert("L").convert("RGB")`. Done by the
+//!    *caller* of the processor, not the processor itself, but it is part of
+//!    how the model is used in practice, so it is on by default here. See
+//!    [`PreprocessConfig::greyscale`].
+//! 2. Resize to 224x224 with PIL `BILINEAR`.
+//! 3. Rescale by 1/255 into `[0, 1]`.
+//! 4. Normalise: `(x - mean) / std`, which with mean = std = 0.5 maps
+//!    `[0, 1]` onto `[-1, 1]`.
+//! 5. Emit CHW `f32` with a leading batch axis: `[1, 3, 224, 224]`.
+
+use crate::OcrError;
+use image::{DynamicImage, RgbImage};
+
+/// Target edge length. Source: `preprocessor_config.json` `"size": 224`,
+/// expanded by `get_size_dict(size, default_to_square=True)` to a square
+/// `{"height": 224, "width": 224}`. Cross-checked against the model's
+/// `config.json`, whose encoder declares `image_size: 224`.
+pub const IMAGE_SIZE: u32 = 224;
+
+/// Source: the model's `config.json` encoder section, `num_channels: 3`.
+/// The processor emits 3 channels even for greyscale input — the greyscale
+/// round-trip in step 1 replicates one luma plane across R, G and B rather
+/// than reducing the channel count.
+pub const NUM_CHANNELS: usize = 3;
+
+/// Source: `ViTImageProcessor`'s `rescale_factor` default of `1/255`, applied
+/// because `do_rescale` defaults to `true` and `preprocessor_config.json`
+/// does not override it.
+pub const RESCALE_FACTOR: f32 = 1.0 / 255.0;
+
+/// Source: `preprocessor_config.json` `"image_mean": [0.5, 0.5, 0.5]`.
+///
+/// These are deliberately NOT the ImageNet means (0.485/0.456/0.406). This
+/// checkpoint normalises to `[-1, 1]`, not to ImageNet statistics.
+pub const IMAGE_MEAN: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
+
+/// Source: `preprocessor_config.json` `"image_std": [0.5, 0.5, 0.5]`.
+///
+/// Likewise not the ImageNet standard deviations (0.229/0.224/0.225).
+pub const IMAGE_STD: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
+
+/// Source: `preprocessor_config.json` `"resample": 2`, which is
+/// `PIL.Image.Resampling.BILINEAR` (the PIL enum is NEAREST=0, LANCZOS=1,
+/// BILINEAR=2, BICUBIC=3, BOX=4, HAMMING=5).
+///
+/// `FilterType::Triangle` is the `image` crate's name for a bilinear filter:
+/// unit support, weights scaled by the sampling ratio when downscaling, and
+/// normalised to sum to one — the same construction PIL uses. The two are not
+/// bit-identical, because PIL accumulates in quantised fixed point and `image`
+/// in `f32`, so individual output pixels can land one byte apart.
+///
+/// Measured, rather than assumed. This module's output was compared element by
+/// element against `ViTImageProcessor` (transformers 4.42.4, Pillow 10.1.0)
+/// loading the config above, over the five crops in `assets/examples` and a
+/// random-noise image. One LSB of the byte quantisation is `(1/255)/0.5`
+/// = 0.00784 in normalised units.
+///
+/// ```text
+/// input            exact match   mean |diff|   max |diff|
+/// 00.jpg  99x178       82%         0.17 LSB     2 LSB
+/// 01.jpg 188x251       81%         0.19 LSB     2 LSB
+/// 02.jpg  62x103       88%         0.12 LSB     2 LSB
+/// 03.jpg 406x115       85%         0.15 LSB     1 LSB
+/// 14.jpg 650x1024      91%         0.09 LSB     1 LSB
+/// random 137x291        -          0.17 LSB     1 LSB
+/// ```
+///
+/// The residual is entirely resampler rounding. Closing it completely would
+/// mean reimplementing PIL's fixed-point resampler; at under one byte of image
+/// intensity it is far below the noise the encoder already tolerates, whereas
+/// the mean/std error this module replaced was a systematic shift of the whole
+/// tensor.
+pub const RESAMPLE_FILTER: image::imageops::FilterType = image::imageops::FilterType::Triangle;
+
+/// Fixed-point ITU-R 601-2 luma weights, matching PIL's `RGB -> L` conversion
+/// exactly. PIL computes `(r*19595 + g*38470 + b*7471 + 32768) >> 16`; the
+/// `+ 32768` is a round-to-nearest term, so truncating instead is off by one
+/// on many inputs. Verified against Pillow 10.1.0 over 20,000 random RGB
+/// triples with zero mismatches.
+///
+/// This is why [`greyscale_luma`] exists instead of a call to the `image`
+/// crate's `to_luma8()`: that uses Rec. 709 weights (0.2126/0.7152/0.0722),
+/// which disagree with PIL badly — pure green maps to 150 under PIL and 182
+/// under Rec. 709.
+const LUMA_601_WEIGHTS: [u32; NUM_CHANNELS] = [19595, 38470, 7471];
+const LUMA_601_ROUND: u32 = 32768;
+const LUMA_601_SHIFT: u32 = 16;
+
+/// Which optional stages of the reference pipeline to apply.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PreprocessConfig {
+    /// Apply the `convert("L").convert("RGB")` greyscale round-trip before
+    /// resizing.
+    ///
+    /// `true` matches the upstream reference pipeline's behaviour, the reference
+    /// implementation. It is not part of `ViTImageProcessor` itself, so a
+    /// caller that feeds the processor colour input directly wants `false`.
+    ///
+    /// This is not a cosmetic switch. On a random-colour test image the two
+    /// settings produce tensors differing by up to 1.37 in a range that only
+    /// spans `[-1, 1]`.
+    pub greyscale: bool,
+}
+
+impl Default for PreprocessConfig {
+    fn default() -> Self {
+        Self { greyscale: true }
+    }
+}
+
+/// A preprocessed image: the tensor and the shape it must be interpreted with.
+///
+/// The two travel together so a caller cannot pair the buffer with a shape that
+/// does not describe it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PreprocessedImage {
+    data: Vec<f32>,
+    shape: [usize; 4],
+}
+
+impl PreprocessedImage {
+    /// The tensor in CHW order with a leading batch axis, row-major.
+    ///
+    /// Index of channel `c`, row `y`, column `x` is
+    /// `c * IMAGE_SIZE * IMAGE_SIZE + y * IMAGE_SIZE + x`.
+    pub fn data(&self) -> &[f32] {
+        &self.data
+    }
+
+    /// `[1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE]`.
+    pub fn shape(&self) -> [usize; 4] {
+        self.shape
+    }
+
+    /// Consumes into `(shape, data)`, the pair an ONNX Runtime tensor wants.
+    pub fn into_parts(self) -> (Vec<i64>, Vec<f32>) {
+        let shape = self.shape.iter().map(|&d| d as i64).collect();
+        (shape, self.data)
+    }
+}
+
+/// PIL's `RGB -> L`: ITU-R 601-2 luma in rounded fixed point.
+///
+/// Kept `#[inline]` and standalone so the test suite can assert it against
+/// values sampled from a real Pillow build.
+#[inline]
+pub fn greyscale_luma(r: u8, g: u8, b: u8) -> u8 {
+    let acc = u32::from(r) * LUMA_601_WEIGHTS[0]
+        + u32::from(g) * LUMA_601_WEIGHTS[1]
+        + u32::from(b) * LUMA_601_WEIGHTS[2]
+        + LUMA_601_ROUND;
+    // The weights sum to exactly 65536, so with the rounding term the maximum
+    // possible result is 255 and the shift cannot overflow a u8.
+    (acc >> LUMA_601_SHIFT) as u8
+}
+
+/// Preprocesses an image the way the upstream reference pipeline does.
+///
+/// Equivalent to [`preprocess_with`] under [`PreprocessConfig::default`], which
+/// includes the greyscale round-trip.
+///
+/// # Errors
+///
+/// Returns [`OcrError::InvalidInput`] if either dimension is zero. There is no
+/// meaningful tensor for an empty image, and emitting a zero-filled one would
+/// hand the model a black square that it would happily transcribe.
+pub fn preprocess(image: &DynamicImage) -> Result<PreprocessedImage, OcrError> {
+    preprocess_with(image, PreprocessConfig::default())
+}
+
+/// Preprocesses an image with explicit control over the optional stages.
+///
+/// # Errors
+///
+/// Returns [`OcrError::InvalidInput`] if either dimension is zero.
+pub fn preprocess_with(
+    image: &DynamicImage,
+    config: PreprocessConfig,
+) -> Result<PreprocessedImage, OcrError> {
+    let (width, height) = (image.width(), image.height());
+    if width == 0 || height == 0 {
+        return Err(OcrError::InvalidInput(format!(
+            "cannot preprocess an image with a zero dimension (got {width}x{height})"
+        )));
+    }
+
+    // Drop any alpha channel first, as PIL does: `convert("L")` and
+    // `convert("RGB")` both read RGB and ignore alpha rather than compositing
+    // it onto a background.
+    let mut rgb = image.to_rgb8();
+
+    // Step 1: greyscale round-trip, replicating one luma plane across all
+    // three channels. Done before the resize, matching upstream ordering.
+    if config.greyscale {
+        for pixel in rgb.pixels_mut() {
+            let luma = greyscale_luma(pixel[0], pixel[1], pixel[2]);
+            pixel[0] = luma;
+            pixel[1] = luma;
+            pixel[2] = luma;
+        }
+    }
+
+    // Step 2: resize to a square target. Aspect ratio is not preserved.
+    //
+    // Skipping the resampler when the input is already 224x224 is not just an
+    // optimisation, it is what PIL does: `Image.resize` returns a copy when the
+    // requested size equals the current one. Running a bilinear pass anyway
+    // would be an identity in exact arithmetic but could still round a pixel.
+    let resized: RgbImage = if width == IMAGE_SIZE && height == IMAGE_SIZE {
+        rgb
+    } else {
+        image::imageops::resize(&rgb, IMAGE_SIZE, IMAGE_SIZE, RESAMPLE_FILTER)
+    };
+
+    // Steps 3-5: rescale, normalise, and scatter into CHW.
+    let plane = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
+    let mut data = vec![0.0f32; NUM_CHANNELS * plane];
+    for (x, y, pixel) in resized.enumerate_pixels() {
+        let offset = y as usize * IMAGE_SIZE as usize + x as usize;
+        for c in 0..NUM_CHANNELS {
+            let rescaled = f32::from(pixel[c]) * RESCALE_FACTOR;
+            data[c * plane + offset] = (rescaled - IMAGE_MEAN[c]) / IMAGE_STD[c];
+        }
+    }
+
+    Ok(PreprocessedImage {
+        data,
+        shape: [1, NUM_CHANNELS, IMAGE_SIZE as usize, IMAGE_SIZE as usize],
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{Rgb, RgbImage};
+
+    const PLANE: usize = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
+    const NO_GREY: PreprocessConfig = PreprocessConfig { greyscale: false };
+
+    fn solid(width: u32, height: u32, colour: [u8; 3]) -> DynamicImage {
+        DynamicImage::ImageRgb8(RgbImage::from_pixel(width, height, Rgb(colour)))
+    }
+
+    /// The normalisation the reference pipeline applies, written out the long
+    /// way so the test does not simply restate the implementation.
+    fn expected(value: u8) -> f32 {
+        (value as f32 / 255.0 - 0.5) / 0.5
+    }
+
+    #[test]
+    fn constants_match_preprocessor_config() {
+        // Guards against a silent revert to ImageNet statistics, which is what
+        // the inline preprocessing block in `predict` used before this module
+        // existed.
+        assert_eq!(IMAGE_MEAN, [0.5, 0.5, 0.5]);
+        assert_eq!(IMAGE_STD, [0.5, 0.5, 0.5]);
+        assert_eq!(IMAGE_SIZE, 224);
+        assert_eq!(NUM_CHANNELS, 3);
+        assert!((RESCALE_FACTOR - 1.0 / 255.0).abs() < f32::EPSILON);
+        assert_eq!(RESAMPLE_FILTER, image::imageops::FilterType::Triangle);
+    }
+
+    #[test]
+    fn tensor_has_the_shape_and_length_the_model_expects() {
+        let out = preprocess(&solid(64, 96, [10, 20, 30])).expect("preprocess");
+        assert_eq!(out.shape(), [1, 3, 224, 224]);
+        assert_eq!(out.data().len(), 3 * 224 * 224);
+        assert_eq!(out.data().len(), NUM_CHANNELS * PLANE);
+
+        let (shape, data) = out.into_parts();
+        assert_eq!(shape, vec![1i64, 3, 224, 224]);
+        assert_eq!(data.len(), 3 * 224 * 224);
+    }
+
+    #[test]
+    fn layout_is_chw_not_hwc() {
+        // Distinct per-channel values. In CHW the first plane is entirely red,
+        // the second entirely green, the third entirely blue. In HWC the first
+        // three values would instead be R, G, B of a single pixel.
+        let out = preprocess_with(&solid(50, 50, [255, 0, 128]), NO_GREY).expect("preprocess");
+        let data = out.data();
+
+        for (channel, &value) in [255u8, 0, 128].iter().enumerate() {
+            let plane = &data[channel * PLANE..(channel + 1) * PLANE];
+            assert!(
+                plane.iter().all(|v| (v - expected(value)).abs() < 1e-6),
+                "channel {channel} plane is not uniformly the value for {value}; \
+                 this is the signature of HWC ordering"
+            );
+        }
+
+        // Stated the other way round: consecutive elements belong to the same
+        // channel, not to the same pixel.
+        assert!((data[0] - data[1]).abs() < 1e-6);
+        assert!((data[0] - data[PLANE]).abs() > 1.0);
+    }
+
+    #[test]
+    fn normalisation_matches_hand_computed_values() {
+        // A solid image survives bilinear resampling unchanged, so every output
+        // element is exactly the normalisation of the source byte. Values below
+        // were computed by hand:
+        //   37  -> 37/255  = 0.14509804; (0.14509804 - 0.5) / 0.5 = -0.70980392
+        //   200 -> 200/255 = 0.78431373; (0.78431373 - 0.5) / 0.5 =  0.56862745
+        //   255 -> 1.0;  (1.0 - 0.5) / 0.5 =  1.0
+        let out = preprocess_with(&solid(80, 40, [37, 200, 255]), NO_GREY).expect("preprocess");
+        let data = out.data();
+
+        assert!((data[0] - (-0.709_803_92)).abs() < 1e-6, "got {}", data[0]);
+        assert!(
+            (data[PLANE] - 0.568_627_5).abs() < 1e-6,
+            "got {}",
+            data[PLANE]
+        );
+        assert!(
+            (data[2 * PLANE] - 1.0).abs() < 1e-6,
+            "got {}",
+            data[2 * PLANE]
+        );
+
+        // The [0, 255] byte range maps onto exactly [-1, 1] under mean = std = 0.5.
+        assert!((expected(0) - (-1.0)).abs() < 1e-6);
+        assert!((expected(255) - 1.0).abs() < 1e-6);
+        assert!(
+            data.iter().all(|v| (-1.0..=1.0).contains(v)),
+            "mean/std of 0.5 must confine output to [-1, 1]"
+        );
+    }
+
+    #[test]
+    fn imagenet_constants_would_produce_a_different_tensor() {
+        // Pins the actual defect this module was written to fix: had the old
+        // ImageNet numbers been correct, these assertions would not hold.
+        //
+        // Note that the two formulas nearly agree near the middle of the byte
+        // range — at 128 they differ by only 0.07 — so a discriminating test
+        // has to sample away from the centre. That near-agreement is exactly
+        // why the wrong constants degraded accuracy without ever looking
+        // obviously broken.
+        const IMAGENET_MEAN: [f32; 3] = [0.485, 0.456, 0.406];
+        const IMAGENET_STD: [f32; 3] = [0.229, 0.224, 0.225];
+
+        let out = preprocess_with(&solid(32, 32, [240, 240, 240]), NO_GREY).expect("preprocess");
+        for channel in 0..NUM_CHANNELS {
+            let ours = out.data()[channel * PLANE];
+            let imagenet = (240.0f32 / 255.0 - IMAGENET_MEAN[channel]) / IMAGENET_STD[channel];
+            assert!(
+                (ours - imagenet).abs() > 1.0,
+                "channel {channel}: config-driven {ours} must not coincide with ImageNet {imagenet}"
+            );
+        }
+    }
+
+    #[test]
+    fn greyscale_matches_pil_itu_r_601_2() {
+        // Reference values read out of Pillow 10.1.0 via
+        // `Image.new("RGB", (1, 1), t).convert("L").getpixel((0, 0))`.
+        for &(rgb, pil) in &[
+            ((255u8, 0u8, 0u8), 76u8),
+            ((0, 255, 0), 150),
+            ((0, 0, 255), 29),
+            ((10, 200, 90), 131),
+            ((37, 113, 201), 100),
+            ((128, 128, 128), 128),
+            ((0, 0, 0), 0),
+            ((255, 255, 255), 255),
+        ] {
+            let (r, g, b) = rgb;
+            assert_eq!(greyscale_luma(r, g, b), pil, "PIL mismatch for {rgb:?}");
+        }
+
+        // Rec. 709, which `image`'s `to_luma8` would use, disagrees sharply.
+        // If this ever stops holding, someone swapped in the wrong weights.
+        assert_ne!(greyscale_luma(0, 255, 0), 182);
+    }
+
+    #[test]
+    fn greyscale_collapses_the_three_channels() {
+        let out = preprocess(&solid(60, 60, [255, 0, 128])).expect("preprocess");
+        let data = out.data();
+        let luma = greyscale_luma(255, 0, 128);
+        for channel in 0..NUM_CHANNELS {
+            assert!((data[channel * PLANE] - expected(luma)).abs() < 1e-6);
+        }
+    }
+
+    #[test]
+    fn greyscale_is_not_a_no_op() {
+        // Documents that the flag changes the tensor materially, so nobody
+        // "simplifies" it away on the assumption that it is cosmetic.
+        let image = solid(64, 64, [200, 30, 90]);
+        let with = preprocess_with(&image, PreprocessConfig { greyscale: true }).expect("grey");
+        let without = preprocess_with(&image, NO_GREY).expect("colour");
+        assert_ne!(with, without);
+    }
+
+    #[test]
+    fn one_by_one_image_is_handled() {
+        let out = preprocess(&solid(1, 1, [200, 200, 200])).expect("1x1 must not fail");
+        assert_eq!(out.data().len(), 3 * 224 * 224);
+        // Upsampling a single pixel can only ever yield that pixel's value.
+        assert!(out.data().iter().all(|v| (v - expected(200)).abs() < 1e-6));
+    }
+
+    #[test]
+    fn extreme_aspect_ratios_are_handled() {
+        for (w, h) in [
+            (1u32, 4000u32),
+            (4000, 1),
+            (3, 997),
+            (997, 3),
+            (1, 1),
+            (224, 224),
+        ] {
+            let out = preprocess(&solid(w, h, [17, 99, 240]))
+                .unwrap_or_else(|e| panic!("{w}x{h} failed: {e}"));
+            assert_eq!(out.shape(), [1, 3, 224, 224], "{w}x{h}");
+            assert_eq!(out.data().len(), 3 * 224 * 224, "{w}x{h}");
+            assert!(
+                out.data().iter().all(|v| v.is_finite()),
+                "{w}x{h} produced a non-finite element"
+            );
+        }
+    }
+
+    #[test]
+    fn a_non_uniform_image_produces_a_non_uniform_tensor() {
+        // Cheap guard against the failure mode this repository has shipped
+        // three times: a function returning a plausible constant. A gradient in
+        // must give varying values out.
+        let mut buffer = RgbImage::new(300, 120);
+        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
+            *pixel = Rgb([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8]);
+        }
+        let out = preprocess(&DynamicImage::ImageRgb8(buffer)).expect("preprocess");
+        let first = out.data()[0];
+        assert!(
+            out.data().iter().any(|v| (v - first).abs() > 0.05),
+            "gradient input collapsed to a constant tensor"
+        );
+    }
+
+    #[test]
+    fn zero_dimension_is_an_error_not_a_blank_tensor() {
+        let empty = DynamicImage::ImageRgb8(RgbImage::new(0, 10));
+        let err = preprocess(&empty).expect_err("a 0x10 image has no valid tensor");
+        assert!(matches!(err, OcrError::InvalidInput(_)), "got {err:?}");
+
+        let empty = DynamicImage::ImageRgb8(RgbImage::new(10, 0));
+        assert!(matches!(preprocess(&empty), Err(OcrError::InvalidInput(_))));
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-core/src/resample.rs ---
 
 use image::{DynamicImage, GenericImageView};
 
 /// Resamples an input image buffer into aspect-preserving tiles.
+///
+/// **Not wired into the OCR path.** Exported and tested, but nothing calls it —
+/// so its threshold has never been exercised against real crops.
+///
+/// The problem it addresses is real: the vision encoder takes a fixed square
+/// input, so a tall narrow text region — the characteristic shape of a vertical
+/// Japanese column — is crushed when squashed to it, and the glyphs stop being
+/// legible. Tiling preserves glyph aspect at the cost of needing the per-tile
+/// transcriptions joined afterwards. That join does not exist yet; the 0.20
+/// overlap is what would make it possible.
+///
+/// `max_aspect_ratio = 3.0` is **provisional**. Whether tiling is needed at all
+/// depends on what the model was trained on: train on tall column crops and the
+/// encoder handles them natively, leaving tiling for genuine outliers. The
+/// threshold should be set from the aspect ratio at which measured CER starts
+/// climbing — an output of training, not an input to it.
 /// If aspect ratio (Height / Width or Width / Height) <= `max_aspect_ratio` (default 3.0), letterbox padding is applied.
 /// If aspect ratio > 3.0, Multi-Tile Sliding Window Slicing is applied with overlap fraction `overlap_fraction` (default 0.20).
 pub fn resample_tiles(
@@ -5243,14 +6744,20 @@ pub fn validate_spatial_containment(
     }
 }
 
-/// Evaluates spatial panel sequence against declared reading direction (RTL or LTR).
+/// Evaluates spatial panel sequence against the declared reading direction.
+///
+/// Enforces BOTH directions. It previously enforced only RTL, so a left-to-right
+/// page had no reading-order check at all — every sequence passed, including a
+/// reversed one. An unrecognised direction string yields no violations, but that
+/// is now visible as `ReadingDirection::parse` returning `None` rather than an
+/// equality test quietly failing to match.
 pub fn validate_panel_reading_order(
     panels: &[(String, [f32; 4], usize)], // (id, [x, y, w, h], reading_order)
     declared_direction: &str,
 ) -> ReadingOrderValidation {
     let mut violations = Vec::new();
 
-    if declared_direction == "right_to_left" || declared_direction == "rtl" {
+    if let Some(direction) = crate::layout::ReadingDirection::parse(declared_direction) {
         // Group panels into horizontal row bands (same vertical band if Y centers within 50px)
         for i in 0..panels.len() {
             for j in (i + 1)..panels.len() {
@@ -5265,16 +6772,37 @@ pub fn validate_panel_reading_order(
                     let x_left_a = bounds_a[0];
                     let x_left_b = bounds_b[0];
 
-                    // For RTL, right panel (higher x) MUST have earlier reading order (smaller index)
-                    if x_left_a < x_left_b && order_a < order_b {
+                    // Decide which panel comes FIRST spatially under this
+                    // direction, then require its reading order to be earlier.
+                    //
+                    // Written this way because the previous form —
+                    // `x_left_a < x_left_b && order_a < order_b` — was one-sided:
+                    // `a` is simply whichever panel the caller listed first, so
+                    // the identical violation went undetected when the array
+                    // happened to be in the other order. The RTL test passed on
+                    // luck of input ordering.
+                    let out_of_order = match x_left_a.partial_cmp(&x_left_b) {
+                        None | Some(std::cmp::Ordering::Equal) => false,
+                        Some(std::cmp::Ordering::Less) => match direction {
+                            // a is left of b
+                            crate::layout::ReadingDirection::LeftToRight => order_a > order_b,
+                            crate::layout::ReadingDirection::RightToLeft => order_a < order_b,
+                        },
+                        Some(std::cmp::Ordering::Greater) => match direction {
+                            // a is right of b
+                            crate::layout::ReadingDirection::LeftToRight => order_a < order_b,
+                            crate::layout::ReadingDirection::RightToLeft => order_a > order_b,
+                        },
+                    };
+                    if out_of_order {
                         violations.push(ReadingOrderViolation {
                             first_id: id_a.clone(),
                             second_id: id_b.clone(),
                             reason: ReadingOrderViolationReason::HorizontalOrder,
                             confidence: 0.98,
                             message: format!(
-                                "Page declares RTL manga reading, but panel {} (x={}) precedes panel {} (x={}) in left-to-right sequence.",
-                                id_a, x_left_a, id_b, x_left_b
+                                "Page declares {:?} reading, but panel {} (x={}) precedes panel {} (x={}) against that direction.",
+                                direction, id_a, x_left_a, id_b, x_left_b
                             ),
                         });
                     }
@@ -5351,6 +6879,82 @@ mod tests {
             conflict.unwrap().conflict_type,
             "spatial-containment-violation"
         );
+    }
+}
+
+#[cfg(test)]
+mod reading_direction_tests {
+    use super::*;
+
+    fn row(order_left_first: bool) -> Vec<(String, [f32; 4], usize)> {
+        // Two panels in one horizontal band: left at x=100, right at x=500.
+        let (left_order, right_order) = if order_left_first { (0, 1) } else { (1, 0) };
+        vec![
+            ("left".to_string(), [100.0, 10.0, 80.0, 40.0], left_order),
+            ("right".to_string(), [500.0, 12.0, 80.0, 40.0], right_order),
+        ]
+    }
+
+    /// RTL: reading left-first is a violation. This branch always worked.
+    #[test]
+    fn rtl_flags_left_to_right_sequence() {
+        let v = validate_panel_reading_order(&row(true), "rtl");
+        assert_eq!(v.violations.len(), 1);
+    }
+
+    #[test]
+    fn rtl_accepts_right_first() {
+        let v = validate_panel_reading_order(&row(false), "rtl");
+        assert!(v.violations.is_empty());
+    }
+
+    /// The gap: an LTR page had NO check. Reading right-first on a left-to-right
+    /// page is exactly as wrong as the mirror case, and used to pass silently.
+    #[test]
+    fn ltr_flags_right_to_left_sequence() {
+        let v = validate_panel_reading_order(&row(false), "ltr");
+        assert_eq!(
+            v.violations.len(),
+            1,
+            "an LTR page reading right-first must be a violation"
+        );
+    }
+
+    #[test]
+    fn ltr_accepts_left_first() {
+        let v = validate_panel_reading_order(&row(true), "ltr");
+        assert!(v.violations.is_empty());
+    }
+
+    /// Case and separator variants used to fall through to no enforcement.
+    #[test]
+    fn direction_spelling_variants_still_enforce() {
+        for spelling in ["RTL", "right_to_left", "Right-To-Left", "vertical-rl"] {
+            let v = validate_panel_reading_order(&row(true), spelling);
+            assert_eq!(v.violations.len(), 1, "{spelling} did not enforce");
+        }
+    }
+
+    /// The latent bug the LTR test exposed: `a` is whichever panel the caller
+    /// listed first, so a one-sided comparison misses the identical violation
+    /// when the array is in the other order. Both directions, both orderings.
+    #[test]
+    fn a_violation_is_found_regardless_of_input_order() {
+        for direction in ["rtl", "ltr"] {
+            let mut forward = row(direction == "rtl");
+            let mut reversed = forward.clone();
+            reversed.reverse();
+            let a = validate_panel_reading_order(&forward, direction);
+            let b = validate_panel_reading_order(&reversed, direction);
+            assert_eq!(
+                a.violations.len(),
+                b.violations.len(),
+                "{direction}: input order changed the verdict"
+            );
+            assert_eq!(a.violations.len(), 1, "{direction}: violation not detected");
+            forward.clear();
+            reversed.clear();
+        }
     }
 }
 
@@ -5582,8 +7186,456 @@ fn test_schema_json_suite_deserialization() {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-ort/src/generate.rs ---
+
+//! Driving the ONNX sessions for VisionEncoderDecoder generation.
+//!
+//! **This module is the unverified part of the pipeline, by construction.**
+//! Everything that can be decided without a live session lives in
+//! `comic_ocr_core::decode` and is tested there with no weights present: layer
+//! count derived from the graph's own tensor names, the no-repeat-trigram rule,
+//! beam selection, length-penalised scoring. What is left here is tensor binding
+//! and session calls, which cannot be exercised until a checkpoint exists.
+//!
+//! That split is the lesson from the previous loop, which was deleted in the
+//! reference-checkpoint purge: it mixed measured constants into the I/O and so
+//! nothing in it survived the model going away.
+//!
+//! ## Shapes this relies on, and where they come from
+//!
+//! Nothing here is a remembered number. The encoder's output sequence length and
+//! hidden size are read from the tensor it returns; the vocabulary size is read
+//! from the logits; the layer count is derived from the decoder's input names.
+//! The one thing that *is* assumed is the export layout produced by `optimum`
+//! for this architecture — separate encoder / decoder / decoder-with-past graphs,
+//! with `present.N.side.part` feeding `past_key_values.N.side.part`.
+//!
+//! ## Two properties of the with-past graph that shape the loop
+//!
+//! - The **cross-attention cache is emitted once, by the prefill, and never
+//!   re-emitted**. The with-past graph returns only `present.N.decoder.*`. Its
+//!   cross entries must be carried forward unchanged; reading them back from
+//!   each step's outputs finds nothing.
+//! - `input_ids` is **INT64 and pinned to sequence length one** on that graph.
+
+use comic_ocr_core::decode::{
+    Beam, GraphContract, banned_by_no_repeat_ngram, best_beam, select_beams, should_stop,
+};
+use comic_ocr_core::tokenizer::WordPieceVocab;
+use comic_ocr_core::{OcrError, preprocess};
+use ort::session::Session;
+use std::path::Path;
+
+/// Decoding parameters. Defaults mirror the architecture's own generation
+/// config; greedy argmax does **not** reproduce its output, so these are part of
+/// correctness rather than tuning.
+#[derive(Debug, Clone)]
+pub struct GenerationConfig {
+    pub num_beams: usize,
+    pub length_penalty: f32,
+    pub no_repeat_ngram_size: usize,
+    pub max_length: usize,
+}
+
+impl Default for GenerationConfig {
+    fn default() -> Self {
+        Self {
+            num_beams: 4,
+            length_penalty: 2.0,
+            no_repeat_ngram_size: 3,
+            max_length: 300,
+        }
+    }
+}
+
+/// An owned copy of one cache tensor, so it can outlive the session outputs it
+/// came from and be re-bound on the next step.
+#[derive(Clone)]
+struct CacheTensor {
+    shape: Vec<i64>,
+    data: Vec<f32>,
+}
+
+/// The KV cache for one beam. Self-attention entries grow each step; cross
+/// entries are fixed at prefill.
+#[derive(Clone)]
+struct BeamCache {
+    /// Indexed `[layer][0] = key, [layer][1] = value`.
+    self_attn: Vec<[CacheTensor; 2]>,
+    cross_attn: Vec<[CacheTensor; 2]>,
+}
+
+pub struct Generator {
+    encoder: Session,
+    decoder: Session,
+    decoder_past: Session,
+    contract: GraphContract,
+    vocab: WordPieceVocab,
+    config: GenerationConfig,
+}
+
+impl Generator {
+    /// Load the three graphs from a directory and derive the contract.
+    ///
+    /// Fails rather than guessing if the export is incomplete — a missing graph
+    /// or a decoder with no KV cache is named, not worked around.
+    pub fn from_dir(
+        dir: impl AsRef<Path>,
+        vocab: WordPieceVocab,
+        config: GenerationConfig,
+    ) -> Result<Self, OcrError> {
+        let dir = dir.as_ref();
+        let open = |name: &str| -> Result<Session, OcrError> {
+            let path = dir.join(name);
+            Session::builder()
+                .and_then(|mut b| b.commit_from_file(&path))
+                .map_err(|e| {
+                    OcrError::EngineError(format!("failed to load {}: {e}", path.display()))
+                })
+        };
+
+        let encoder = open("encoder_model.onnx")?;
+        let decoder = open("decoder_model.onnx")?;
+        let decoder_past = open("decoder_with_past_model.onnx")?;
+
+        let names: Vec<String> = decoder_past
+            .inputs()
+            .iter()
+            .map(|i| i.name().to_string())
+            .collect();
+        let contract = GraphContract::from_input_names(&names)?;
+
+        Ok(Self {
+            encoder,
+            decoder,
+            decoder_past,
+            contract,
+            vocab,
+            config,
+        })
+    }
+
+    pub fn contract(&self) -> &GraphContract {
+        &self.contract
+    }
+
+    /// Transcribe one crop. Returns the decoded string.
+    pub fn generate(&mut self, image: &image::DynamicImage) -> Result<String, OcrError> {
+        let ids = self.generate_ids(image)?;
+        Ok(self.vocab.decode(&ids, true))
+    }
+
+    /// Transcribe one crop, returning raw token ids.
+    pub fn generate_ids(&mut self, image: &image::DynamicImage) -> Result<Vec<u32>, OcrError> {
+        let start = self.vocab.cls_id();
+        let eos = self.vocab.sep_id();
+
+        let encoder_state = self.run_encoder(image)?;
+        let (first_logits, prefill_cache) = self.run_prefill(&encoder_state, start)?;
+
+        let mut beams = vec![Beam::start(start)];
+        let mut caches = vec![prefill_cache];
+        let mut pending = vec![first_logits];
+
+        for step in 0..self.config.max_length {
+            if should_stop(&beams, step, self.config.max_length) {
+                break;
+            }
+
+            // Candidates across every live beam, from the logits already computed
+            // for it. Selection itself is `comic_ocr_core::decode`'s job.
+            let mut candidates = Vec::new();
+            for (index, beam) in beams.iter().enumerate() {
+                if beam.finished {
+                    continue;
+                }
+                let logits = &pending[index];
+                let banned =
+                    banned_by_no_repeat_ngram(&beam.tokens, self.config.no_repeat_ngram_size);
+                for (token, logprob) in top_logprobs(logits, self.config.num_beams * 2, &banned) {
+                    candidates.push((index, token, logprob));
+                }
+            }
+            if candidates.is_empty() {
+                break;
+            }
+
+            let next = select_beams(&beams, &candidates, self.config.num_beams, eos);
+
+            // Re-run the decoder once per live beam. Correct and simple;
+            // batching the beams into one call is an optimisation, not a
+            // correctness matter, and is not worth doing before the loop has
+            // ever been validated against real weights.
+            let mut next_caches = Vec::with_capacity(next.len());
+            let mut next_pending = Vec::with_capacity(next.len());
+            for beam in &next {
+                let parent = beams
+                    .iter()
+                    .position(|b| {
+                        beam.tokens.starts_with(&b.tokens)
+                            && b.tokens.len() + 1 == beam.tokens.len()
+                    })
+                    .unwrap_or(0);
+                if beam.finished {
+                    next_caches.push(caches[parent.min(caches.len() - 1)].clone());
+                    next_pending.push(Vec::new());
+                    continue;
+                }
+                let token = *beam.tokens.last().expect("a beam always has a token");
+                let (logits, cache) =
+                    self.run_step(&encoder_state, &caches[parent.min(caches.len() - 1)], token)?;
+                next_caches.push(cache);
+                next_pending.push(logits);
+            }
+
+            beams = next;
+            caches = next_caches;
+            pending = next_pending;
+        }
+
+        let best = best_beam(&beams, self.config.length_penalty)
+            .ok_or_else(|| OcrError::EngineError("decoding produced no beam".to_string()))?;
+        Ok(best.tokens.clone())
+    }
+
+    fn run_encoder(&mut self, image: &image::DynamicImage) -> Result<CacheTensor, OcrError> {
+        let (shape, data) = preprocess::preprocess(image)?.into_parts();
+        let value = ort::value::Value::from_array((shape, data))
+            .map_err(|e| OcrError::EngineError(format!("encoder input tensor: {e}")))?
+            .into_dyn();
+        let outputs = self
+            .encoder
+            .run(ort::inputs!["pixel_values" => value])
+            .map_err(|e| OcrError::EngineError(format!("encoder run: {e}")))?;
+        let hidden = outputs
+            .get("last_hidden_state")
+            .ok_or_else(|| OcrError::EngineError("encoder emitted no last_hidden_state".into()))?;
+        owned(hidden)
+    }
+
+    fn run_prefill(
+        &mut self,
+        encoder_state: &CacheTensor,
+        start: u32,
+    ) -> Result<(Vec<f32>, BeamCache), OcrError> {
+        let ids = ort::value::Value::from_array((vec![1i64, 1], vec![start as i64]))
+            .map_err(|e| OcrError::EngineError(format!("decoder input_ids: {e}")))?
+            .into_dyn();
+        let enc = rebuild(encoder_state)?;
+        let outputs = self
+            .decoder
+            .run(ort::inputs![
+                "input_ids" => ids,
+                "encoder_hidden_states" => enc,
+            ])
+            .map_err(|e| OcrError::EngineError(format!("decoder prefill: {e}")))?;
+
+        let logits = last_position_logits(&outputs)?;
+        let mut self_attn = Vec::with_capacity(self.contract.num_layers);
+        let mut cross_attn = Vec::with_capacity(self.contract.num_layers);
+        for layer in 0..self.contract.num_layers {
+            self_attn.push([
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "decoder", "key"),
+                )?)?,
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "decoder", "value"),
+                )?)?,
+            ]);
+            cross_attn.push([
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "encoder", "key"),
+                )?)?,
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "encoder", "value"),
+                )?)?,
+            ]);
+        }
+        Ok((
+            logits,
+            BeamCache {
+                self_attn,
+                cross_attn,
+            },
+        ))
+    }
+
+    fn run_step(
+        &mut self,
+        encoder_state: &CacheTensor,
+        cache: &BeamCache,
+        token: u32,
+    ) -> Result<(Vec<f32>, BeamCache), OcrError> {
+        let mut inputs: Vec<(std::borrow::Cow<'_, str>, ort::value::DynValue)> = Vec::new();
+        inputs.push((
+            "input_ids".into(),
+            ort::value::Value::from_array((vec![1i64, 1], vec![token as i64]))
+                .map_err(|e| OcrError::EngineError(format!("step input_ids: {e}")))?
+                .into_dyn(),
+        ));
+        inputs.push(("encoder_hidden_states".into(), rebuild(encoder_state)?));
+        for layer in 0..self.contract.num_layers {
+            for (side, pair) in [
+                ("decoder", &cache.self_attn[layer]),
+                ("encoder", &cache.cross_attn[layer]),
+            ] {
+                for (part, tensor) in [("key", &pair[0]), ("value", &pair[1])] {
+                    inputs.push((
+                        GraphContract::past_for(layer, side, part).into(),
+                        rebuild(tensor)?,
+                    ));
+                }
+            }
+        }
+
+        let outputs = self
+            .decoder_past
+            .run(inputs)
+            .map_err(|e| OcrError::EngineError(format!("decoder step: {e}")))?;
+        let logits = last_position_logits(&outputs)?;
+
+        // Only the self-attention cache is re-emitted. Cross entries are carried
+        // forward from the prefill unchanged — reading them from these outputs
+        // would find nothing.
+        let mut self_attn = Vec::with_capacity(self.contract.num_layers);
+        for layer in 0..self.contract.num_layers {
+            self_attn.push([
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "decoder", "key"),
+                )?)?,
+                owned(out(
+                    &outputs,
+                    &GraphContract::present_for(layer, "decoder", "value"),
+                )?)?,
+            ]);
+        }
+        Ok((
+            logits,
+            BeamCache {
+                self_attn,
+                cross_attn: cache.cross_attn.clone(),
+            },
+        ))
+    }
+}
+
+fn out<'a>(
+    outputs: &'a ort::session::SessionOutputs,
+    name: &str,
+) -> Result<&'a ort::value::DynValue, OcrError> {
+    outputs
+        .get(name)
+        .ok_or_else(|| OcrError::EngineError(format!("decoder emitted no {name}")))
+}
+
+fn owned(value: &ort::value::DynValue) -> Result<CacheTensor, OcrError> {
+    let (shape, data) = value
+        .try_extract_tensor::<f32>()
+        .map_err(|e| OcrError::EngineError(format!("tensor extract: {e}")))?;
+    Ok(CacheTensor {
+        shape: shape.to_vec(),
+        data: data.to_vec(),
+    })
+}
+
+fn rebuild(t: &CacheTensor) -> Result<ort::value::DynValue, OcrError> {
+    Ok(
+        ort::value::Value::from_array((t.shape.clone(), t.data.clone()))
+            .map_err(|e| OcrError::EngineError(format!("tensor rebuild: {e}")))?
+            .into_dyn(),
+    )
+}
+
+/// Log-probabilities for the final position, vocabulary size read from the
+/// tensor rather than assumed.
+fn last_position_logits(outputs: &ort::session::SessionOutputs) -> Result<Vec<f32>, OcrError> {
+    let logits = out(outputs, "logits")?;
+    let (shape, data) = logits
+        .try_extract_tensor::<f32>()
+        .map_err(|e| OcrError::EngineError(format!("logits extract: {e}")))?;
+    let vocab = *shape
+        .last()
+        .ok_or_else(|| OcrError::EngineError("logits tensor has no dimensions".into()))?
+        as usize;
+    if vocab == 0 || data.len() < vocab {
+        return Err(OcrError::EngineError(format!(
+            "logits tensor is {} values for a vocabulary of {vocab}",
+            data.len()
+        )));
+    }
+    Ok(data[data.len() - vocab..].to_vec())
+}
+
+/// The `k` highest log-probabilities, excluding banned tokens.
+///
+/// Softmax in log space with the max subtracted, so a long vocabulary cannot
+/// overflow before it is normalised.
+fn top_logprobs(logits: &[f32], k: usize, banned: &[u32]) -> Vec<(u32, f32)> {
+    if logits.is_empty() {
+        return Vec::new();
+    }
+    let max = logits.iter().copied().fold(f32::NEG_INFINITY, f32::max);
+    let sum_exp: f32 = logits.iter().map(|&l| (l - max).exp()).sum();
+    let log_sum = sum_exp.max(f32::MIN_POSITIVE).ln();
+
+    let mut scored: Vec<(u32, f32)> = logits
+        .iter()
+        .enumerate()
+        .filter(|(index, _)| !banned.contains(&(*index as u32)))
+        .map(|(index, &l)| (index as u32, (l - max) - log_sum))
+        .collect();
+    scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    scored.truncate(k.max(1));
+    scored
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Vocabulary size comes from the tensor, and a malformed logits tensor is
+    /// refused rather than indexed into.
+    #[test]
+    fn top_logprobs_normalises_and_ranks() {
+        let logits = vec![0.0, 5.0, 1.0];
+        let top = top_logprobs(&logits, 2, &[]);
+        assert_eq!(top[0].0, 1);
+        assert_eq!(top[1].0, 2);
+        assert!(top[0].1 > top[1].1);
+        assert!(top[0].1 < 0.0, "log probabilities are negative");
+    }
+
+    #[test]
+    fn banned_tokens_are_excluded_entirely() {
+        let logits = vec![0.0, 5.0, 1.0];
+        let top = top_logprobs(&logits, 3, &[1]);
+        assert!(top.iter().all(|(token, _)| *token != 1));
+    }
+
+    #[test]
+    fn empty_logits_yield_no_candidates() {
+        assert!(top_logprobs(&[], 4, &[]).is_empty());
+    }
+
+    /// A vocabulary of 40k must not overflow before normalisation.
+    #[test]
+    fn large_logits_do_not_overflow() {
+        let logits: Vec<f32> = (0..40_000).map(|i| (i % 100) as f32).collect();
+        let top = top_logprobs(&logits, 4, &[]);
+        assert_eq!(top.len(), 4);
+        assert!(top.iter().all(|(_, lp)| lp.is_finite()));
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-ort/src/lib.rs ---
 
+pub mod generate;
 use comic_ocr_core::{
     EngineType, OcrEngine, OcrError, OcrMetadata, OcrResult, post_process_with_furigana,
 };
@@ -5591,8 +7643,6 @@ use ort::session::Session;
 use std::path::Path;
 use std::process::Command;
 use std::sync::{Arc, Mutex};
-
-pub mod preprocess;
 
 pub struct OrtEngine {
     pub model_name: String,
@@ -5745,7 +7795,7 @@ impl OcrEngine for OrtEngine {
             // normalised with ImageNet mean/std; `preprocessor_config.json`
             // says 0.5/0.5, so that loop was feeding the encoder a shifted and
             // wrongly-scaled image. See `preprocess` for the sourcing.
-            let (shape, input_tensor) = preprocess::preprocess(image)?.into_parts();
+            let (shape, input_tensor) = comic_ocr_core::preprocess::preprocess(image)?.into_parts();
             let tensor_value =
                 ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
                     OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))
@@ -5931,504 +7981,6 @@ mod tests {
 
         let valid_entropies = vec![1.2, 0.9, 1.1, 0.8];
         assert!(!engine.should_truncate_loop(&valid_entropies));
-    }
-}
-
-
---- RUST SOURCE: crates/comic-ocr-ort/src/preprocess.rs ---
-
-//! Image preprocessing for a ViT/DeiT-family vision encoder.
-//!
-//! Every constant here mirrors a field of the model's `preprocessor_config.json`
-//! on the HuggingFace Hub, or a documented default that `ViTImageProcessor`
-//! applies when the field is absent. The file was fetched from
-//! Values below MUST be re-read from the target checkpoint's own
-//! `preprocessor_config.json` — they are model properties, not constants.
-//! and reads, in full:
-//!
-//! ```json
-//! {
-//!   "do_normalize": true,
-//!   "do_resize": true,
-//!   "feature_extractor_type": "ViTFeatureExtractor",
-//!   "image_mean": [0.5, 0.5, 0.5],
-//!   "image_std": [0.5, 0.5, 0.5],
-//!   "resample": 2,
-//!   "size": 224
-//! }
-//! ```
-//!
-//! Note what is *not* in that file: `do_rescale` and `rescale_factor`. This is
-//! the legacy `ViTFeatureExtractor` serialisation, and the missing keys are
-//! filled in by `ViTImageProcessor`'s own defaults rather than skipped. Loading
-//! the config above through `transformers` 4.42.4 resolves it to:
-//!
-//! ```text
-//! do_normalize: true, do_rescale: true, do_resize: true,
-//! image_mean: [0.5, 0.5, 0.5], image_std: [0.5, 0.5, 0.5],
-//! rescale_factor: 0.00392156862745098, resample: 2,
-//! size: {"height": 224, "width": 224}
-//! ```
-//!
-//! so rescaling by 1/255 does happen, and the scalar `size: 224` expands to a
-//! square 224x224 target (`get_size_dict(..., default_to_square=True)`) — the
-//! aspect ratio of the input is *not* preserved.
-//!
-//! # Pipeline
-//!
-//! The order below is the order the upstream reference pipeline applies, which is
-//! the reference implementation this crate is trying to match:
-//!
-//! 1. Greyscale round-trip — `img.convert("L").convert("RGB")`. Done by the
-//!    *caller* of the processor, not the processor itself, but it is part of
-//!    how the model is used in practice, so it is on by default here. See
-//!    [`PreprocessConfig::greyscale`].
-//! 2. Resize to 224x224 with PIL `BILINEAR`.
-//! 3. Rescale by 1/255 into `[0, 1]`.
-//! 4. Normalise: `(x - mean) / std`, which with mean = std = 0.5 maps
-//!    `[0, 1]` onto `[-1, 1]`.
-//! 5. Emit CHW `f32` with a leading batch axis: `[1, 3, 224, 224]`.
-
-use comic_ocr_core::OcrError;
-use image::{DynamicImage, RgbImage};
-
-/// Target edge length. Source: `preprocessor_config.json` `"size": 224`,
-/// expanded by `get_size_dict(size, default_to_square=True)` to a square
-/// `{"height": 224, "width": 224}`. Cross-checked against the model's
-/// `config.json`, whose encoder declares `image_size: 224`.
-pub const IMAGE_SIZE: u32 = 224;
-
-/// Source: the model's `config.json` encoder section, `num_channels: 3`.
-/// The processor emits 3 channels even for greyscale input — the greyscale
-/// round-trip in step 1 replicates one luma plane across R, G and B rather
-/// than reducing the channel count.
-pub const NUM_CHANNELS: usize = 3;
-
-/// Source: `ViTImageProcessor`'s `rescale_factor` default of `1/255`, applied
-/// because `do_rescale` defaults to `true` and `preprocessor_config.json`
-/// does not override it.
-pub const RESCALE_FACTOR: f32 = 1.0 / 255.0;
-
-/// Source: `preprocessor_config.json` `"image_mean": [0.5, 0.5, 0.5]`.
-///
-/// These are deliberately NOT the ImageNet means (0.485/0.456/0.406). This
-/// checkpoint normalises to `[-1, 1]`, not to ImageNet statistics.
-pub const IMAGE_MEAN: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
-
-/// Source: `preprocessor_config.json` `"image_std": [0.5, 0.5, 0.5]`.
-///
-/// Likewise not the ImageNet standard deviations (0.229/0.224/0.225).
-pub const IMAGE_STD: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
-
-/// Source: `preprocessor_config.json` `"resample": 2`, which is
-/// `PIL.Image.Resampling.BILINEAR` (the PIL enum is NEAREST=0, LANCZOS=1,
-/// BILINEAR=2, BICUBIC=3, BOX=4, HAMMING=5).
-///
-/// `FilterType::Triangle` is the `image` crate's name for a bilinear filter:
-/// unit support, weights scaled by the sampling ratio when downscaling, and
-/// normalised to sum to one — the same construction PIL uses. The two are not
-/// bit-identical, because PIL accumulates in quantised fixed point and `image`
-/// in `f32`, so individual output pixels can land one byte apart.
-///
-/// Measured, rather than assumed. This module's output was compared element by
-/// element against `ViTImageProcessor` (transformers 4.42.4, Pillow 10.1.0)
-/// loading the config above, over the five crops in `assets/examples` and a
-/// random-noise image. One LSB of the byte quantisation is `(1/255)/0.5`
-/// = 0.00784 in normalised units.
-///
-/// ```text
-/// input            exact match   mean |diff|   max |diff|
-/// 00.jpg  99x178       82%         0.17 LSB     2 LSB
-/// 01.jpg 188x251       81%         0.19 LSB     2 LSB
-/// 02.jpg  62x103       88%         0.12 LSB     2 LSB
-/// 03.jpg 406x115       85%         0.15 LSB     1 LSB
-/// 14.jpg 650x1024      91%         0.09 LSB     1 LSB
-/// random 137x291        -          0.17 LSB     1 LSB
-/// ```
-///
-/// The residual is entirely resampler rounding. Closing it completely would
-/// mean reimplementing PIL's fixed-point resampler; at under one byte of image
-/// intensity it is far below the noise the encoder already tolerates, whereas
-/// the mean/std error this module replaced was a systematic shift of the whole
-/// tensor.
-pub const RESAMPLE_FILTER: image::imageops::FilterType = image::imageops::FilterType::Triangle;
-
-/// Fixed-point ITU-R 601-2 luma weights, matching PIL's `RGB -> L` conversion
-/// exactly. PIL computes `(r*19595 + g*38470 + b*7471 + 32768) >> 16`; the
-/// `+ 32768` is a round-to-nearest term, so truncating instead is off by one
-/// on many inputs. Verified against Pillow 10.1.0 over 20,000 random RGB
-/// triples with zero mismatches.
-///
-/// This is why [`greyscale_luma`] exists instead of a call to the `image`
-/// crate's `to_luma8()`: that uses Rec. 709 weights (0.2126/0.7152/0.0722),
-/// which disagree with PIL badly — pure green maps to 150 under PIL and 182
-/// under Rec. 709.
-const LUMA_601_WEIGHTS: [u32; NUM_CHANNELS] = [19595, 38470, 7471];
-const LUMA_601_ROUND: u32 = 32768;
-const LUMA_601_SHIFT: u32 = 16;
-
-/// Which optional stages of the reference pipeline to apply.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PreprocessConfig {
-    /// Apply the `convert("L").convert("RGB")` greyscale round-trip before
-    /// resizing.
-    ///
-    /// `true` matches the upstream reference pipeline's behaviour, the reference
-    /// implementation. It is not part of `ViTImageProcessor` itself, so a
-    /// caller that feeds the processor colour input directly wants `false`.
-    ///
-    /// This is not a cosmetic switch. On a random-colour test image the two
-    /// settings produce tensors differing by up to 1.37 in a range that only
-    /// spans `[-1, 1]`.
-    pub greyscale: bool,
-}
-
-impl Default for PreprocessConfig {
-    fn default() -> Self {
-        Self { greyscale: true }
-    }
-}
-
-/// A preprocessed image: the tensor and the shape it must be interpreted with.
-///
-/// The two travel together so a caller cannot pair the buffer with a shape that
-/// does not describe it.
-#[derive(Debug, Clone, PartialEq)]
-pub struct PreprocessedImage {
-    data: Vec<f32>,
-    shape: [usize; 4],
-}
-
-impl PreprocessedImage {
-    /// The tensor in CHW order with a leading batch axis, row-major.
-    ///
-    /// Index of channel `c`, row `y`, column `x` is
-    /// `c * IMAGE_SIZE * IMAGE_SIZE + y * IMAGE_SIZE + x`.
-    pub fn data(&self) -> &[f32] {
-        &self.data
-    }
-
-    /// `[1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE]`.
-    pub fn shape(&self) -> [usize; 4] {
-        self.shape
-    }
-
-    /// Consumes into `(shape, data)`, the pair an ONNX Runtime tensor wants.
-    pub fn into_parts(self) -> (Vec<i64>, Vec<f32>) {
-        let shape = self.shape.iter().map(|&d| d as i64).collect();
-        (shape, self.data)
-    }
-}
-
-/// PIL's `RGB -> L`: ITU-R 601-2 luma in rounded fixed point.
-///
-/// Kept `#[inline]` and standalone so the test suite can assert it against
-/// values sampled from a real Pillow build.
-#[inline]
-pub fn greyscale_luma(r: u8, g: u8, b: u8) -> u8 {
-    let acc = u32::from(r) * LUMA_601_WEIGHTS[0]
-        + u32::from(g) * LUMA_601_WEIGHTS[1]
-        + u32::from(b) * LUMA_601_WEIGHTS[2]
-        + LUMA_601_ROUND;
-    // The weights sum to exactly 65536, so with the rounding term the maximum
-    // possible result is 255 and the shift cannot overflow a u8.
-    (acc >> LUMA_601_SHIFT) as u8
-}
-
-/// Preprocesses an image the way the upstream reference pipeline does.
-///
-/// Equivalent to [`preprocess_with`] under [`PreprocessConfig::default`], which
-/// includes the greyscale round-trip.
-///
-/// # Errors
-///
-/// Returns [`OcrError::InvalidInput`] if either dimension is zero. There is no
-/// meaningful tensor for an empty image, and emitting a zero-filled one would
-/// hand the model a black square that it would happily transcribe.
-pub fn preprocess(image: &DynamicImage) -> Result<PreprocessedImage, OcrError> {
-    preprocess_with(image, PreprocessConfig::default())
-}
-
-/// Preprocesses an image with explicit control over the optional stages.
-///
-/// # Errors
-///
-/// Returns [`OcrError::InvalidInput`] if either dimension is zero.
-pub fn preprocess_with(
-    image: &DynamicImage,
-    config: PreprocessConfig,
-) -> Result<PreprocessedImage, OcrError> {
-    let (width, height) = (image.width(), image.height());
-    if width == 0 || height == 0 {
-        return Err(OcrError::InvalidInput(format!(
-            "cannot preprocess an image with a zero dimension (got {width}x{height})"
-        )));
-    }
-
-    // Drop any alpha channel first, as PIL does: `convert("L")` and
-    // `convert("RGB")` both read RGB and ignore alpha rather than compositing
-    // it onto a background.
-    let mut rgb = image.to_rgb8();
-
-    // Step 1: greyscale round-trip, replicating one luma plane across all
-    // three channels. Done before the resize, matching upstream ordering.
-    if config.greyscale {
-        for pixel in rgb.pixels_mut() {
-            let luma = greyscale_luma(pixel[0], pixel[1], pixel[2]);
-            pixel[0] = luma;
-            pixel[1] = luma;
-            pixel[2] = luma;
-        }
-    }
-
-    // Step 2: resize to a square target. Aspect ratio is not preserved.
-    //
-    // Skipping the resampler when the input is already 224x224 is not just an
-    // optimisation, it is what PIL does: `Image.resize` returns a copy when the
-    // requested size equals the current one. Running a bilinear pass anyway
-    // would be an identity in exact arithmetic but could still round a pixel.
-    let resized: RgbImage = if width == IMAGE_SIZE && height == IMAGE_SIZE {
-        rgb
-    } else {
-        image::imageops::resize(&rgb, IMAGE_SIZE, IMAGE_SIZE, RESAMPLE_FILTER)
-    };
-
-    // Steps 3-5: rescale, normalise, and scatter into CHW.
-    let plane = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
-    let mut data = vec![0.0f32; NUM_CHANNELS * plane];
-    for (x, y, pixel) in resized.enumerate_pixels() {
-        let offset = y as usize * IMAGE_SIZE as usize + x as usize;
-        for c in 0..NUM_CHANNELS {
-            let rescaled = f32::from(pixel[c]) * RESCALE_FACTOR;
-            data[c * plane + offset] = (rescaled - IMAGE_MEAN[c]) / IMAGE_STD[c];
-        }
-    }
-
-    Ok(PreprocessedImage {
-        data,
-        shape: [1, NUM_CHANNELS, IMAGE_SIZE as usize, IMAGE_SIZE as usize],
-    })
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use image::{Rgb, RgbImage};
-
-    const PLANE: usize = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
-    const NO_GREY: PreprocessConfig = PreprocessConfig { greyscale: false };
-
-    fn solid(width: u32, height: u32, colour: [u8; 3]) -> DynamicImage {
-        DynamicImage::ImageRgb8(RgbImage::from_pixel(width, height, Rgb(colour)))
-    }
-
-    /// The normalisation the reference pipeline applies, written out the long
-    /// way so the test does not simply restate the implementation.
-    fn expected(value: u8) -> f32 {
-        (value as f32 / 255.0 - 0.5) / 0.5
-    }
-
-    #[test]
-    fn constants_match_preprocessor_config() {
-        // Guards against a silent revert to ImageNet statistics, which is what
-        // the inline preprocessing block in `predict` used before this module
-        // existed.
-        assert_eq!(IMAGE_MEAN, [0.5, 0.5, 0.5]);
-        assert_eq!(IMAGE_STD, [0.5, 0.5, 0.5]);
-        assert_eq!(IMAGE_SIZE, 224);
-        assert_eq!(NUM_CHANNELS, 3);
-        assert!((RESCALE_FACTOR - 1.0 / 255.0).abs() < f32::EPSILON);
-        assert_eq!(RESAMPLE_FILTER, image::imageops::FilterType::Triangle);
-    }
-
-    #[test]
-    fn tensor_has_the_shape_and_length_the_model_expects() {
-        let out = preprocess(&solid(64, 96, [10, 20, 30])).expect("preprocess");
-        assert_eq!(out.shape(), [1, 3, 224, 224]);
-        assert_eq!(out.data().len(), 3 * 224 * 224);
-        assert_eq!(out.data().len(), NUM_CHANNELS * PLANE);
-
-        let (shape, data) = out.into_parts();
-        assert_eq!(shape, vec![1i64, 3, 224, 224]);
-        assert_eq!(data.len(), 3 * 224 * 224);
-    }
-
-    #[test]
-    fn layout_is_chw_not_hwc() {
-        // Distinct per-channel values. In CHW the first plane is entirely red,
-        // the second entirely green, the third entirely blue. In HWC the first
-        // three values would instead be R, G, B of a single pixel.
-        let out = preprocess_with(&solid(50, 50, [255, 0, 128]), NO_GREY).expect("preprocess");
-        let data = out.data();
-
-        for (channel, &value) in [255u8, 0, 128].iter().enumerate() {
-            let plane = &data[channel * PLANE..(channel + 1) * PLANE];
-            assert!(
-                plane.iter().all(|v| (v - expected(value)).abs() < 1e-6),
-                "channel {channel} plane is not uniformly the value for {value}; \
-                 this is the signature of HWC ordering"
-            );
-        }
-
-        // Stated the other way round: consecutive elements belong to the same
-        // channel, not to the same pixel.
-        assert!((data[0] - data[1]).abs() < 1e-6);
-        assert!((data[0] - data[PLANE]).abs() > 1.0);
-    }
-
-    #[test]
-    fn normalisation_matches_hand_computed_values() {
-        // A solid image survives bilinear resampling unchanged, so every output
-        // element is exactly the normalisation of the source byte. Values below
-        // were computed by hand:
-        //   37  -> 37/255  = 0.14509804; (0.14509804 - 0.5) / 0.5 = -0.70980392
-        //   200 -> 200/255 = 0.78431373; (0.78431373 - 0.5) / 0.5 =  0.56862745
-        //   255 -> 1.0;  (1.0 - 0.5) / 0.5 =  1.0
-        let out = preprocess_with(&solid(80, 40, [37, 200, 255]), NO_GREY).expect("preprocess");
-        let data = out.data();
-
-        assert!((data[0] - (-0.709_803_92)).abs() < 1e-6, "got {}", data[0]);
-        assert!(
-            (data[PLANE] - 0.568_627_5).abs() < 1e-6,
-            "got {}",
-            data[PLANE]
-        );
-        assert!(
-            (data[2 * PLANE] - 1.0).abs() < 1e-6,
-            "got {}",
-            data[2 * PLANE]
-        );
-
-        // The [0, 255] byte range maps onto exactly [-1, 1] under mean = std = 0.5.
-        assert!((expected(0) - (-1.0)).abs() < 1e-6);
-        assert!((expected(255) - 1.0).abs() < 1e-6);
-        assert!(
-            data.iter().all(|v| (-1.0..=1.0).contains(v)),
-            "mean/std of 0.5 must confine output to [-1, 1]"
-        );
-    }
-
-    #[test]
-    fn imagenet_constants_would_produce_a_different_tensor() {
-        // Pins the actual defect this module was written to fix: had the old
-        // ImageNet numbers been correct, these assertions would not hold.
-        //
-        // Note that the two formulas nearly agree near the middle of the byte
-        // range — at 128 they differ by only 0.07 — so a discriminating test
-        // has to sample away from the centre. That near-agreement is exactly
-        // why the wrong constants degraded accuracy without ever looking
-        // obviously broken.
-        const IMAGENET_MEAN: [f32; 3] = [0.485, 0.456, 0.406];
-        const IMAGENET_STD: [f32; 3] = [0.229, 0.224, 0.225];
-
-        let out = preprocess_with(&solid(32, 32, [240, 240, 240]), NO_GREY).expect("preprocess");
-        for channel in 0..NUM_CHANNELS {
-            let ours = out.data()[channel * PLANE];
-            let imagenet = (240.0f32 / 255.0 - IMAGENET_MEAN[channel]) / IMAGENET_STD[channel];
-            assert!(
-                (ours - imagenet).abs() > 1.0,
-                "channel {channel}: config-driven {ours} must not coincide with ImageNet {imagenet}"
-            );
-        }
-    }
-
-    #[test]
-    fn greyscale_matches_pil_itu_r_601_2() {
-        // Reference values read out of Pillow 10.1.0 via
-        // `Image.new("RGB", (1, 1), t).convert("L").getpixel((0, 0))`.
-        for &(rgb, pil) in &[
-            ((255u8, 0u8, 0u8), 76u8),
-            ((0, 255, 0), 150),
-            ((0, 0, 255), 29),
-            ((10, 200, 90), 131),
-            ((37, 113, 201), 100),
-            ((128, 128, 128), 128),
-            ((0, 0, 0), 0),
-            ((255, 255, 255), 255),
-        ] {
-            let (r, g, b) = rgb;
-            assert_eq!(greyscale_luma(r, g, b), pil, "PIL mismatch for {rgb:?}");
-        }
-
-        // Rec. 709, which `image`'s `to_luma8` would use, disagrees sharply.
-        // If this ever stops holding, someone swapped in the wrong weights.
-        assert_ne!(greyscale_luma(0, 255, 0), 182);
-    }
-
-    #[test]
-    fn greyscale_collapses_the_three_channels() {
-        let out = preprocess(&solid(60, 60, [255, 0, 128])).expect("preprocess");
-        let data = out.data();
-        let luma = greyscale_luma(255, 0, 128);
-        for channel in 0..NUM_CHANNELS {
-            assert!((data[channel * PLANE] - expected(luma)).abs() < 1e-6);
-        }
-    }
-
-    #[test]
-    fn greyscale_is_not_a_no_op() {
-        // Documents that the flag changes the tensor materially, so nobody
-        // "simplifies" it away on the assumption that it is cosmetic.
-        let image = solid(64, 64, [200, 30, 90]);
-        let with = preprocess_with(&image, PreprocessConfig { greyscale: true }).expect("grey");
-        let without = preprocess_with(&image, NO_GREY).expect("colour");
-        assert_ne!(with, without);
-    }
-
-    #[test]
-    fn one_by_one_image_is_handled() {
-        let out = preprocess(&solid(1, 1, [200, 200, 200])).expect("1x1 must not fail");
-        assert_eq!(out.data().len(), 3 * 224 * 224);
-        // Upsampling a single pixel can only ever yield that pixel's value.
-        assert!(out.data().iter().all(|v| (v - expected(200)).abs() < 1e-6));
-    }
-
-    #[test]
-    fn extreme_aspect_ratios_are_handled() {
-        for (w, h) in [
-            (1u32, 4000u32),
-            (4000, 1),
-            (3, 997),
-            (997, 3),
-            (1, 1),
-            (224, 224),
-        ] {
-            let out = preprocess(&solid(w, h, [17, 99, 240]))
-                .unwrap_or_else(|e| panic!("{w}x{h} failed: {e}"));
-            assert_eq!(out.shape(), [1, 3, 224, 224], "{w}x{h}");
-            assert_eq!(out.data().len(), 3 * 224 * 224, "{w}x{h}");
-            assert!(
-                out.data().iter().all(|v| v.is_finite()),
-                "{w}x{h} produced a non-finite element"
-            );
-        }
-    }
-
-    #[test]
-    fn a_non_uniform_image_produces_a_non_uniform_tensor() {
-        // Cheap guard against the failure mode this repository has shipped
-        // three times: a function returning a plausible constant. A gradient in
-        // must give varying values out.
-        let mut buffer = RgbImage::new(300, 120);
-        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
-            *pixel = Rgb([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8]);
-        }
-        let out = preprocess(&DynamicImage::ImageRgb8(buffer)).expect("preprocess");
-        let first = out.data()[0];
-        assert!(
-            out.data().iter().any(|v| (v - first).abs() > 0.05),
-            "gradient input collapsed to a constant tensor"
-        );
-    }
-
-    #[test]
-    fn zero_dimension_is_an_error_not_a_blank_tensor() {
-        let empty = DynamicImage::ImageRgb8(RgbImage::new(0, 10));
-        let err = preprocess(&empty).expect_err("a 0x10 image has no valid tensor");
-        assert!(matches!(err, OcrError::InvalidInput(_)), "got {err:?}");
-
-        let empty = DynamicImage::ImageRgb8(RgbImage::new(10, 0));
-        assert!(matches!(preprocess(&empty), Err(OcrError::InvalidInput(_))));
     }
 }
 
