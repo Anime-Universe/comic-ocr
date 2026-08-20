@@ -1,80 +1,753 @@
 {
-  "input_file": "assets/examples/12.jpg",
+  "input_file": "tests/data/images/12.jpg",
   "image_dimensions": {
     "width": 1024,
     "height": 793,
     "size_bytes": 201986
   },
-  "processing_mode": "multi_bubble_region_detection",
-  "detected_bubbles_count": 2,
-  "recognized_text": "はっ、はぁっ... そういえば、そうだったんだけど",
+  "processing_mode": "automatic_contour_clustering",
+  "detected_bubbles_count": 7,
+  "recognized_text": "やったわ!! さすがあたし!! ...っつってもまた迷路だし しかもなんか前より複雑...... ちょっと...... ウソでしょ... なんて広さなの? キーファのくちびるってけっこうやわらかかったな...... なんちて キャー!! よし! ガンバルぞ~~~!!",
   "ocr_result": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-    "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-    "confidence": 0.985,
-    "token_probabilities": [0.99, 0.985, 0.98, 0.985],
+    "text": "やったわ!! さすがあたし!! ...っつってもまた迷路だし しかもなんか前より複雑...... ちょっと...... ウソでしょ... なんて広さなの? キーファのくちびるってけっこうやわらかかったな...... なんちて キャー!! よし! ガンバルぞ~~~!!",
+    "confidence": 0.988,
+    "token_probabilities": [
+      0.992,
+      0.985,
+      0.987,
+      0.988,
+      0.99
+    ],
     "metadata": {
-      "duration_ms": 12.4,
+      "duration_ms": 28.4,
       "model_name": "kha-white/manga-ocr-base",
       "engine_type": "BaseInt8Onnx"
     }
   },
   "pdp_decision": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-    "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-    "confidence": 0.985,
+    "selected_text": "やったわ!! さすがあたし!! ...っつってもまた迷路だし しかもなんか前より複雑...... ちょっと...... ウソでしょ... なんて広さなの? キーファのくちびるってけっこうやわらかかったな...... なんちて キャー!! よし! ガンバルぞ~~~!!",
+    "confidence": 0.988,
     "is_validated": true,
     "candidates": [
       {
         "engine_type": "BaseInt8Onnx",
-        "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "raw_confidence": 0.985,
-        "acs_score": 0.99
+        "text": "やったわ!! さすがあたし!! ...っつってもまた迷路だし しかもなんか前より複雑...... ちょっと...... ウソでしょ... なんて広さなの? キーファのくちびるってけっこうやわらかかったな...... なんちて キャー!! よし! ガンバルぞ~~~!!",
+        "raw_confidence": 0.988,
+        "acs_score": 0.991
       }
-    ]
+    ],
+    "ocr_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+      "text": "やったわ!! さすがあたし!! ...っつってもまた迷路だし しかもなんか前より複雑...... ちょっと...... ウソでしょ... なんて広さなの? キーファのくちびるってけっこうやわらかかったな...... なんちて キャー!! よし! ガンバルぞ~~~!!",
+      "confidence": 0.988,
+      "token_probabilities": [
+        0.992,
+        0.985,
+        0.987,
+        0.988,
+        0.99
+      ],
+      "metadata": {
+        "duration_ms": 28.4,
+        "model_name": "kha-white/manga-ocr-base",
+        "engine_type": "BaseInt8Onnx"
+      }
+    }
   },
   "page_result": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
-    "page_id": "a1234567-e89b-12d3-a456-426614174012",
+    "page_id": "page_12_jpg",
     "page_number": 12,
     "panels": [
       {
-        "id": "b1234567-e89b-12d3-a456-426614174012",
+        "id": "panel_12_top_right",
         "reading_order": 1,
-        "bounds": [0.0, 0.0, 1024.0, 793.0],
+        "bounds": [
+          512.0,
+          0.0,
+          512.0,
+          396.0
+        ],
         "bubbles": [
           {
-            "id": "c1234567-e89b-12d3-a456-426614174012_bubble_1",
+            "id": "container_12_bubble_1",
             "reading_order": 1,
-            "bounds": [525.0, 53.0, 473.0, 693.0],
-            "text": "はっ、はぁっ...",
-            "confidence": 0.985
-          },
-          {
-            "id": "c1234567-e89b-12d3-a456-426614174012_bubble_2",
-            "reading_order": 2,
-            "bounds": [21.0, 34.0, 472.0, 712.0],
-            "text": "そういえば、そうだったんだけど",
-            "confidence": 0.982
+            "bounds": [
+              850.0,
+              125.0,
+              90.0,
+              105.0
+            ],
+            "text": "やったわ!! さすがあたし!!",
+            "confidence": 0.991
           }
         ]
+      },
+      {
+        "id": "panel_12_mid_right",
+        "reading_order": 2,
+        "bounds": [
+          512.0,
+          396.0,
+          512.0,
+          200.0
+        ],
+        "bubbles": [
+          {
+            "id": "container_12_bubble_2",
+            "reading_order": 1,
+            "bounds": [
+              900.0,
+              440.0,
+              60.0,
+              130.0
+            ],
+            "text": "...っつってもまた迷路だし",
+            "confidence": 0.987
+          },
+          {
+            "id": "container_12_bubble_3",
+            "reading_order": 2,
+            "bounds": [
+              715.0,
+              415.0,
+              60.0,
+              80.0
+            ],
+            "text": "しかもなんか前より複雑......",
+            "confidence": 0.985
+          }
+        ]
+      },
+      {
+        "id": "panel_12_bot_right",
+        "reading_order": 3,
+        "bounds": [
+          512.0,
+          596.0,
+          512.0,
+          197.0
+        ],
+        "bubbles": [
+          {
+            "id": "container_12_bubble_4",
+            "reading_order": 1,
+            "bounds": [
+              880.0,
+              630.0,
+              65.0,
+              90.0
+            ],
+            "text": "ちょっと...... ウソでしょ... なんて広さなの?",
+            "confidence": 0.989
+          }
+        ]
+      },
+      {
+        "id": "panel_12_mid_left",
+        "reading_order": 4,
+        "bounds": [
+          0.0,
+          396.0,
+          512.0,
+          200.0
+        ],
+        "bubbles": [
+          {
+            "id": "container_12_bubble_5",
+            "reading_order": 1,
+            "bounds": [
+              335.0,
+              465.0,
+              90.0,
+              115.0
+            ],
+            "text": "キーファのくちびるってけっこうやわらかかったな......",
+            "confidence": 0.988
+          },
+          {
+            "id": "container_12_bubble_6",
+            "reading_order": 2,
+            "bounds": [
+              65.0,
+              455.0,
+              80.0,
+              90.0
+            ],
+            "text": "なんちて キャー!!",
+            "confidence": 0.99
+          }
+        ]
+      },
+      {
+        "id": "panel_12_bot_left",
+        "reading_order": 5,
+        "bounds": [
+          0.0,
+          596.0,
+          512.0,
+          197.0
+        ],
+        "bubbles": [
+          {
+            "id": "container_12_bubble_7",
+            "reading_order": 1,
+            "bounds": [
+              65.0,
+              700.0,
+              70.0,
+              80.0
+            ],
+            "text": "よし! ガンバルぞ~~~!!",
+            "confidence": 0.992
+          }
+        ]
+      }
+    ],
+    "localized_text_objects": [
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_1",
+        "panelId": "panel_12_top_right",
+        "containerId": "container_12_bubble_1",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 1,
+        "source": {
+          "language": "ja",
+          "raw": "やったわ!! さすがあたし!!",
+          "normalized": "やったわ!! さすがあたし!!",
+          "reading": "やっ[や]ったわ!! さすがあたし!!",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "I did it!! As expected of me!!",
+          "localized": "I did it!! As expected of me!!",
+          "displayText": "I did it!! As expected of me!!"
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 850.0,
+                "y": 125.0,
+                "width": 90.0,
+                "height": 105.0
+              },
+              "normalized": {
+                "x": 0.83,
+                "y": 0.157,
+                "width": 0.087,
+                "height": 0.132
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 16.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "やったわ!! さすがあたし!!",
+          "confidence": 0.991
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_2",
+        "panelId": "panel_12_mid_right",
+        "containerId": "container_12_bubble_2",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 2,
+        "source": {
+          "language": "ja",
+          "raw": "...っつってもまた迷路だし",
+          "normalized": "...っつってもまた迷路だし",
+          "reading": "...っつってもまた迷[めい]路[ろ]だし",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "...Even so, it's a maze again",
+          "localized": "...Even so, it's a maze again",
+          "displayText": "...Even so, it's a maze again"
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 900.0,
+                "y": 440.0,
+                "width": 60.0,
+                "height": 130.0
+              },
+              "normalized": {
+                "x": 0.878,
+                "y": 0.554,
+                "width": 0.058,
+                "height": 0.163
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 14.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "...っつってもまた迷路だし",
+          "confidence": 0.987
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_3",
+        "panelId": "panel_12_mid_right",
+        "containerId": "container_12_bubble_3",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 3,
+        "source": {
+          "language": "ja",
+          "raw": "しかもなんか前より複雑......",
+          "normalized": "しかもなんか前より複雑......",
+          "reading": "しかもなんか前[まえ]より複[ふく]雑[ざつ]......",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "And it's even more complex than before...",
+          "localized": "And it's even more complex than before...",
+          "displayText": "And it's even more complex than before..."
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 715.0,
+                "y": 415.0,
+                "width": 60.0,
+                "height": 80.0
+              },
+              "normalized": {
+                "x": 0.698,
+                "y": 0.523,
+                "width": 0.058,
+                "height": 0.1
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 14.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "しかもなんか前より複雑......",
+          "confidence": 0.985
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_4",
+        "panelId": "panel_12_bot_right",
+        "containerId": "container_12_bubble_4",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 4,
+        "source": {
+          "language": "ja",
+          "raw": "ちょっと...... ウソでしょ... なんて広さなの?",
+          "normalized": "ちょっと...... ウソでしょ... なんて広さなの?",
+          "reading": "ちょっと...... ウソでしょ... なんて広[ひろ]さなの?",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "Wait... no way... how big is this place?",
+          "localized": "Wait... no way... how big is this place?",
+          "displayText": "Wait... no way... how big is this place?"
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 880.0,
+                "y": 630.0,
+                "width": 65.0,
+                "height": 90.0
+              },
+              "normalized": {
+                "x": 0.859,
+                "y": 0.794,
+                "width": 0.063,
+                "height": 0.113
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 15.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "ちょっと...... ウソでしょ... なんて広さなの?",
+          "confidence": 0.989
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_5",
+        "panelId": "panel_12_mid_left",
+        "containerId": "container_12_bubble_5",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 5,
+        "source": {
+          "language": "ja",
+          "raw": "キーファのくちびるってけっこうやわらかかったな......",
+          "normalized": "キーファのくちびるってけっこうやわらかかったな......",
+          "reading": "キーファのくちびるってけっこうやわらかかったな......",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "Kiefer's lips were actually pretty soft...",
+          "localized": "Kiefer's lips were actually pretty soft...",
+          "displayText": "Kiefer's lips were actually pretty soft..."
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 335.0,
+                "y": 465.0,
+                "width": 90.0,
+                "height": 115.0
+              },
+              "normalized": {
+                "x": 0.327,
+                "y": 0.586,
+                "width": 0.087,
+                "height": 0.145
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 15.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "キーファのくちびるってけっこうやわらかかったな......",
+          "confidence": 0.988
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_6",
+        "panelId": "panel_12_mid_left",
+        "containerId": "container_12_bubble_6",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 6,
+        "source": {
+          "language": "ja",
+          "raw": "なんちて キャー!!",
+          "normalized": "なんちて キャー!!",
+          "reading": "なんちて キャー!!",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "Just kidding, eek!!",
+          "localized": "Just kidding, eek!!",
+          "displayText": "Just kidding, eek!!"
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 65.0,
+                "y": 455.0,
+                "width": 80.0,
+                "height": 90.0
+              },
+              "normalized": {
+                "x": 0.063,
+                "y": 0.573,
+                "width": 0.078,
+                "height": 0.113
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 15.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "なんちて キャー!!",
+          "confidence": 0.99
+        }
+      },
+      {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_bubble_7",
+        "panelId": "panel_12_bot_left",
+        "containerId": "container_12_bubble_7",
+        "placementMode": "flow-inside-container",
+        "role": "dialogue",
+        "logicalOrder": 7,
+        "source": {
+          "language": "ja",
+          "raw": "よし! ガンバルぞ~~~!!",
+          "normalized": "よし! ガンバルぞ~~~!!",
+          "reading": "よし! ガンバルぞ~~~!!",
+          "writing": {
+            "mode": "vertical-rl",
+            "characterDirection": "top-to-bottom"
+          }
+        },
+        "translation": {
+          "language": "en",
+          "literal": "Alright! I'm gonna do my best~~~!!",
+          "localized": "Alright! I'm gonna do my best~~~!!",
+          "displayText": "Alright! I'm gonna do my best~~~!!"
+        },
+        "geometry": {
+          "bounds": {
+            "preferred": {
+              "px": {
+                "x": 65.0,
+                "y": 700.0,
+                "width": 70.0,
+                "height": 80.0
+              },
+              "normalized": {
+                "x": 0.063,
+                "y": 0.882,
+                "width": 0.068,
+                "height": 0.1
+              }
+            }
+          },
+          "transform": {
+            "position": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "rotation": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "anchor": "top-left"
+          }
+        },
+        "layout": {
+          "writingMode": "horizontal-tb",
+          "textAlign": "center",
+          "verticalAlign": "middle",
+          "flow": "wrap"
+        },
+        "typography": {
+          "font": {
+            "family": "Wild Words",
+            "fallback": [
+              "sans-serif"
+            ]
+          },
+          "fontSize": 15.0,
+          "lineHeight": 1.2
+        },
+        "pdp_decision": {
+          "selected_text": "よし! ガンバルぞ~~~!!",
+          "confidence": 0.992
+        }
       }
     ]
   },
   "localized_text_objects": [
     {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174012_bubble_1",
-      "panelId": "b1234567-e89b-12d3-a456-426614174012",
-      "containerId": "d1234567-e89b-12d3-a456-426614174012_1",
+      "id": "text_obj_12_bubble_1",
+      "panelId": "panel_12_top_right",
+      "containerId": "container_12_bubble_1",
       "placementMode": "flow-inside-container",
       "role": "dialogue",
       "logicalOrder": 1,
       "source": {
         "language": "ja",
-        "raw": "はっ、はぁっ...",
-        "normalized": "はっ、はぁっ...",
-        "reading": "はっ、はぁっ...",
+        "raw": "やったわ!! さすがあたし!!",
+        "normalized": "やったわ!! さすがあたし!!",
+        "reading": "やっ[や]ったわ!! さすがあたし!!",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -82,21 +755,37 @@
       },
       "translation": {
         "language": "en",
-        "literal": "Ha, haa...",
-        "localized": "Haah, haah...",
-        "displayText": "Haah, haah..."
+        "literal": "I did it!! As expected of me!!",
+        "localized": "I did it!! As expected of me!!",
+        "displayText": "I did it!! As expected of me!!"
       },
       "geometry": {
         "bounds": {
           "preferred": {
-            "px": { "x": 525.0, "y": 53.0, "width": 473.0, "height": 693.0 },
-            "normalized": { "x": 0.5127, "y": 0.0668, "width": 0.4619, "height": 0.8739 }
+            "px": {
+              "x": 850.0,
+              "y": 125.0,
+              "width": 90.0,
+              "height": 105.0
+            },
+            "normalized": {
+              "x": 0.83,
+              "y": 0.157,
+              "width": 0.087,
+              "height": 0.132
+            }
           }
         },
         "transform": {
-          "position": { "x": 0.0, "y": 0.0 },
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
           "rotation": 0.0,
-          "scale": { "x": 1.0, "y": 1.0 },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
           "anchor": "top-left"
         }
       },
@@ -107,24 +796,33 @@
         "flow": "wrap"
       },
       "typography": {
-        "font": { "family": "Wild Words", "fallback": ["Comic Sans MS", "sans-serif"] },
-        "fontSize": 14.0,
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 16.0,
         "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "やったわ!! さすがあたし!!",
+        "confidence": 0.991
       }
     },
     {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174012_bubble_2",
-      "panelId": "b1234567-e89b-12d3-a456-426614174012",
-      "containerId": "d1234567-e89b-12d3-a456-426614174012_2",
+      "id": "text_obj_12_bubble_2",
+      "panelId": "panel_12_mid_right",
+      "containerId": "container_12_bubble_2",
       "placementMode": "flow-inside-container",
       "role": "dialogue",
       "logicalOrder": 2,
       "source": {
         "language": "ja",
-        "raw": "そういえば、そうだったんだけど",
-        "normalized": "そういえば、そうだったんだけど",
-        "reading": "そういえば、そうだったんだけど",
+        "raw": "...っつってもまた迷路だし",
+        "normalized": "...っつってもまた迷路だし",
+        "reading": "...っつってもまた迷[めい]路[ろ]だし",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -132,21 +830,37 @@
       },
       "translation": {
         "language": "en",
-        "literal": "Come to think of it, that was true, but",
-        "localized": "Come to think of it, that was true, but...",
-        "displayText": "Come to think of it, that was true, but..."
+        "literal": "...Even so, it's a maze again",
+        "localized": "...Even so, it's a maze again",
+        "displayText": "...Even so, it's a maze again"
       },
       "geometry": {
         "bounds": {
           "preferred": {
-            "px": { "x": 21.0, "y": 34.0, "width": 472.0, "height": 712.0 },
-            "normalized": { "x": 0.0205, "y": 0.0429, "width": 0.4609, "height": 0.8979 }
+            "px": {
+              "x": 900.0,
+              "y": 440.0,
+              "width": 60.0,
+              "height": 130.0
+            },
+            "normalized": {
+              "x": 0.878,
+              "y": 0.554,
+              "width": 0.058,
+              "height": 0.163
+            }
           }
         },
         "transform": {
-          "position": { "x": 0.0, "y": 0.0 },
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
           "rotation": 0.0,
-          "scale": { "x": 1.0, "y": 1.0 },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
           "anchor": "top-left"
         }
       },
@@ -157,20 +871,404 @@
         "flow": "wrap"
       },
       "typography": {
-        "font": { "family": "Wild Words", "fallback": ["Comic Sans MS", "sans-serif"] },
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
         "fontSize": 14.0,
         "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "...っつってもまた迷路だし",
+        "confidence": 0.987
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_12_bubble_3",
+      "panelId": "panel_12_mid_right",
+      "containerId": "container_12_bubble_3",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 3,
+      "source": {
+        "language": "ja",
+        "raw": "しかもなんか前より複雑......",
+        "normalized": "しかもなんか前より複雑......",
+        "reading": "しかもなんか前[まえ]より複[ふく]雑[ざつ]......",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "And it's even more complex than before...",
+        "localized": "And it's even more complex than before...",
+        "displayText": "And it's even more complex than before..."
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 715.0,
+              "y": 415.0,
+              "width": 60.0,
+              "height": 80.0
+            },
+            "normalized": {
+              "x": 0.698,
+              "y": 0.523,
+              "width": 0.058,
+              "height": 0.1
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 14.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "しかもなんか前より複雑......",
+        "confidence": 0.985
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_12_bubble_4",
+      "panelId": "panel_12_bot_right",
+      "containerId": "container_12_bubble_4",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 4,
+      "source": {
+        "language": "ja",
+        "raw": "ちょっと...... ウソでしょ... なんて広さなの?",
+        "normalized": "ちょっと...... ウソでしょ... なんて広さなの?",
+        "reading": "ちょっと...... ウソでしょ... なんて広[ひろ]さなの?",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "Wait... no way... how big is this place?",
+        "localized": "Wait... no way... how big is this place?",
+        "displayText": "Wait... no way... how big is this place?"
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 880.0,
+              "y": 630.0,
+              "width": 65.0,
+              "height": 90.0
+            },
+            "normalized": {
+              "x": 0.859,
+              "y": 0.794,
+              "width": 0.063,
+              "height": 0.113
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 15.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "ちょっと...... ウソでしょ... なんて広さなの?",
+        "confidence": 0.989
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_12_bubble_5",
+      "panelId": "panel_12_mid_left",
+      "containerId": "container_12_bubble_5",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 5,
+      "source": {
+        "language": "ja",
+        "raw": "キーファのくちびるってけっこうやわらかかったな......",
+        "normalized": "キーファのくちびるってけっこうやわらかかったな......",
+        "reading": "キーファのくちびるってけっこうやわらかかったな......",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "Kiefer's lips were actually pretty soft...",
+        "localized": "Kiefer's lips were actually pretty soft...",
+        "displayText": "Kiefer's lips were actually pretty soft..."
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 335.0,
+              "y": 465.0,
+              "width": 90.0,
+              "height": 115.0
+            },
+            "normalized": {
+              "x": 0.327,
+              "y": 0.586,
+              "width": 0.087,
+              "height": 0.145
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 15.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "キーファのくちびるってけっこうやわらかかったな......",
+        "confidence": 0.988
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_12_bubble_6",
+      "panelId": "panel_12_mid_left",
+      "containerId": "container_12_bubble_6",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 6,
+      "source": {
+        "language": "ja",
+        "raw": "なんちて キャー!!",
+        "normalized": "なんちて キャー!!",
+        "reading": "なんちて キャー!!",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "Just kidding, eek!!",
+        "localized": "Just kidding, eek!!",
+        "displayText": "Just kidding, eek!!"
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 65.0,
+              "y": 455.0,
+              "width": 80.0,
+              "height": 90.0
+            },
+            "normalized": {
+              "x": 0.063,
+              "y": 0.573,
+              "width": 0.078,
+              "height": 0.113
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 15.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "なんちて キャー!!",
+        "confidence": 0.99
+      }
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_12_bubble_7",
+      "panelId": "panel_12_bot_left",
+      "containerId": "container_12_bubble_7",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 7,
+      "source": {
+        "language": "ja",
+        "raw": "よし! ガンバルぞ~~~!!",
+        "normalized": "よし! ガンバルぞ~~~!!",
+        "reading": "よし! ガンバルぞ~~~!!",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "Alright! I'm gonna do my best~~~!!",
+        "localized": "Alright! I'm gonna do my best~~~!!",
+        "displayText": "Alright! I'm gonna do my best~~~!!"
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 65.0,
+              "y": 700.0,
+              "width": 70.0,
+              "height": 80.0
+            },
+            "normalized": {
+              "x": 0.063,
+              "y": 0.882,
+              "width": 0.068,
+              "height": 0.1
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "sans-serif"
+          ]
+        },
+        "fontSize": 15.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "selected_text": "よし! ガンバルぞ~~~!!",
+        "confidence": 0.992
       }
     }
   ],
   "comic_scene_graph": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
-    "id": "e1234567-e89b-12d3-a456-426614174012",
+    "id": "doc_12_jpg",
     "metadata": {
-      "title": "Manga OCR Sample Crop 12",
-      "series": "Example Benchmark Suite",
+      "title": "Dragon Quest VII: Warriors of Eden Chapter 11 Two-Page Spread",
+      "series": "Dragon Quest VII: Warriors of Eden",
       "volume": "1",
-      "chapter": "12",
+      "chapter": "11",
       "sourceLanguage": "ja",
       "targetLanguage": "en"
     },
@@ -195,83 +1293,758 @@
     },
     "pages": [
       {
-        "id": "a1234567-e89b-12d3-a456-426614174012",
+        "id": "page_12_jpg",
         "pageNumber": 12,
         "source": {
-          "imageId": "f1234567-e89b-12d3-a456-426614174012",
+          "imageId": "img_12_jpg",
           "filename": "12.jpg",
-          "nativeSize": { "width": 1024.0, "height": 793.0 },
+          "nativeSize": {
+            "width": 1024.0,
+            "height": 793.0
+          },
           "dpi": 300.0,
           "colorSpace": "rgb"
         },
         "bands": [
           {
-            "id": "g1234567-e89b-12d3-a456-426614174012",
+            "id": "band_12_top",
             "order": 1,
             "direction": "rtl",
-            "panelIds": ["b1234567-e89b-12d3-a456-426614174012"]
+            "panelIds": [
+              "panel_12_top_right"
+            ]
+          },
+          {
+            "id": "band_12_mid",
+            "order": 2,
+            "direction": "rtl",
+            "panelIds": [
+              "panel_12_mid_right",
+              "panel_12_mid_left"
+            ]
+          },
+          {
+            "id": "band_12_bot",
+            "order": 3,
+            "direction": "rtl",
+            "panelIds": [
+              "panel_12_bot_right",
+              "panel_12_bot_left"
+            ]
           }
         ],
         "panels": [
           {
-            "id": "b1234567-e89b-12d3-a456-426614174012",
-            "logicalOrder": 1,
-            "frame": {
-              "bounds": {
-                "px": { "x": 0.0, "y": 0.0, "width": 1024.0, "height": 793.0 },
-                "normalized": { "x": 0.0, "y": 0.0, "width": 1.0, "height": 1.0 }
+            "id": "panel_12_top_right",
+            "reading_order": 1,
+            "bounds": [
+              512.0,
+              0.0,
+              512.0,
+              396.0
+            ],
+            "bubbles": [
+              {
+                "id": "container_12_bubble_1",
+                "reading_order": 1,
+                "bounds": [
+                  850.0,
+                  125.0,
+                  90.0,
+                  105.0
+                ],
+                "text": "やったわ!! さすがあたし!!",
+                "confidence": 0.991
+              }
+            ]
+          },
+          {
+            "id": "panel_12_mid_right",
+            "reading_order": 2,
+            "bounds": [
+              512.0,
+              396.0,
+              512.0,
+              200.0
+            ],
+            "bubbles": [
+              {
+                "id": "container_12_bubble_2",
+                "reading_order": 1,
+                "bounds": [
+                  900.0,
+                  440.0,
+                  60.0,
+                  130.0
+                ],
+                "text": "...っつってもまた迷路だし",
+                "confidence": 0.987
               },
-              "borderWidth": 1.0
-            },
-            "zIndex": 1
+              {
+                "id": "container_12_bubble_3",
+                "reading_order": 2,
+                "bounds": [
+                  715.0,
+                  415.0,
+                  60.0,
+                  80.0
+                ],
+                "text": "しかもなんか前より複雑......",
+                "confidence": 0.985
+              }
+            ]
+          },
+          {
+            "id": "panel_12_bot_right",
+            "reading_order": 3,
+            "bounds": [
+              512.0,
+              596.0,
+              512.0,
+              197.0
+            ],
+            "bubbles": [
+              {
+                "id": "container_12_bubble_4",
+                "reading_order": 1,
+                "bounds": [
+                  880.0,
+                  630.0,
+                  65.0,
+                  90.0
+                ],
+                "text": "ちょっと...... ウソでしょ... なんて広さなの?",
+                "confidence": 0.989
+              }
+            ]
+          },
+          {
+            "id": "panel_12_mid_left",
+            "reading_order": 4,
+            "bounds": [
+              0.0,
+              396.0,
+              512.0,
+              200.0
+            ],
+            "bubbles": [
+              {
+                "id": "container_12_bubble_5",
+                "reading_order": 1,
+                "bounds": [
+                  335.0,
+                  465.0,
+                  90.0,
+                  115.0
+                ],
+                "text": "キーファのくちびるってけっこうやわらかかったな......",
+                "confidence": 0.988
+              },
+              {
+                "id": "container_12_bubble_6",
+                "reading_order": 2,
+                "bounds": [
+                  65.0,
+                  455.0,
+                  80.0,
+                  90.0
+                ],
+                "text": "なんちて キャー!!",
+                "confidence": 0.99
+              }
+            ]
+          },
+          {
+            "id": "panel_12_bot_left",
+            "reading_order": 5,
+            "bounds": [
+              0.0,
+              596.0,
+              512.0,
+              197.0
+            ],
+            "bubbles": [
+              {
+                "id": "container_12_bubble_7",
+                "reading_order": 1,
+                "bounds": [
+                  65.0,
+                  700.0,
+                  70.0,
+                  80.0
+                ],
+                "text": "よし! ガンバルぞ~~~!!",
+                "confidence": 0.992
+              }
+            ]
           }
         ],
         "containers": [
           {
-            "id": "d1234567-e89b-12d3-a456-426614174012_1",
-            "panelId": "b1234567-e89b-12d3-a456-426614174012",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": { "x": 525.0, "y": 53.0, "width": 473.0, "height": 693.0 },
-                "normalized": { "x": 0.5127, "y": 0.0668, "width": 0.4619, "height": 0.8739 }
+            "id": "container_12_bubble_1",
+            "panelId": "panel_12_top_right",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_2",
+            "panelId": "panel_12_mid_right",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_3",
+            "panelId": "panel_12_mid_right",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_4",
+            "panelId": "panel_12_bot_right",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_5",
+            "panelId": "panel_12_mid_left",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_6",
+            "panelId": "panel_12_mid_left",
+            "type": "speech-balloon"
+          },
+          {
+            "id": "container_12_bubble_7",
+            "panelId": "panel_12_bot_left",
+            "type": "speech-balloon"
+          }
+        ],
+        "text_regions": [
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_1",
+            "panelId": "panel_12_top_right",
+            "containerId": "container_12_bubble_1",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 1,
+            "source": {
+              "language": "ja",
+              "raw": "やったわ!! さすがあたし!!",
+              "normalized": "やったわ!! さすがあたし!!",
+              "reading": "やっ[や]ったわ!! さすがあたし!!",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
               }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "I did it!! As expected of me!!",
+              "localized": "I did it!! As expected of me!!",
+              "displayText": "I did it!! As expected of me!!"
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 850.0,
+                    "y": 125.0,
+                    "width": 90.0,
+                    "height": 105.0
+                  },
+                  "normalized": {
+                    "x": 0.83,
+                    "y": 0.157,
+                    "width": 0.087,
+                    "height": 0.132
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 16.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "やったわ!! さすがあたし!!",
+              "confidence": 0.991
             }
           },
           {
-            "id": "d1234567-e89b-12d3-a456-426614174012_2",
-            "panelId": "b1234567-e89b-12d3-a456-426614174012",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": { "x": 21.0, "y": 34.0, "width": 472.0, "height": 712.0 },
-                "normalized": { "x": 0.0205, "y": 0.0429, "width": 0.4609, "height": 0.8979 }
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_2",
+            "panelId": "panel_12_mid_right",
+            "containerId": "container_12_bubble_2",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 2,
+            "source": {
+              "language": "ja",
+              "raw": "...っつってもまた迷路だし",
+              "normalized": "...っつってもまた迷路だし",
+              "reading": "...っつってもまた迷[めい]路[ろ]だし",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
               }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "...Even so, it's a maze again",
+              "localized": "...Even so, it's a maze again",
+              "displayText": "...Even so, it's a maze again"
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 900.0,
+                    "y": 440.0,
+                    "width": 60.0,
+                    "height": 130.0
+                  },
+                  "normalized": {
+                    "x": 0.878,
+                    "y": 0.554,
+                    "width": 0.058,
+                    "height": 0.163
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 14.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "...っつってもまた迷路だし",
+              "confidence": 0.987
+            }
+          },
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_3",
+            "panelId": "panel_12_mid_right",
+            "containerId": "container_12_bubble_3",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 3,
+            "source": {
+              "language": "ja",
+              "raw": "しかもなんか前より複雑......",
+              "normalized": "しかもなんか前より複雑......",
+              "reading": "しかもなんか前[まえ]より複[ふく]雑[ざつ]......",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "And it's even more complex than before...",
+              "localized": "And it's even more complex than before...",
+              "displayText": "And it's even more complex than before..."
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 715.0,
+                    "y": 415.0,
+                    "width": 60.0,
+                    "height": 80.0
+                  },
+                  "normalized": {
+                    "x": 0.698,
+                    "y": 0.523,
+                    "width": 0.058,
+                    "height": 0.1
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 14.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "しかもなんか前より複雑......",
+              "confidence": 0.985
+            }
+          },
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_4",
+            "panelId": "panel_12_bot_right",
+            "containerId": "container_12_bubble_4",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 4,
+            "source": {
+              "language": "ja",
+              "raw": "ちょっと...... ウソでしょ... なんて広さなの?",
+              "normalized": "ちょっと...... ウソでしょ... なんて広さなの?",
+              "reading": "ちょっと...... ウソでしょ... なんて広[ひろ]さなの?",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "Wait... no way... how big is this place?",
+              "localized": "Wait... no way... how big is this place?",
+              "displayText": "Wait... no way... how big is this place?"
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 880.0,
+                    "y": 630.0,
+                    "width": 65.0,
+                    "height": 90.0
+                  },
+                  "normalized": {
+                    "x": 0.859,
+                    "y": 0.794,
+                    "width": 0.063,
+                    "height": 0.113
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 15.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "ちょっと...... ウソでしょ... なんて広さなの?",
+              "confidence": 0.989
+            }
+          },
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_5",
+            "panelId": "panel_12_mid_left",
+            "containerId": "container_12_bubble_5",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 5,
+            "source": {
+              "language": "ja",
+              "raw": "キーファのくちびるってけっこうやわらかかったな......",
+              "normalized": "キーファのくちびるってけっこうやわらかかったな......",
+              "reading": "キーファのくちびるってけっこうやわらかかったな......",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "Kiefer's lips were actually pretty soft...",
+              "localized": "Kiefer's lips were actually pretty soft...",
+              "displayText": "Kiefer's lips were actually pretty soft..."
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 335.0,
+                    "y": 465.0,
+                    "width": 90.0,
+                    "height": 115.0
+                  },
+                  "normalized": {
+                    "x": 0.327,
+                    "y": 0.586,
+                    "width": 0.087,
+                    "height": 0.145
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 15.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "キーファのくちびるってけっこうやわらかかったな......",
+              "confidence": 0.988
+            }
+          },
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_6",
+            "panelId": "panel_12_mid_left",
+            "containerId": "container_12_bubble_6",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 6,
+            "source": {
+              "language": "ja",
+              "raw": "なんちて キャー!!",
+              "normalized": "なんちて キャー!!",
+              "reading": "なんちて キャー!!",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "Just kidding, eek!!",
+              "localized": "Just kidding, eek!!",
+              "displayText": "Just kidding, eek!!"
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 65.0,
+                    "y": 455.0,
+                    "width": 80.0,
+                    "height": 90.0
+                  },
+                  "normalized": {
+                    "x": 0.063,
+                    "y": 0.573,
+                    "width": 0.078,
+                    "height": 0.113
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 15.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "なんちて キャー!!",
+              "confidence": 0.99
+            }
+          },
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "text_obj_12_bubble_7",
+            "panelId": "panel_12_bot_left",
+            "containerId": "container_12_bubble_7",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 7,
+            "source": {
+              "language": "ja",
+              "raw": "よし! ガンバルぞ~~~!!",
+              "normalized": "よし! ガンバルぞ~~~!!",
+              "reading": "よし! ガンバルぞ~~~!!",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "Alright! I'm gonna do my best~~~!!",
+              "localized": "Alright! I'm gonna do my best~~~!!",
+              "displayText": "Alright! I'm gonna do my best~~~!!"
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 65.0,
+                    "y": 700.0,
+                    "width": 70.0,
+                    "height": 80.0
+                  },
+                  "normalized": {
+                    "x": 0.063,
+                    "y": 0.882,
+                    "width": 0.068,
+                    "height": 0.1
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 15.0,
+              "lineHeight": 1.2
+            },
+            "pdp_decision": {
+              "selected_text": "よし! ガンバルぞ~~~!!",
+              "confidence": 0.992
             }
           }
         ],
-        "text_regions": [],
         "art_regions": [],
-        "masks": [
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174012_1",
-            "panelId": "b1234567-e89b-12d3-a456-426614174012",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174012_bubble_1",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174012_2",
-            "panelId": "b1234567-e89b-12d3-a456-426614174012",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174012_bubble_2",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          }
-        ]
+        "masks": []
       }
     ]
   }
