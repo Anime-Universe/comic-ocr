@@ -99,7 +99,7 @@
     "filename": "12.jpg",
     "size_bytes": 201986,
     "status": "success",
-    "recognized_text": "ああ、",
+    "recognized_text": "はっ、はぁっ... そういえば、そうだったんだけど",
     "confidence": 0.985,
     "duration_ms": 42.5
   },
@@ -107,7 +107,7 @@
     "filename": "13.jpg",
     "size_bytes": 247191,
     "status": "success",
-    "recognized_text": "んっ、んっ...",
+    "recognized_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
     "confidence": 0.985,
     "duration_ms": 42.5
   },
