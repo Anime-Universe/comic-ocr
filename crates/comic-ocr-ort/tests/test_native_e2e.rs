@@ -20,7 +20,11 @@ fn end_to_end_native_generation_against_real_graphs() {
     unsafe { std::env::set_var("COMIC_OCR_ONNX_DIR", &dir) };
     let engine = comic_ocr_ort::OrtEngine::new("native-e2e");
     assert!(engine.generator.is_some(), "the model directory must load");
-    let img = image::open("assets/examples/00.jpg").expect("test crop");
+    let img = image::open(
+        std::env::var("COMIC_OCR_TEST_CROP")
+            .unwrap_or_else(|_| "assets/examples/00.jpg".to_string()),
+    )
+    .expect("test crop");
     let out = comic_ocr_core::types::OcrEngine::predict(&engine, &img).expect("a reading");
     println!("TEXT={}", out.text);
     println!("CONF={:.4}", out.confidence);

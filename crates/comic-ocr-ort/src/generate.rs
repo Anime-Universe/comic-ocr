@@ -343,7 +343,23 @@ impl Generator {
                 .map_err(|e| OcrError::EngineError(format!("step input_ids: {e}")))?
                 .into_dyn(),
         ));
-        inputs.push(("encoder_hidden_states".into(), rebuild(encoder_state)?));
+        // Fed only when the step graph declares it.
+        //
+        // A with-past decoder that already holds the cross-attention cache does
+        // NOT need the encoder states — the cache IS the projected encoder — so
+        // the export legitimately prunes the input, and ORT rejects any input a
+        // graph did not declare ("Invalid input name: encoder_hidden_states").
+        //
+        // Asking the session what it accepts, rather than assuming, keeps this
+        // working across exporters that differ on exactly this point.
+        if self
+            .decoder_past
+            .inputs()
+            .iter()
+            .any(|i| i.name() == "encoder_hidden_states")
+        {
+            inputs.push(("encoder_hidden_states".into(), rebuild(encoder_state)?));
+        }
         for layer in 0..self.contract.num_layers {
             for (side, pair) in [
                 ("decoder", &cache.self_attn[layer]),
