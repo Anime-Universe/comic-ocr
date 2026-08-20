@@ -30,7 +30,7 @@
 - [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$).
 - [x] **Japanese Reading Order Bubble Sorting (`comic-ocr-core`)**: Implemented Right-to-Left, Top-to-Bottom bubble sorting.
 - [x] **Multi-Language Package Support (`comic-ocr-core`)**: Implemented `Japanese` (full-width h2z) and `English` (ASCII quote standardization, spacing cleanup) language profiles.
-- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` and `.agents/llms-full.txt` (177KB).
+- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` and `.agents/llms-full.txt` (212KB).
 - [x] **Authoritative JSON Schema Suite (`schemas/`)**: Created `ocr_result.json`, `page_result.json`, `pdp_decision.json`, `comic_scene_graph.json`, and `localized_text_object.json`.
 
 ---
@@ -67,22 +67,39 @@
 - [x] **PyO3 Double Post-Processing Removal (`comic-ocr-py`)**: Removed redundant duplicate `post_process_with_furigana` call inside PyO3 extension methods.
 - [x] **macOS Cargo Workspace Build Configuration**: Configured `default-members` in root `Cargo.toml` (excluding C-extension cdylib) and created `.cargo/config.toml` with `-undefined dynamic_lookup` linker flags.
 - [x] **Production Dockerfile Build Flags & Health Route**: Fixed build flag typo (`-p comic-ocr-runtime`), included `Cargo.lock`, and updated healthcheck route to `/v1/runtime/health`.
-- [x] **Master Hierarchical Benchmark Ledger (`tests/data/benchmark_results.json`)**: Consolidated expected and actual OCR results across all 17 dataset images into a unified master ledger containing 5-level nested schema trees.
+- [x] **Master Hierarchical Benchmark Ledger (`tests/data/benchmark_results.json`)**: Consolidated expected and actual OCR results across all 20 dataset images into a unified master ledger containing 5-level nested schema trees.
 - [x] **`12.jpg` 2-Page Spread Topology Refinement**: Modeled 10 faithful panel regions (*koma*), natural localized translations, and SFX / non-balloon vocalization overlays (`グッ`, `フゥ`, `ム フフフ フウウ......`).
 - [x] **`14.jpg` Multilingual Cover Art & Credit Metadata Separation**: Modeled 9 cover text regions (including preserved English logos `DRAGON QUEST`, `SERIES SEVEN`, `WARRIORS`, `1`), canonical page scene graph integration, and separate `credit` metadata (`type: "supervisor"`) cleanly decoupled from literal text translation.
 
 ---
 
-## Phase 8: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
+## Phase 8: Native ONNX Execution, Softmax Normalization & Multi-Layer Validation Engine (Completed)
 
-### A. In-Memory Neural Model Server / Native ONNX Execution
-- [ ] **Native C++ ONNX Runtime Engine Loading**: Wire direct C++ `ort` session model loading in `OrtEngine::predict` so models stay resident in memory (`Arc<OrtEngine>`), eliminating Python subprocess call overhead and disk weight reloads.
-- [ ] **ONNX Quantized Int8 Weights Integration**: Ship quantized `comic-ocr-base-int8.onnx` models inside runtime distributions (<120MB memory footprint).
+- [x] **Native C++ ONNX Runtime Engine Loading (`comic-ocr-ort`)**: Implemented direct C++ `Session` model loader (`from_onnx_file`, `from_onnx_bytes`) with $3 \times 224 \times 224$ RGB image tensor preprocessing and in-memory session execution (`Arc<Mutex<Session>>`).
+- [x] **Numerically Stable Softmax & Geometric Confidence (`comic-ocr-ort`)**: Implemented 2D tensor softmax normalization $P(v)$ over the vocabulary dimension and true geometric mean confidence calculation $\exp(\frac{1}{N} \sum \ln(p_t))$.
+- [x] **Python Subprocess Real Softmax Score Extraction (`comic-ocr-ort`)**: Updated inline Python script to extract real PyTorch token softmax probabilities (`torch.softmax(score[0], dim=-1)`) with zero hardcoded constants.
+- [x] **Algorithmic Levenshtein CER Benchmark Assertions (`test_benchmark_dataset.rs`)**: Implemented `compute_cer(expected, actual)` and wired `OrtEngine::predict(&img)` directly into dynamic inference evaluation when unignored ($CER \le 0.20$ per item, $avg\_cer \le 0.05$).
+- [x] **Five-Layer Semantic Validation Engine (`comic-ocr-core::validation`)**:
+  - `ReadingOrderValidation`: Detects spatial panel sequence contradictions against declared reading direction (RTL or LTR).
+  - `SemanticAssertion`: Validates semantic roles and detects `number-role-conflict` errors when a page number badge (e.g. `14`) is conflated with `chapter_number` when continuation text specifies `第2章へつづく`.
+  - `AnalysisEvidence`: Tracks provenance across `ocr`, `vision`, `geometry`, `metadata`, `language_model`, `human`, and `fixture`.
+- [x] **`15.png` Comprehensive Scene Graph & RTL Reading Order Correction**:
+  - Modeled 10 panels in strict Right-to-Left (RTL) manga reading order.
+  - Decoupled full-page raw OCR confidence (`0.3314`) from sub-region vision analysis (`0.9890`) with explicit `AnalysisEvidence` provenance.
+  - Marked top header banner as `test-annotation` / `fixture` (`localizable: false`).
+  - Parsed `冒険メモ 🐾` parchment into a structured quest log document hierarchy with progress trackers.
+- [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/main.yml`)**:
+  - Resolved `needless_range_loop` warnings in test targets.
+  - Upgraded GitHub CI workflow to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and `python3 scripts/run_pipeline.py --gate`.
 
-### B. PDP Multi-Engine Consensus & Brier Calibration
+---
+
+## Phase 9: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
+
+### A. PDP Multi-Engine Consensus & Brier Calibration
 - [ ] **Multi-Engine PDP Consensus**: Implement Brier-calibrated consensus weighting across local ONNX model predictions and remote VLM API transcriptions (e.g. Gemini / Claude) in `comic-ocr-pdp`.
 - [ ] **Cross-Engine Disagreement Detection**: Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
 
-### C. Advanced Cover & Editorial Typography Reconstruction
+### B. Advanced Cover & Editorial Typography Reconstruction
 - [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
 - [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.
