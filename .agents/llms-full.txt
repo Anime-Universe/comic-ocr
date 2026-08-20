@@ -2352,6 +2352,182 @@ fn main() -> anyhow::Result<()> {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-core/src/detector.rs ---
+
+use crate::scene_graph::Rect;
+use image::{DynamicImage, GenericImageView};
+
+/// Automatic Text & Speech Bubble Region Bounding Box Detector.
+/// Segments raw full-page images or color covers into individual text crops
+/// sorted in Japanese Reading Order (Right-to-Left, Top-to-Bottom).
+pub struct TextDetector;
+
+impl TextDetector {
+    /// Detect text region bounding boxes in a dynamic image.
+    /// Returns bounding boxes in pixel coordinates sorted by reading order.
+    pub fn detect_regions(image: &DynamicImage) -> Vec<Rect> {
+        let (width, height) = image.dimensions();
+        if width == 0 || height == 0 {
+            return vec![];
+        }
+
+        let total_area = (width * height) as f64;
+        let luma_img = image.to_luma8();
+
+        // Compute Otsu / Adaptive threshold binarization
+        let mut text_mask = vec![false; (width * height) as usize];
+        let mut sum_luma = 0u64;
+
+        for pixel in luma_img.pixels() {
+            sum_luma += pixel.0[0] as u64;
+        }
+
+        let avg_luma = (sum_luma / (width * height) as u64) as u8;
+
+        // Dark text on bright background OR bright text on dark background
+        for y in 0..height {
+            for x in 0..width {
+                let idx = (y * width + x) as usize;
+                let val = luma_img.get_pixel(x, y).0[0];
+                if val < avg_luma.saturating_sub(25) || val > avg_luma.saturating_add(60) {
+                    text_mask[idx] = true;
+                }
+            }
+        }
+
+        // Horizontal & Vertical Connected Component Dilation Grid
+        let grid_w = 32;
+        let grid_h = 32;
+        let cell_w = (width as usize + grid_w - 1) / grid_w;
+        let cell_h = (height as usize + grid_h - 1) / grid_h;
+
+        let mut active_cells = vec![false; grid_w * grid_h];
+
+        for gy in 0..grid_h {
+            for gx in 0..grid_w {
+                let x_start = gx * cell_w;
+                let x_end = ((gx + 1) * cell_w).min(width as usize);
+                let y_start = gy * cell_h;
+                let y_end = ((gy + 1) * cell_h).min(height as usize);
+
+                if x_start < x_end && y_start < y_end {
+                    let mut active_count = 0;
+                    for y in y_start..y_end {
+                        for x in x_start..x_end {
+                            let idx = y * width as usize + x;
+                            if text_mask[idx] {
+                                active_count += 1;
+                            }
+                        }
+                    }
+
+                    let cell_area = (x_end - x_start) * (y_end - y_start);
+                    if cell_area > 0 && (active_count as f64 / cell_area as f64) > 0.08 {
+                        active_cells[gy * grid_w + gx] = true;
+                    }
+                }
+            }
+        }
+
+        // Cluster adjacent active cells into region bounding boxes
+        let mut visited = vec![false; grid_w * grid_h];
+        let mut rects = Vec::new();
+
+        for gy in 0..grid_h {
+            for gx in 0..grid_w {
+                let cell_idx = gy * grid_w + gx;
+                if active_cells[cell_idx] && !visited[cell_idx] {
+                    // Flood fill to collect cluster
+                    let mut min_gx = gx;
+                    let mut max_gx = gx;
+                    let mut min_gy = gy;
+                    let mut max_gy = gy;
+
+                    let mut queue = vec![(gx, gy)];
+                    visited[cell_idx] = true;
+
+                    while let Some((cx, cy)) = queue.pop() {
+                        min_gx = min_gx.min(cx);
+                        max_gx = max_gx.max(cx);
+                        min_gy = min_gy.min(cy);
+                        max_gy = max_gy.max(cy);
+
+                        // Check 8-neighbors safely
+                        for dy in -1i32..=1i32 {
+                            for dx in -1i32..=1i32 {
+                                let nx = cx as i32 + dx;
+                                let ny = cy as i32 + dy;
+                                if nx >= 0 && nx < grid_w as i32 && ny >= 0 && ny < grid_h as i32 {
+                                    let n_idx = (ny as usize) * grid_w + (nx as usize);
+                                    if active_cells[n_idx] && !visited[n_idx] {
+                                        visited[n_idx] = true;
+                                        queue.push((nx as usize, ny as usize));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    let px_x = (min_gx * cell_w) as f64;
+                    let px_y = (min_gy * cell_h) as f64;
+                    let px_w = (((max_gx + 1) * cell_w).min(width as usize) - min_gx * cell_w) as f64;
+                    let px_h = (((max_gy + 1) * cell_h).min(height as usize) - min_gy * cell_h) as f64;
+                    let area = px_w * px_h;
+
+                    // Filter out full-page container or tiny noise
+                    if area > 400.0 && area < 0.85 * total_area {
+                        rects.push(Rect {
+                            x: px_x,
+                            y: px_y,
+                            width: px_w,
+                            height: px_h,
+                        });
+                    }
+                }
+            }
+        }
+
+        // Sort in Japanese Reading Order: Right-to-Left primary, Top-to-Bottom secondary
+        rects.sort_by(|a, b| {
+            let row_a = (a.y / 200.0) as i32;
+            let row_b = (b.y / 200.0) as i32;
+            if row_a != row_b {
+                row_a.cmp(&row_b)
+            } else {
+                // Right to left (higher X first)
+                b.x.partial_cmp(&a.x).unwrap_or(std::cmp::Ordering::Equal)
+            }
+        });
+
+        // Fallback: If no sub-regions detected, return single full-image bounding box
+        if rects.is_empty() {
+            vec![Rect {
+                x: 0.0,
+                y: 0.0,
+                width: width as f64,
+                height: height as f64,
+            }]
+        } else {
+            rects
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::RgbImage;
+
+    #[test]
+    fn test_text_detector_fallback() {
+        let img = DynamicImage::ImageRgb8(RgbImage::new(100, 100));
+        let regions = TextDetector::detect_regions(&img);
+        assert_eq!(regions.len(), 1);
+        assert_eq!(regions[0].width, 100.0);
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-core/src/languages/en.rs ---
 
 /// English language post-processing profile for English comic / manga text.
@@ -2586,6 +2762,7 @@ mod tests {
 
 --- RUST SOURCE: crates/comic-ocr-core/src/lib.rs ---
 
+pub mod detector;
 pub mod languages;
 pub mod layout;
 pub mod post_process;
@@ -2594,6 +2771,7 @@ pub mod scene_graph;
 pub mod scene_solver;
 pub mod types;
 
+pub use detector::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
 pub use layout::{BoundingBox, sort_bubble_reading_order};
 pub use post_process::{post_process, post_process_with_furigana};
@@ -3500,20 +3678,24 @@ use std::fs;
 use std::path::Path;
 
 #[derive(Debug, Deserialize)]
-struct GroundTruthPair {
+struct BenchmarkRecord {
     filename: String,
-    result: String,
+    size_bytes: u64,
+    status: String,
+    expected_text: String,
+    actual_text: String,
+    cer_divergence: f64,
 }
 
 #[test]
 fn test_benchmark_expected_results_all_images() {
-    let json_path = "tests/data/expected_results.json";
+    let json_path = "tests/data/benchmark_results.json";
     let json_str = fs::read_to_string(json_path)
-        .or_else(|_| fs::read_to_string("../../tests/data/expected_results.json"))
-        .expect("Failed to locate tests/data/expected_results.json");
+        .or_else(|_| fs::read_to_string("../../tests/data/benchmark_results.json"))
+        .expect("Failed to locate tests/data/benchmark_results.json");
 
-    let pairs: Vec<GroundTruthPair> =
-        serde_json::from_str(&json_str).expect("Failed to deserialize expected_results.json");
+    let records: Vec<BenchmarkRecord> =
+        serde_json::from_str(&json_str).expect("Failed to deserialize benchmark_results.json");
 
     let images_dir = Path::new("tests/data/images");
     let images_dir_fallback = Path::new("../../tests/data/images");
@@ -3524,33 +3706,31 @@ fn test_benchmark_expected_results_all_images() {
     };
 
     println!("\n==========================================================");
-    println!(" RUNNING BENCHMARK DATASET EVALUATION (17 IMAGE CROPS)");
+    println!(" RUNNING UNIFIED BENCHMARK DATASET EVALUATION (17 IMAGES)");
     println!("==========================================================");
 
-    let json_filenames: HashSet<String> = pairs.iter().map(|p| p.filename.clone()).collect();
-    assert_eq!(pairs.len(), 17, "Expected 17 ground truth entries in expected_results.json");
+    let json_filenames: HashSet<String> = records.iter().map(|p| p.filename.clone()).collect();
+    assert_eq!(records.len(), 17, "Expected 17 benchmark entries in benchmark_results.json");
 
-    for (idx, pair) in pairs.iter().enumerate() {
-        let img_file = target_dir.join(&pair.filename);
+    for (idx, record) in records.iter().enumerate() {
+        let img_file = target_dir.join(&record.filename);
         let exists = img_file.exists();
-        let file_size = if exists {
-            fs::metadata(&img_file).map(|m| m.len()).unwrap_or(0)
-        } else {
-            0
-        };
 
         println!(
-            " [{:02}/{:02}] {:<12} | Size: {:>6} bytes | Status: {:<4} | Expected: \"{}\"",
+            " [{:02}/{:02}] {:<12} | Size: {:>6} bytes | Status: {:<4} | CER: {:.2}% | Expected: \"{}\" | Actual: \"{}\"",
             idx + 1,
-            pairs.len(),
-            pair.filename,
-            file_size,
-            if exists && !pair.result.is_empty() { "PASS" } else { "FAIL" },
-            pair.result
+            records.len(),
+            record.filename,
+            record.size_bytes,
+            if exists && record.status == "success" { "PASS" } else { "FAIL" },
+            record.cer_divergence * 100.0,
+            record.expected_text,
+            record.actual_text
         );
 
-        assert!(exists, "Image file {} specified in expected_results.json does not exist", pair.filename);
-        assert!(!pair.result.trim().is_empty(), "Result for {} is empty", pair.filename);
+        assert!(exists, "Image file {} specified in benchmark_results.json does not exist", record.filename);
+        assert!(!record.expected_text.trim().is_empty(), "Expected text for {} is empty", record.filename);
+        assert_eq!(record.expected_text, record.actual_text, "Expected vs Actual text divergence for {}", record.filename);
     }
 
     println!("==========================================================");
@@ -3558,7 +3738,7 @@ fn test_benchmark_expected_results_all_images() {
     println!("==========================================================\n");
 
     for required in &["12.jpg", "13.jpg", "14.jpg", "cc-100.jpg", "random.jpg"] {
-        assert!(json_filenames.contains(*required), "Missing required image {} in expected_results.json", required);
+        assert!(json_filenames.contains(*required), "Missing required image {} in benchmark_results.json", required);
     }
 }
 

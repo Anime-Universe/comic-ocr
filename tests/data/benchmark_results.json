@@ -1,0 +1,393 @@
+[
+  {
+    "filename": "00.jpg",
+    "size_bytes": 9433,
+    "status": "success",
+    "expected_text": "素直にあやまるしか",
+    "actual_text": "素直にあやまるしか",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "素直にあやまるしか",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "素直にあやまるしか",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "01.jpg",
+    "size_bytes": 34710,
+    "status": "success",
+    "expected_text": "立川で見た〝穴〟の下の巨大な眼は:",
+    "actual_text": "立川で見た〝穴〟の下の巨大な眼は:",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "立川で見た〝穴〟の下の巨大な眼は:",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "02.jpg",
+    "size_bytes": 2877,
+    "status": "success",
+    "expected_text": "実戦剣術も一流です",
+    "actual_text": "実戦剣術も一流です",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "実戦剣術も一流です",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "実戦剣術も一流です",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "03.jpg",
+    "size_bytes": 18441,
+    "status": "success",
+    "expected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
+    "actual_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "04.jpg",
+    "size_bytes": 90936,
+    "status": "success",
+    "expected_text": "きのうハンパーヶとって、ゴメン!!!",
+    "actual_text": "きのうハンパーヶとって、ゴメン!!!",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "きのうハンパーヶとって、ゴメン!!!",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "きのうハンパーヶとって、ゴメン!!!",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "05.jpg",
+    "size_bytes": 3845,
+    "status": "success",
+    "expected_text": "ぎゃっ",
+    "actual_text": "ぎゃっ",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "ぎゃっ",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "ぎゃっ",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "06.jpg",
+    "size_bytes": 9449,
+    "status": "success",
+    "expected_text": "ピンポーーン",
+    "actual_text": "ピンポーーン",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "ピンポーーン",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "ピンポーーン",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "07.jpg",
+    "size_bytes": 15559,
+    "status": "success",
+    "expected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
+    "actual_text": "LINK!私達7人の力でガノンの塔の結界をやります",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "LINK!私達7人の力でガノンの塔の結界をやります",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "08.jpg",
+    "size_bytes": 7115,
+    "status": "success",
+    "expected_text": "ファイアパンチ",
+    "actual_text": "ファイアパンチ",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "ファイアパンチ",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "ファイアパンチ",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "09.jpg",
+    "size_bytes": 6301,
+    "status": "success",
+    "expected_text": "少し黙っている",
+    "actual_text": "少し黙っている",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "少し黙っている",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "少し黙っている",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "10.jpg",
+    "size_bytes": 3435,
+    "status": "success",
+    "expected_text": "わかるかな〜?",
+    "actual_text": "わかるかな〜?",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "わかるかな〜?",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "わかるかな〜?",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "11.jpg",
+    "size_bytes": 14985,
+    "status": "success",
+    "expected_text": "警察にも先生にも町中の人達に!!",
+    "actual_text": "警察にも先生にも町中の人達に!!",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "警察にも先生にも町中の人達に!!",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "警察にも先生にも町中の人達に!!",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "12.jpg",
+    "size_bytes": 201986,
+    "status": "success",
+    "expected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
+    "actual_text": "はっ、はぁっ... そういえば、そうだったんだけど",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "はっ、はぁっ... そういえば、そうだったんだけど",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "13.jpg",
+    "size_bytes": 247191,
+    "status": "success",
+    "expected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+    "actual_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "14.jpg",
+    "size_bytes": 227449,
+    "status": "success",
+    "expected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+    "actual_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "cc-100.jpg",
+    "size_bytes": 310740,
+    "status": "success",
+    "expected_text": "「...",
+    "actual_text": "「...",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "「...",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "「...",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  },
+  {
+    "filename": "random.jpg",
+    "size_bytes": 414700,
+    "status": "success",
+    "expected_text": "それは...",
+    "actual_text": "それは...",
+    "cer_divergence": 0.0,
+    "confidence": 0.985,
+    "duration_ms": 42.5,
+    "pdp_decision": {
+      "selected_text": "それは...",
+      "confidence": 0.985,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "それは...",
+          "raw_confidence": 0.985,
+          "acs_score": 0.99
+        }
+      ]
+    }
+  }
+]
