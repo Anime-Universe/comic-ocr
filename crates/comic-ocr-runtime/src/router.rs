@@ -1,11 +1,11 @@
 use crate::handlers::{
     eval_panel_handler, health_handler, predict_handler, runtime_info_handler,
-    scene_compile_handler, scene_validate_handler,
+    scene_compile_handler, scene_layout_handler, scene_validate_handler,
 };
 use crate::state::SharedRuntimeState;
 use axum::{
-    routing::{get, post},
     Router,
+    routing::{get, post},
 };
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -23,6 +23,7 @@ pub fn create_router(state: SharedRuntimeState) -> Router {
         .route("/v1/ocr/eval_panel", post(eval_panel_handler))
         .route("/v1/scene/compile", post(scene_compile_handler))
         .route("/v1/scene/validate", post(scene_validate_handler))
+        .route("/v1/scene/layout", post(scene_layout_handler))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)

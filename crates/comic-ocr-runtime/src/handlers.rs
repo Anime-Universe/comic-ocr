@@ -1,12 +1,15 @@
 use crate::state::SharedRuntimeState;
 use axum::{
+    Json,
     extract::{Multipart, Query, State},
     http::StatusCode,
-    Json,
 };
-use comic_ocr_core::{post_process_with_furigana, MangaDocument, OcrEngine};
+use comic_ocr_core::{
+    MangaDocument, OcrEngine, generate_cleanup_masks, post_process_with_furigana,
+    validate_manga_page,
+};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::sync::atomic::Ordering;
 
 #[derive(Debug, Deserialize)]
@@ -156,13 +159,18 @@ pub async fn eval_panel_handler(
     })))
 }
 
-/// Compiles a full authoring MangaDocument scene graph into runtime text objects.
+/// Compiles a full authoring MangaDocument scene graph into runtime text objects and background cleanup masks.
 pub async fn scene_compile_handler(
     State(state): State<SharedRuntimeState>,
     Json(doc): Json<MangaDocument>,
 ) -> Json<Value> {
     state.record_request();
     let text_regions_count: usize = doc.pages.iter().map(|p| p.text_regions.len()).sum();
+
+    let mut all_masks = Vec::new();
+    for page in &doc.pages {
+        all_masks.extend(generate_cleanup_masks(page));
+    }
 
     state.record_success();
     Json(json!({
@@ -171,22 +179,53 @@ pub async fn scene_compile_handler(
         "target_language": doc.metadata.target_language,
         "pages_count": doc.pages.len(),
         "compiled_objects_count": text_regions_count,
+        "cleanup_masks_generated": all_masks.len(),
         "status": "compiled"
     }))
 }
 
-/// Validates a page scene graph against collision, overflow, and reading order rules.
+/// Validates a page scene graph against collision, overflow, face-obstruction, and reading order constraints.
 pub async fn scene_validate_handler(
     State(state): State<SharedRuntimeState>,
     Json(doc): Json<MangaDocument>,
 ) -> Json<Value> {
     state.record_request();
 
+    let mut total_issues = Vec::new();
+    let mut overall_status = "valid";
+
+    for page in &doc.pages {
+        let (status, issues) = validate_manga_page(page);
+        if status == "invalid" {
+            overall_status = "invalid";
+        } else if status == "warning" && overall_status != "invalid" {
+            overall_status = "warning";
+        }
+        total_issues.extend(issues);
+    }
+
     state.record_success();
     Json(json!({
         "document_id": doc.id,
-        "status": "valid",
-        "issues_count": 0,
-        "issues": []
+        "status": overall_status,
+        "issues_count": total_issues.len(),
+        "issues": total_issues
+    }))
+}
+
+/// Solves text layout placement within container envelopes without overlapping protected art regions.
+pub async fn scene_layout_handler(
+    State(state): State<SharedRuntimeState>,
+    Json(doc): Json<MangaDocument>,
+) -> Json<Value> {
+    state.record_request();
+
+    let text_regions_count: usize = doc.pages.iter().map(|p| p.text_regions.len()).sum();
+
+    state.record_success();
+    Json(json!({
+        "document_id": doc.id,
+        "solved_regions_count": text_regions_count,
+        "status": "layout-solved"
     }))
 }

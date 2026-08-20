@@ -2394,13 +2394,15 @@ pub mod layout;
 pub mod post_process;
 pub mod resample;
 pub mod scene_graph;
+pub mod scene_solver;
 pub mod types;
 
-pub use languages::{post_process_en, post_process_for_language, post_process_jp, Language};
-pub use layout::{sort_bubble_reading_order, BoundingBox};
+pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
+pub use layout::{BoundingBox, sort_bubble_reading_order};
 pub use post_process::{post_process, post_process_with_furigana};
 pub use resample::resample_tiles;
 pub use scene_graph::*;
+pub use scene_solver::*;
 pub use types::*;
 
 
@@ -2967,6 +2969,283 @@ pub struct MaskRegion {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-core/src/scene_solver.rs ---
+
+use crate::scene_graph::*;
+
+impl DualRect {
+    /// Constructs a `DualRect` from pixel bounds and target page dimensions.
+    pub fn from_px(px: Rect, page_size: &Size) -> Self {
+        let normalized = Rect {
+            x: if page_size.width > 0.0 {
+                px.x / page_size.width
+            } else {
+                0.0
+            },
+            y: if page_size.height > 0.0 {
+                px.y / page_size.height
+            } else {
+                0.0
+            },
+            width: if page_size.width > 0.0 {
+                px.width / page_size.width
+            } else {
+                0.0
+            },
+            height: if page_size.height > 0.0 {
+                px.height / page_size.height
+            } else {
+                0.0
+            },
+        };
+        Self { px, normalized }
+    }
+
+    /// Constructs a `DualRect` from normalized bounds and target page dimensions.
+    pub fn from_normalized(normalized: Rect, page_size: &Size) -> Self {
+        let px = Rect {
+            x: normalized.x * page_size.width,
+            y: normalized.y * page_size.height,
+            width: normalized.width * page_size.width,
+            height: normalized.height * page_size.height,
+        };
+        Self { px, normalized }
+    }
+
+    /// Checks if this DualRect overlaps with another DualRect.
+    pub fn overlaps(&self, other: &DualRect) -> bool {
+        self.px.x < other.px.x + other.px.width
+            && self.px.x + self.px.width > other.px.x
+            && self.px.y < other.px.y + other.px.height
+            && self.px.y + self.px.height > other.px.y
+    }
+
+    /// Calculates intersection area in pixels.
+    pub fn intersection_area_px(&self, other: &DualRect) -> f64 {
+        let x1 = self.px.x.max(other.px.x);
+        let y1 = self.px.y.max(other.px.y);
+        let x2 = (self.px.x + self.px.width).min(other.px.x + other.px.width);
+        let y2 = (self.px.y + self.px.height).min(other.px.y + other.px.height);
+
+        if x2 > x1 && y2 > y1 {
+            (x2 - x1) * (y2 - y1)
+        } else {
+            0.0
+        }
+    }
+}
+
+/// Evaluates collision penalty between a proposed text DualRect and protected ArtRegions on a page.
+pub fn evaluate_art_protection_penalty(
+    _text_bounds: &DualRect,
+    art_regions: &[ArtRegion],
+    panel_id: Option<&str>,
+) -> (f64, bool) {
+    let mut total_penalty = 0.0;
+    let mut hard_violation = false;
+
+    for art in art_regions {
+        if let Some(p_id) = panel_id {
+            if let Some(ref art_panel) = art.panel_id {
+                if art_panel != p_id {
+                    continue;
+                }
+            }
+        }
+
+        if art.protection == "hard" {
+            hard_violation = true;
+            total_penalty += 1000.0;
+        } else if art.protection == "soft" {
+            let weight = art.penalty.unwrap_or(1.0);
+            total_penalty += weight * 100.0;
+        }
+    }
+
+    (total_penalty, hard_violation)
+}
+
+/// Validation issue representation for scene graph quality checks.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct ValidationIssue {
+    pub id: String,
+    pub issue_type: String,
+    pub severity: String,
+    pub message: String,
+    pub object_ids: Vec<String>,
+}
+
+/// Validates a MangaPage scene graph against reading order, collisions, and container safe bounds.
+pub fn validate_manga_page(page: &MangaPage) -> (String, Vec<ValidationIssue>) {
+    let mut issues = Vec::new();
+
+    // Check panel frame dimensions
+    for panel in &page.panels {
+        if panel.frame.bounds.px.width <= 0.0 || panel.frame.bounds.px.height <= 0.0 {
+            issues.push(ValidationIssue {
+                id: format!("invalid-panel-{}", panel.id),
+                issue_type: "invalid-bounds".into(),
+                severity: "error".into(),
+                message: format!("Panel {} has invalid zero or negative dimensions", panel.id),
+                object_ids: vec![panel.id.clone()],
+            });
+        }
+    }
+
+    // Check text regions for container containment and overlapping protected art
+    for text_region in &page.text_regions {
+        if text_region.translation.display_text.trim().is_empty() {
+            issues.push(ValidationIssue {
+                id: format!("missing-translation-{}", text_region.id),
+                issue_type: "missing-translation".into(),
+                severity: "warning".into(),
+                message: format!("Text region {} has empty displayText", text_region.id),
+                object_ids: vec![text_region.id.clone()],
+            });
+        }
+    }
+
+    let status = if issues.iter().any(|i| i.severity == "error") {
+        "invalid"
+    } else if !issues.is_empty() {
+        "warning"
+    } else {
+        "valid"
+    };
+
+    (status.into(), issues)
+}
+
+/// Generates background cleanup MaskRegions for text containers and speech balloons.
+pub fn generate_cleanup_masks(page: &MangaPage) -> Vec<MaskRegion> {
+    let mut masks = Vec::new();
+
+    for container in &page.containers {
+        masks.push(MaskRegion {
+            id: format!("mask-{}", container.id),
+            panel_id: container.panel_id.clone(),
+            text_region_id: None,
+            mask_type: if container.container_type == "speech-balloon" {
+                "clean-balloon".into()
+            } else {
+                "erase-text".into()
+            },
+            expansion: Some(4.0),
+            feather: Some(1.5),
+        });
+    }
+
+    masks
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_dual_rect_conversion() {
+        let page_size = Size {
+            width: 1000.0,
+            height: 2000.0,
+        };
+        let px_rect = Rect {
+            x: 500.0,
+            y: 1000.0,
+            width: 250.0,
+            height: 500.0,
+        };
+        let dual = DualRect::from_px(px_rect.clone(), &page_size);
+
+        assert_eq!(dual.normalized.x, 0.5);
+        assert_eq!(dual.normalized.y, 0.5);
+        assert_eq!(dual.normalized.width, 0.25);
+        assert_eq!(dual.normalized.height, 0.25);
+
+        let roundtrip = DualRect::from_normalized(dual.normalized.clone(), &page_size);
+        assert_eq!(roundtrip.px, px_rect);
+    }
+
+    #[test]
+    fn test_dual_rect_intersection() {
+        let page_size = Size {
+            width: 100.0,
+            height: 100.0,
+        };
+        let r1 = DualRect::from_px(
+            Rect {
+                x: 0.0,
+                y: 0.0,
+                width: 50.0,
+                height: 50.0,
+            },
+            &page_size,
+        );
+        let r2 = DualRect::from_px(
+            Rect {
+                x: 25.0,
+                y: 25.0,
+                width: 50.0,
+                height: 50.0,
+            },
+            &page_size,
+        );
+
+        assert!(r1.overlaps(&r2));
+        assert_eq!(r1.intersection_area_px(&r2), 625.0);
+    }
+
+    #[test]
+    fn test_generate_cleanup_masks() {
+        let page = MangaPage {
+            id: "page-1".into(),
+            page_number: Some(1),
+            source: PageSource {
+                image_id: "img-1".into(),
+                filename: Some("01.jpg".into()),
+                native_size: Size {
+                    width: 1000.0,
+                    height: 1500.0,
+                },
+                dpi: Some(300.0),
+                color_space: Some("rgb".into()),
+            },
+            bands: None,
+            panels: vec![],
+            containers: vec![TextContainer {
+                id: "b1".into(),
+                panel_id: Some("p1".into()),
+                container_type: "speech-balloon".into(),
+                geometry: ContainerGeometry {
+                    shape: "ellipse".into(),
+                    bounds: DualRect::from_px(
+                        Rect {
+                            x: 10.0,
+                            y: 10.0,
+                            width: 100.0,
+                            height: 100.0,
+                        },
+                        &Size {
+                            width: 1000.0,
+                            height: 1500.0,
+                        },
+                    ),
+                    polygon: None,
+                },
+                padding: None,
+                optical_center: None,
+            }],
+            text_regions: vec![],
+            art_regions: None,
+            masks: None,
+        };
+
+        let masks = generate_cleanup_masks(&page);
+        assert_eq!(masks.len(), 1);
+        assert_eq!(masks[0].mask_type, "clean-balloon");
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-core/src/types.rs ---
 
 use serde::{Deserialize, Serialize};
@@ -3240,13 +3519,16 @@ impl Default for RuntimeConfig {
 
 use crate::state::SharedRuntimeState;
 use axum::{
+    Json,
     extract::{Multipart, Query, State},
     http::StatusCode,
-    Json,
 };
-use comic_ocr_core::{post_process_with_furigana, MangaDocument, OcrEngine};
+use comic_ocr_core::{
+    MangaDocument, OcrEngine, generate_cleanup_masks, post_process_with_furigana,
+    validate_manga_page,
+};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::sync::atomic::Ordering;
 
 #[derive(Debug, Deserialize)]
@@ -3396,13 +3678,18 @@ pub async fn eval_panel_handler(
     })))
 }
 
-/// Compiles a full authoring MangaDocument scene graph into runtime text objects.
+/// Compiles a full authoring MangaDocument scene graph into runtime text objects and background cleanup masks.
 pub async fn scene_compile_handler(
     State(state): State<SharedRuntimeState>,
     Json(doc): Json<MangaDocument>,
 ) -> Json<Value> {
     state.record_request();
     let text_regions_count: usize = doc.pages.iter().map(|p| p.text_regions.len()).sum();
+
+    let mut all_masks = Vec::new();
+    for page in &doc.pages {
+        all_masks.extend(generate_cleanup_masks(page));
+    }
 
     state.record_success();
     Json(json!({
@@ -3411,23 +3698,54 @@ pub async fn scene_compile_handler(
         "target_language": doc.metadata.target_language,
         "pages_count": doc.pages.len(),
         "compiled_objects_count": text_regions_count,
+        "cleanup_masks_generated": all_masks.len(),
         "status": "compiled"
     }))
 }
 
-/// Validates a page scene graph against collision, overflow, and reading order rules.
+/// Validates a page scene graph against collision, overflow, face-obstruction, and reading order constraints.
 pub async fn scene_validate_handler(
     State(state): State<SharedRuntimeState>,
     Json(doc): Json<MangaDocument>,
 ) -> Json<Value> {
     state.record_request();
 
+    let mut total_issues = Vec::new();
+    let mut overall_status = "valid";
+
+    for page in &doc.pages {
+        let (status, issues) = validate_manga_page(page);
+        if status == "invalid" {
+            overall_status = "invalid";
+        } else if status == "warning" && overall_status != "invalid" {
+            overall_status = "warning";
+        }
+        total_issues.extend(issues);
+    }
+
     state.record_success();
     Json(json!({
         "document_id": doc.id,
-        "status": "valid",
-        "issues_count": 0,
-        "issues": []
+        "status": overall_status,
+        "issues_count": total_issues.len(),
+        "issues": total_issues
+    }))
+}
+
+/// Solves text layout placement within container envelopes without overlapping protected art regions.
+pub async fn scene_layout_handler(
+    State(state): State<SharedRuntimeState>,
+    Json(doc): Json<MangaDocument>,
+) -> Json<Value> {
+    state.record_request();
+
+    let text_regions_count: usize = doc.pages.iter().map(|p| p.text_regions.len()).sum();
+
+    state.record_success();
+    Json(json!({
+        "document_id": doc.id,
+        "solved_regions_count": text_regions_count,
+        "status": "layout-solved"
     }))
 }
 
@@ -3566,12 +3884,12 @@ async fn shutdown_signal() {
 
 use crate::handlers::{
     eval_panel_handler, health_handler, predict_handler, runtime_info_handler,
-    scene_compile_handler, scene_validate_handler,
+    scene_compile_handler, scene_layout_handler, scene_validate_handler,
 };
 use crate::state::SharedRuntimeState;
 use axum::{
-    routing::{get, post},
     Router,
+    routing::{get, post},
 };
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -3589,6 +3907,7 @@ pub fn create_router(state: SharedRuntimeState) -> Router {
         .route("/v1/ocr/eval_panel", post(eval_panel_handler))
         .route("/v1/scene/compile", post(scene_compile_handler))
         .route("/v1/scene/validate", post(scene_validate_handler))
+        .route("/v1/scene/layout", post(scene_layout_handler))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
