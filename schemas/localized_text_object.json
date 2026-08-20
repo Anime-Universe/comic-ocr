@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+  "title": "LocalizedTextObject",
+  "description": "Authoritative compiled runtime representation of a localized comic text object.",
+  "type": "object",
+  "required": [
+    "identity",
+    "semantics",
+    "content",
+    "geometry",
+    "presentation",
+    "cleanup",
+    "rendering"
+  ],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "required": ["id", "pageId"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "pageId": { "type": "string", "format": "uuid" },
+        "panelId": { "type": "string", "format": "uuid" },
+        "containerId": { "type": "string", "format": "uuid" }
+      }
+    },
+    "semantics": {
+      "type": "object",
+      "required": ["role", "placementMode", "readingOrder"],
+      "properties": {
+        "role": { "type": "string" },
+        "placementMode": { "type": "string", "enum": ["balloon", "caption", "free-text", "art-text"] },
+        "speakerId": { "type": "string", "format": "uuid" },
+        "tone": { "type": "array", "items": { "type": "string" } },
+        "readingOrder": { "type": "integer" }
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["source", "translation"],
+      "properties": {
+        "source": { "type": "object" },
+        "translation": { "type": "object" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["bounds", "transform"],
+      "properties": {
+        "bounds": { "type": "object" },
+        "transform": { "type": "object" }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "required": ["layout", "typography"],
+      "properties": {
+        "layout": { "type": "object" },
+        "typography": { "type": "object" }
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "required": ["maskIds"],
+      "properties": {
+        "maskIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }
+      }
+    },
+    "rendering": {
+      "type": "object",
+      "required": ["antialias"],
+      "properties": {
+        "antialias": { "type": "string", "enum": ["none", "grayscale", "subpixel"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+  "title": "ComicDocument",
+  "description": "Authoritative 4-layer Scene Graph JSON Schema for Comic, Manga, Manhwa, and Webtoon localization, spatial layout, protected art avoidance, and rendering.",
+  "type": "object",
+  "required": [
+    "id",
+    "metadata",
+    "reading",
+    "pages"
+  ],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "metadata": {
+      "type": "object",
+      "required": ["sourceLanguage", "targetLanguage"],
+      "properties": {
+        "title": { "type": "string" },
+        "series": { "type": "string" },
+        "volume": { "type": ["string", "number"] },
+        "chapter": { "type": ["string", "number"] },
+        "sourceLanguage": { "type": "string" },
+        "targetLanguage": { "type": "string" }
+      }
+    },
+    "reading": {
+      "type": "object",
+      "required": ["binding", "pageDirection", "defaultPanelFlow", "sourceWriting", "targetWriting"],
+      "properties": {
+        "binding": { "type": "string", "enum": ["right", "left"] },
+        "pageDirection": { "type": "string", "enum": ["rtl", "ltr"] },
+        "defaultPanelFlow": {
+          "type": "object",
+          "required": ["strategy", "primaryAxis", "secondaryAxis"],
+          "properties": {
+            "strategy": { "type": "string", "enum": ["explicit", "manga-rtl", "western-ltr"] },
+            "primaryAxis": { "type": "string", "enum": ["vertical", "horizontal"] },
+            "secondaryAxis": { "type": "string", "enum": ["rtl", "ltr"] }
+          }
+        },
+        "sourceWriting": {
+          "type": "object",
+          "required": ["mode", "characterDirection"],
+          "properties": {
+            "mode": { "type": "string", "enum": ["horizontal-tb", "vertical-rl", "vertical-lr"] },
+            "characterDirection": { "type": "string", "enum": ["top-to-bottom", "left-to-right", "right-to-left"] },
+            "columnDirection": { "type": "string", "enum": ["right-to-left", "left-to-right"] }
+          }
+        },
+        "targetWriting": {
+          "type": "object",
+          "required": ["mode", "characterDirection"],
+          "properties": {
+            "mode": { "type": "string", "enum": ["horizontal-tb", "vertical-rl", "vertical-lr"] },
+            "characterDirection": { "type": "string", "enum": ["top-to-bottom", "left-to-right", "right-to-left"] },
+            "lineDirection": { "type": "string", "enum": ["top-to-bottom", "bottom-to-top"] }
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "panels", "containers", "textRegions"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "pageNumber": { "type": "integer" },
+          "source": {
+            "type": "object",
+            "required": ["imageId", "nativeSize", "coordinateSystem"],
+            "properties": {
+              "imageId": { "type": "string", "format": "uuid" },
+              "filename": { "type": "string" },
+              "nativeSize": {
+                "type": "object",
+                "required": ["width", "height"],
+                "properties": {
+                  "width": { "type": "number" },
+                  "height": { "type": "number" }
+                }
+              },
+              "dpi": { "type": "number" },
+              "colorSpace": { "type": "string", "enum": ["gray", "rgb", "cmyk"] },
+              "coordinateSystem": {
+                "type": "object",
+                "properties": {
+                  "origin": { "type": "string", "enum": ["top-left"] },
+                  "sourceUnit": { "type": "string", "enum": ["px"] }
+                }
+              }
+            }
+          },
+          "bands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "order", "direction", "panelIds"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "order": { "type": "integer" },
+                "direction": { "type": "string", "enum": ["rtl", "ltr"] },
+                "panelIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }
+              }
+            }
+          },
+          "panels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "logicalOrder", "frame", "zIndex"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "logicalOrder": { "type": "integer" },
+                "zIndex": { "type": "integer" }
+              }
+            }
+          },
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "geometry"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "panelId": { "type": "string", "format": "uuid" },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "speech-balloon", "thought-balloon", "caption-box",
+                    "rect", "ellipse", "polygon", "path", "freeform", "open-text", "sign"
+                  ]
+                }
+              }
+            }
+          },
+          "textRegions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "placementMode", "role", "source", "translation", "geometry", "layout", "typography", "logicalOrder"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "placementMode": { "type": "string", "enum": ["balloon", "caption", "free-text", "art-text"] },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "speech", "thought", "narration", "caption", "sound-effect",
+                    "whisper", "shout", "vocalization", "signage", "title", "credit", "editorial", "background-text"
+                  ]
+                },
+                "logicalOrder": { "type": "integer" }
+              }
+            }
+          },
+          "artRegions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "role", "protection"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "role": { "type": "string", "enum": ["character", "face", "eyes", "hand", "important-art", "background", "manual"] },
+                "protection": { "type": "string", "enum": ["none", "soft", "hard"] },
+                "penalty": { "type": "number" }
+              }
+            }
+          },
+          "masks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "geometry", "fill"],
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "type": { "type": "string", "enum": ["erase-text", "clean-balloon", "repair-art", "manual"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
