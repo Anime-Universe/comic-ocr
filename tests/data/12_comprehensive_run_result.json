@@ -21,7 +21,7 @@
     ],
     "metadata": {
       "duration_ms": 28.4,
-      "model_name": "kha-white/manga-ocr-base",
+      "model_name": "reference-checkpoint",
       "engine_type": "BaseInt8Onnx"
     }
   },
@@ -51,7 +51,7 @@
       ],
       "metadata": {
         "duration_ms": 28.4,
-        "model_name": "kha-white/manga-ocr-base",
+        "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
     }

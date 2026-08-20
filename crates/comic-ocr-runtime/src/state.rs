@@ -141,7 +141,7 @@ mod tests {
         RuntimeConfig {
             host: "0.0.0.0".into(),
             port: 8000,
-            model_name: "kha-white/manga-ocr-base".into(),
+            model_name: "test-model".into(),
             onnx_model_path: path.map(str::to_string),
             force_cpu: true,
             max_batch_size: 1,

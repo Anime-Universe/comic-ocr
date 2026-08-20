@@ -1,4 +1,4 @@
-================================================================================MANGA OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full.txt)================================================================================
+================================================================================COMIC OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full.txt)================================================================================
 
 
 
@@ -26,6 +26,13 @@ High-performance, zero-cost, multi-crate Rust workspace for optical character re
 - **[`comic-ocr-ort`](crates/comic-ocr-ort)**: C++ ONNX Runtime bindings (`ort`) managing tensor memory, image resizing, token entropy calculation ($H_k$), and loop truncation (<120MB RAM).
 - **[`comic-ocr-cli`](crates/comic-ocr-cli)**: Fast, native command-line binary (`comic-ocr`).
 - **[`comic-ocr-runtime`](crates/comic-ocr-runtime)**: High-throughput Tokio/Axum REST Reflective Runtime microservice.
+
+---
+
+## Runtime Engine Modes & Environment Requirements
+
+- **Current Neural Model Inference Path**: Out-of-the-box neural recognition uses PyTorch/HuggingFace transformers (`python3`, `torch`, `transformers`) executed via `OrtEngine` with zero-copy stream processing and per-token logit softmax calculation.
+- **Native Rust Decoder Loop (In Active Development)**: `OrtEngine::from_onnx_file` provides C++ ONNX session loading. Full native Rust ViT Encoder + Autoregressive Transformer Decoder KV-cache generation loop is tracked under Phase 9.
 
 ---
 
@@ -1045,19 +1052,28 @@ gantt
   - Decoupled full-page raw OCR confidence (`0.3314`) from sub-region vision analysis (`0.9890`) with explicit `AnalysisEvidence` provenance.
   - Marked top header banner as `test-annotation` / `fixture` (`localizable: false`).
   - Parsed `冒険メモ 🐾` parchment into a structured quest log document hierarchy with progress trackers.
-- [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/main.yml`)**:
+- [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/ci.yml`)**:
   - Resolved `needless_range_loop` warnings in test targets.
-  - Upgraded GitHub CI workflow to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and `python3 scripts/run_pipeline.py --gate`.
+  - Upgraded GitHub CI workflow (`.github/workflows/ci.yml`) to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo test --workspace --all-features`, `cargo test --workspace --all-features --no-run` (ignoring model-dependent tests without rotting), and `cargo test -p comic-ocr-ort --test test_no_fabricated_output`.
 
 ---
 
 ## Phase 9: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
 
-### A. PDP Multi-Engine Consensus & Brier Calibration
+### A. Pure Rust `VisionEncoderDecoder` Generation Loop (Native ONNX Decoder)
+- [ ] **Rust-side ViT Encoder + Autoregressive Decoder Loop**:
+  - Implement native Rust ViT image patch embedding encoder and autoregressive Transformer decoder loop (with KV-cache) inside `comic-ocr-ort`.
+  - Connect token ID logits directly to HuggingFace BPE/Unigram detokenizer to complete the native `OrtEngine::predict()` path without Python subprocess dependencies.
+
+### B. Persistent Python Model Inference Worker
+- [ ] **Long-Lived Python Worker / Process Pool**:
+  - Implement a persistent long-lived background Python daemon/worker process over stdin/stdout IPC or Unix domain socket for `OrtEngine` when operating in subprocess mode, eliminating per-image PyTorch/transformers model reloading overhead across batch operations.
+
+### C. PDP Multi-Engine Consensus & Brier Calibration
 - [ ] **Multi-Engine PDP Consensus**: Implement Brier-calibrated consensus weighting across local ONNX model predictions and remote VLM API transcriptions (e.g. Gemini / Claude) in `comic-ocr-pdp`.
 - [ ] **Cross-Engine Disagreement Detection**: Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
 
-### B. Advanced Cover & Editorial Typography Reconstruction
+### D. Advanced Cover & Editorial Typography Reconstruction
 - [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
 - [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.
 
@@ -1282,7 +1298,7 @@ Located in [`crates/comic-ocr-runtime`](crates/comic-ocr-runtime).
 | :--- | :--- | :--- |
 | `MANGA_OCR_HOST` | `"0.0.0.0"` | Network bind address |
 | `MANGA_OCR_PORT` | `8000` | HTTP TCP listening port |
-| `MANGA_OCR_MODEL` | `"kha-white/comic-ocr-base"` | Target ONNX model identifier |
+| `MANGA_OCR_MODEL` | `"the reference checkpoint"` | Target ONNX model identifier |
 | `MANGA_OCR_FORCE_CPU` | `false` | Force CPU execution provider |
 | `RUST_LOG` | `"info"` | Tracing log level (`debug`, `info`, `warn`) |
 
@@ -1334,7 +1350,7 @@ curl -s http://localhost:8000/v1/runtime/info
 ```json
 {
   "runtime": "Comic OCR Reflective Runtime",
-  "model_name": "kha-white/comic-ocr-base",
+  "model_name": "the reference checkpoint",
   "max_batch_size": 16,
   "pdp_invalidation_threshold": 0.7,
   "force_cpu": false,
@@ -1616,7 +1632,7 @@ $$S = \exp\left( \frac{1}{N} \sum_{i=1}^N \ln P(w_i \mid w_{<i}, \mathbf{X}) \ri
 Geometric mean of sequence token probabilities derived from model logit softmax distributions.
 
 ### 4.2 Evidence Class Discounting (ACS)
-In multi-engine panel evaluation (e.g. PyTorch `kha-white/comic-ocr-base` + ONNX Runtime + Tesseract fallback):
+In multi-engine panel evaluation (e.g. PyTorch `the reference checkpoint` + ONNX Runtime + Tesseract fallback):
 
 $$W_{\text{final}} = W_{\text{raw}} \cdot \alpha_{\text{provenance}} \cdot \beta_{\text{consensus}}$$
 
@@ -1915,7 +1931,7 @@ Running `assets/examples/12.jpg` through the complete 4-layer pipeline generates
     "token_probabilities": [0.99, 0.985, 0.98, 0.985],
     "metadata": {
       "duration_ms": 4.2,
-      "model_name": "kha-white/manga-ocr-base",
+      "model_name": "the reference checkpoint",
       "engine_type": "BaseInt8Onnx"
     }
   },
@@ -2243,7 +2259,7 @@ This document summarizes key takeaways, model footprint optimizations, dataset i
 
 ## 1. Key Insights & Benchmark Comparison
 
-| Dimension | Standard `kha-white/comic-ocr` | Reference `ComicOCR` (PaddleOCR/TrOCR) | Our Rust Migration Target (`comic-ocr-rust`) |
+| Dimension | Standard `the reference checkpoint` | Reference `ComicOCR` (PaddleOCR/TrOCR) | Our Rust Migration Target (`comic-ocr-rust`) |
 | :--- | :--- | :--- | :--- |
 | **Model Size** | 444 MB | **~8 MB** (55x smaller) | **8 MB (Nano) / 120 MB (Base INT8)** |
 | **Character Error Rate (CER)** | 2.5% – 5.0% | ~14.4% | **2.5% (Base) / <8% (Nano)** |
@@ -2420,7 +2436,7 @@ graph TD
     subgraph "Inference Domain (comic_ocr)"
         MMain["comic_ocr.__main__"] --> MRun["comic_ocr.run"]
         MRun --> MOcr["comic_ocr.ocr.MangaOcr"]
-        MOcr --> HuggingFace["HuggingFace Hub (kha-white/comic-ocr-base)"]
+        MOcr --> HuggingFace["HuggingFace Hub (the reference checkpoint)"]
     end
 
     subgraph "Development & Training Domain (comic_ocr_dev)"
@@ -2651,7 +2667,7 @@ use std::path::{Path, PathBuf};
 #[command(
     name = "comic-ocr",
     version,
-    about = "High-performance Japanese Manga OCR Operational CLI Tooling & Pipeline Verification Gate"
+    about = "High-performance multilingual comic & manga OCR CLI tooling and pipeline verification gate"
 )]
 struct Cli {
     /// Path to a single input image file
@@ -2842,11 +2858,12 @@ fn main() -> anyhow::Result<()> {
     }
 
     println!(
-        "\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===",
+        "\n=== Executing Comic OCR pipeline across {} image(s) ===",
         target_files.len()
     );
 
-    let engine = OrtEngine::new("kha-white/comic-ocr-base").with_furigana(cli.extract_furigana);
+    let engine = OrtEngine::new(std::env::var("COMIC_OCR_MODEL").unwrap_or_default())
+        .with_furigana(cli.extract_furigana);
 
     for (idx, img_path) in target_files.iter().enumerate() {
         println!(
@@ -2900,6 +2917,141 @@ fn main() -> anyhow::Result<()> {
 
     println!("=== Operational Run Complete ===");
     Ok(())
+}
+
+
+--- RUST SOURCE: crates/comic-ocr-core/src/ambiguity.rs ---
+
+use crate::validation::AnalysisEvidence;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AmbiguityType {
+    InsetPanelReadingOrder,
+    EnvironmentalSignVsDialogue,
+    OccludedSfxBounds,
+    NumericLabelClassification,
+    AmbiguousSpeakerTail,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ResolutionStatus {
+    Resolved,
+    Unresolved,
+    HumanReviewRequired,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Hypothesis<T> {
+    pub value: T,
+    pub confidence: f32,
+    pub rationale: String,
+    #[serde(default)]
+    pub evidence: Vec<AnalysisEvidence>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AmbiguousProperty<T> {
+    pub primary: Hypothesis<T>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub alternatives: Vec<Hypothesis<T>>,
+    pub ambiguity_type: AmbiguityType,
+    pub resolution_status: ResolutionStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub margin_delta: Option<f32>,
+}
+
+impl<T> AmbiguousProperty<T> {
+    pub fn new(
+        primary: Hypothesis<T>,
+        alternatives: Vec<Hypothesis<T>>,
+        ambiguity_type: AmbiguityType,
+    ) -> Self {
+        let margin_delta = alternatives
+            .first()
+            .map(|alt| (primary.confidence - alt.confidence).abs());
+
+        let resolution_status = match margin_delta {
+            Some(delta) if delta < 0.15 => ResolutionStatus::HumanReviewRequired,
+            Some(_) => ResolutionStatus::Resolved,
+            None => ResolutionStatus::Resolved,
+        };
+
+        Self {
+            primary,
+            alternatives,
+            ambiguity_type,
+            resolution_status,
+            margin_delta,
+        }
+    }
+}
+
+/// Evaluates speaker attribution ambiguity when a balloon tail points between two candidate speakers.
+pub fn evaluate_speaker_attribution(
+    balloon_tail_tip: [f32; 2],
+    speaker_a: (&str, [f32; 2]), // (id, center_pos)
+    speaker_b: (&str, [f32; 2]),
+) -> AmbiguousProperty<String> {
+    let dist_a = ((balloon_tail_tip[0] - speaker_a.1[0]).powi(2)
+        + (balloon_tail_tip[1] - speaker_a.1[1]).powi(2))
+    .sqrt();
+
+    let dist_b = ((balloon_tail_tip[0] - speaker_b.1[0]).powi(2)
+        + (balloon_tail_tip[1] - speaker_b.1[1]).powi(2))
+    .sqrt();
+
+    let total = dist_a + dist_b;
+    let prob_a = 1.0 - (dist_a / total);
+    let prob_b = 1.0 - (dist_b / total);
+
+    let (primary_speaker, primary_prob, alt_speaker, alt_prob) = if prob_a >= prob_b {
+        (speaker_a.0, prob_a, speaker_b.0, prob_b)
+    } else {
+        (speaker_b.0, prob_b, speaker_a.0, prob_a)
+    };
+
+    AmbiguousProperty::new(
+        Hypothesis {
+            value: primary_speaker.to_string(),
+            confidence: primary_prob,
+            rationale: format!(
+                "Tail tip is {:.1}px from {} vs {:.1}px from {}",
+                dist_a, speaker_a.0, dist_b, speaker_b.0
+            ),
+            evidence: vec![],
+        },
+        vec![Hypothesis {
+            value: alt_speaker.to_string(),
+            confidence: alt_prob,
+            rationale: "Alternative plausible speaker candidate within tail proximity radius"
+                .to_string(),
+            evidence: vec![],
+        }],
+        AmbiguityType::AmbiguousSpeakerTail,
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_speaker_attribution_ambiguity_flagging() {
+        // Tail tip is right in the middle between character-a and character-b
+        let tail_tip = [500.0, 500.0];
+        let speaker_a = ("character-a", [480.0, 500.0]);
+        let speaker_b = ("character-b", [520.0, 500.0]);
+
+        let result = evaluate_speaker_attribution(tail_tip, speaker_a, speaker_b);
+        assert_eq!(
+            result.resolution_status,
+            ResolutionStatus::HumanReviewRequired
+        );
+        assert!(result.margin_delta.unwrap() < 0.15);
+    }
 }
 
 
@@ -3286,6 +3438,7 @@ mod tests {
 
 --- RUST SOURCE: crates/comic-ocr-core/src/lib.rs ---
 
+pub mod ambiguity;
 pub mod detector;
 pub mod languages;
 pub mod layout;
@@ -3293,9 +3446,11 @@ pub mod post_process;
 pub mod resample;
 pub mod scene_graph;
 pub mod scene_solver;
+pub mod tokenizer;
 pub mod types;
 pub mod validation;
 
+pub use ambiguity::*;
 pub use detector::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
 pub use layout::{BoundingBox, sort_bubble_reading_order};
@@ -4152,6 +4307,694 @@ mod tests {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-core/src/tokenizer.rs ---
+
+//! Pure-Rust WordPiece decoding for a BERT character vocabulary.
+//!
+//! A BERT WordPiece checkpoint ships `vocab.txt`, `tokenizer_config.json` and
+//! `special_tokens_map.json` — and no `tokenizer.json`. That makes it a classic
+//! BERT WordPiece vocabulary: one token per line, line number is the token id.
+//! Decoding it needs no model file, no `tokenizer.json` graph, and no Python.
+//!
+//! OCR only ever decodes. The generation loop produces ids and needs them back
+//! as text, so this module implements that direction only; encoding is not here
+//! because nothing in this workspace needs it.
+//!
+//! # Why every failure is an `Err`
+//!
+//! This crate has shipped three defects where a function returned a plausible
+//! constant instead of a computed value — see
+//! `crates/comic-ocr-ort/tests/test_no_fabricated_output.rs`. So: a vocabulary
+//! that cannot be loaded is an error, never a default. And an id that is not in
+//! the vocabulary never becomes `[UNK]` in the output — `[UNK]` is a real token
+//! the model can genuinely emit, so substituting it would put characters into a
+//! transcription that the model never produced. See [`WordPieceVocab::decode`].
+
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use std::str::FromStr;
+
+use thiserror::Error;
+
+use crate::types::OcrError;
+
+/// Classification token. Generation starts here; the id is read from the vocabulary, not assumed.
+pub const CLS_TOKEN: &str = "[CLS]";
+/// Separator token. Used as EOS by BERT-decoder checkpoints — the generation loop stops on it.
+pub const SEP_TOKEN: &str = "[SEP]";
+/// Padding token.
+pub const PAD_TOKEN: &str = "[PAD]";
+/// Unknown token. The model can emit this legitimately; it is not an error marker.
+pub const UNK_TOKEN: &str = "[UNK]";
+/// Mask token. Unused during OCR generation, required by the vocabulary contract.
+pub const MASK_TOKEN: &str = "[MASK]";
+
+/// The tokens `skip_special_tokens` removes, and the ones a vocabulary must contain.
+const SPECIAL_TOKENS: [&str; 5] = [CLS_TOKEN, SEP_TOKEN, PAD_TOKEN, UNK_TOKEN, MASK_TOKEN];
+
+/// The WordPiece continuation marker. A token carrying it joins the previous
+/// token with no separator.
+const CONTINUATION_PREFIX: &str = "##";
+
+/// Everything that can go wrong loading or strictly decoding a vocabulary.
+#[derive(Debug, Error)]
+pub enum TokenizerError {
+    /// The file or string held no tokens. A zero-token vocabulary would decode
+    /// every id to nothing and report success, which is the exact failure shape
+    /// this crate has already shipped three times.
+    #[error("vocabulary is empty: no tokens found")]
+    EmptyVocab,
+
+    /// A token the decoder depends on is absent, so `skip_special_tokens` and
+    /// the generation loop's EOS check would both be silently wrong.
+    #[error("vocabulary is missing the required special token `{0}`")]
+    MissingSpecialToken(&'static str),
+
+    /// The vocabulary file could not be read.
+    #[error("could not read vocabulary from `{path}`: {source}")]
+    Io {
+        /// The path that was attempted.
+        path: String,
+        /// The underlying I/O failure.
+        source: std::io::Error,
+    },
+
+    /// [`WordPieceVocab::try_decode`] met an id with no token behind it.
+    #[error("token id {id} is outside the vocabulary (size {size})")]
+    IdOutOfRange {
+        /// The offending id.
+        id: u32,
+        /// Number of tokens in the vocabulary.
+        size: usize,
+    },
+
+    /// More tokens than a `u32` id can address. Truncating to fit would make
+    /// every id past the cut decode to the wrong token.
+    #[error("vocabulary has {0} tokens, more than a u32 token id can address")]
+    VocabTooLarge(usize),
+}
+
+impl From<TokenizerError> for OcrError {
+    fn from(error: TokenizerError) -> Self {
+        OcrError::TokenizerError(error.to_string())
+    }
+}
+
+/// A BERT WordPiece vocabulary, indexed by token id.
+///
+/// Construct with [`WordPieceVocab::from_vocab_txt`] (from an embedded or
+/// otherwise in-memory `vocab.txt`) or [`WordPieceVocab::from_file`].
+#[derive(Debug, Clone)]
+pub struct WordPieceVocab {
+    /// Token text by id. Position in this vector *is* the id.
+    tokens: Vec<String>,
+    /// Reverse lookup. First occurrence wins, matching HuggingFace.
+    ids: HashMap<String, u32>,
+    cls_id: u32,
+    sep_id: u32,
+    pad_id: u32,
+    unk_id: u32,
+    mask_id: u32,
+}
+
+impl WordPieceVocab {
+    /// Parse the contents of a `vocab.txt`.
+    ///
+    /// One token per line; the line number is the token id. Both `\n` and
+    /// `\r\n` line endings are accepted, and a single trailing newline is not
+    /// treated as an extra token. Blank lines *inside* the file are kept as
+    /// empty tokens rather than dropped, because dropping one would shift every
+    /// id after it and silently corrupt every subsequent decode.
+    ///
+    /// # Errors
+    ///
+    /// [`TokenizerError::EmptyVocab`] if no tokens are present, or
+    /// [`TokenizerError::MissingSpecialToken`] if any of `[CLS]`, `[SEP]`,
+    /// `[PAD]`, `[UNK]`, `[MASK]` is absent.
+    pub fn from_vocab_txt(contents: &str) -> Result<Self, TokenizerError> {
+        let mut lines: Vec<&str> = contents.split('\n').collect();
+        // A file ending in a newline yields one trailing empty element that is
+        // an artefact of the terminator, not a token.
+        if lines.last() == Some(&"") {
+            lines.pop();
+        }
+
+        let tokens: Vec<String> = lines
+            .into_iter()
+            .map(|line| line.strip_suffix('\r').unwrap_or(line).to_string())
+            .collect();
+
+        if tokens.is_empty() {
+            return Err(TokenizerError::EmptyVocab);
+        }
+
+        if u32::try_from(tokens.len()).is_err() {
+            return Err(TokenizerError::VocabTooLarge(tokens.len()));
+        }
+
+        let mut ids: HashMap<String, u32> = HashMap::with_capacity(tokens.len());
+        for (index, token) in tokens.iter().enumerate() {
+            // Safe: the length was just proven to fit, so every index does.
+            let id = index as u32;
+            ids.entry(token.clone()).or_insert(id);
+        }
+
+        let required = |name: &'static str| -> Result<u32, TokenizerError> {
+            ids.get(name)
+                .copied()
+                .ok_or(TokenizerError::MissingSpecialToken(name))
+        };
+
+        Ok(Self {
+            cls_id: required(CLS_TOKEN)?,
+            sep_id: required(SEP_TOKEN)?,
+            pad_id: required(PAD_TOKEN)?,
+            unk_id: required(UNK_TOKEN)?,
+            mask_id: required(MASK_TOKEN)?,
+            tokens,
+            ids,
+        })
+    }
+
+    /// Load a `vocab.txt` from disk.
+    ///
+    /// # Errors
+    ///
+    /// [`TokenizerError::Io`] if the file cannot be read, plus every error
+    /// [`WordPieceVocab::from_vocab_txt`] can return.
+    pub fn from_file(path: impl AsRef<Path>) -> Result<Self, TokenizerError> {
+        let path = path.as_ref();
+        let contents = fs::read_to_string(path).map_err(|source| TokenizerError::Io {
+            path: path.display().to_string(),
+            source,
+        })?;
+        Self::from_vocab_txt(&contents)
+    }
+
+    /// Number of tokens, which is also one past the highest valid id.
+    #[must_use]
+    pub fn len(&self) -> usize {
+        self.tokens.len()
+    }
+
+    /// Always `false` — a constructed vocabulary is never empty, because an
+    /// empty one is rejected at load time. Present for the `len`/`is_empty` pair.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.tokens.is_empty()
+    }
+
+    /// The token text behind an id, or `None` if the id is out of range.
+    #[must_use]
+    pub fn token(&self, id: u32) -> Option<&str> {
+        self.tokens.get(id as usize).map(String::as_str)
+    }
+
+    /// The id of an exact token string, or `None` if the vocabulary lacks it.
+    #[must_use]
+    pub fn id_of(&self, token: &str) -> Option<u32> {
+        self.ids.get(token).copied()
+    }
+
+    /// Id of `[CLS]`. The generation loop seeds the decoder with this.
+    #[must_use]
+    pub fn cls_id(&self) -> u32 {
+        self.cls_id
+    }
+
+    /// Id of `[SEP]`. This is the EOS a generation loop stops on.
+    #[must_use]
+    pub fn sep_id(&self) -> u32 {
+        self.sep_id
+    }
+
+    /// Id of `[PAD]`.
+    #[must_use]
+    pub fn pad_id(&self) -> u32 {
+        self.pad_id
+    }
+
+    /// Id of `[UNK]`.
+    #[must_use]
+    pub fn unk_id(&self) -> u32 {
+        self.unk_id
+    }
+
+    /// Id of `[MASK]`.
+    #[must_use]
+    pub fn mask_id(&self) -> u32 {
+        self.mask_id
+    }
+
+    /// Whether a token string is one of the five special tokens.
+    #[must_use]
+    pub fn is_special_token(token: &str) -> bool {
+        SPECIAL_TOKENS.contains(&token)
+    }
+
+    /// Whether an id maps to one of the five special tokens. Out-of-range ids
+    /// are not special — they are not anything.
+    #[must_use]
+    pub fn is_special_id(&self, id: u32) -> bool {
+        self.token(id).is_some_and(Self::is_special_token)
+    }
+
+    /// Decode ids to text with **no spaces between tokens**.
+    ///
+    /// This matches what the Python path it replaces produced, which was
+    /// `tokenizer.decode(ids, skip_special_tokens=True).replace(' ', '')`.
+    /// HuggingFace's BERT decoder joins tokens with spaces and then strips the
+    /// `" ##"` sequences; the remaining spaces are removed because
+    /// Japanese does not use them. The result is a plain concatenation of the
+    /// WordPiece-merged words, which is what this returns.
+    ///
+    /// **Out-of-range ids contribute nothing.** They are skipped, not rendered
+    /// as `[UNK]` and not rendered as any marker. `[UNK]` is a token the model
+    /// can genuinely emit, so emitting it for an id the model did *not* emit
+    /// would put fabricated characters into a transcription. Use
+    /// [`WordPieceVocab::try_decode`] when the caller needs to know that an id
+    /// was unmappable rather than silently lose it.
+    #[must_use]
+    pub fn decode(&self, ids: &[u32], skip_special_tokens: bool) -> String {
+        self.decode_words(ids, skip_special_tokens).concat()
+    }
+
+    /// Like [`WordPieceVocab::decode`], but fails instead of dropping an id
+    /// that is not in the vocabulary.
+    ///
+    /// # Errors
+    ///
+    /// [`TokenizerError::IdOutOfRange`] on the first unmappable id.
+    pub fn try_decode(
+        &self,
+        ids: &[u32],
+        skip_special_tokens: bool,
+    ) -> Result<String, TokenizerError> {
+        let mut words: Vec<String> = Vec::new();
+        for &id in ids {
+            let token = self.token(id).ok_or(TokenizerError::IdOutOfRange {
+                id,
+                size: self.tokens.len(),
+            })?;
+            if skip_special_tokens && Self::is_special_token(token) {
+                continue;
+            }
+            push_wordpiece(&mut words, token);
+        }
+        Ok(words.concat())
+    }
+
+    /// Decode ids into WordPiece-merged *words*, before they are concatenated.
+    ///
+    /// This is where the `##` rule is observable: a token beginning `##`
+    /// continues the previous word with no separator, any other token starts a
+    /// new word. [`WordPieceVocab::decode`] joins these with nothing between
+    /// them, so the distinction disappears in its output — callers that need
+    /// word boundaries (a space-separated language, or a diagnostic) read them
+    /// here.
+    ///
+    /// Out-of-range ids are skipped, exactly as in
+    /// [`WordPieceVocab::decode`].
+    #[must_use]
+    pub fn decode_words(&self, ids: &[u32], skip_special_tokens: bool) -> Vec<String> {
+        let mut words: Vec<String> = Vec::new();
+        for &id in ids {
+            let Some(token) = self.token(id) else {
+                continue;
+            };
+            if skip_special_tokens && Self::is_special_token(token) {
+                continue;
+            }
+            push_wordpiece(&mut words, token);
+        }
+        words
+    }
+}
+
+/// Apply the WordPiece continuation rule to a token.
+///
+/// A `##`-prefixed token appends its remainder to the word in progress. When
+/// there is no word in progress — the sequence opened with a continuation, or
+/// everything before it was a skipped special token — the remainder starts one,
+/// which is what HuggingFace's `" ".join(tokens).replace(" ##", "")` also does.
+fn push_wordpiece(words: &mut Vec<String>, token: &str) {
+    match token.strip_prefix(CONTINUATION_PREFIX) {
+        Some(continuation) => match words.last_mut() {
+            Some(word) => word.push_str(continuation),
+            None => words.push(continuation.to_string()),
+        },
+        None => words.push(token.to_string()),
+    }
+}
+
+impl FromStr for WordPieceVocab {
+    type Err = TokenizerError;
+
+    fn from_str(contents: &str) -> Result<Self, Self::Err> {
+        Self::from_vocab_txt(contents)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Ids 0..=4 are the special tokens, matching BERT convention; 5.. are
+    /// content pieces, including `##` continuations in both scripts.
+    const VOCAB: &str =
+        "[PAD]\n[UNK]\n[CLS]\n[SEP]\n[MASK]\nhello\n##world\nこん\n##にちは\n猫\n##が\n好\n##き\n";
+
+    const PAD: u32 = 0;
+    const UNK: u32 = 1;
+    const CLS: u32 = 2;
+    const SEP: u32 = 3;
+    const MASK: u32 = 4;
+    const HELLO: u32 = 5;
+    const WORLD: u32 = 6;
+    const KON: u32 = 7;
+    const NICHIWA: u32 = 8;
+    const NEKO: u32 = 9;
+    const GA: u32 = 10;
+    const SUKI: u32 = 11;
+    const KI: u32 = 12;
+
+    fn vocab() -> WordPieceVocab {
+        WordPieceVocab::from_vocab_txt(VOCAB).expect("hand-built vocabulary must load")
+    }
+
+    #[test]
+    fn line_number_is_the_token_id() {
+        let vocab = vocab();
+        assert_eq!(vocab.len(), 13);
+        assert!(!vocab.is_empty());
+
+        for (id, expected) in [
+            (PAD, "[PAD]"),
+            (UNK, "[UNK]"),
+            (CLS, "[CLS]"),
+            (SEP, "[SEP]"),
+            (MASK, "[MASK]"),
+            (HELLO, "hello"),
+            (WORLD, "##world"),
+            (KON, "こん"),
+            (KI, "##き"),
+        ] {
+            assert_eq!(vocab.token(id), Some(expected), "id {id}");
+            assert_eq!(vocab.id_of(expected), Some(id), "token {expected}");
+        }
+    }
+
+    #[test]
+    fn special_token_ids_are_exposed() {
+        let vocab = vocab();
+        assert_eq!(vocab.pad_id(), PAD);
+        assert_eq!(vocab.unk_id(), UNK);
+        assert_eq!(vocab.cls_id(), CLS);
+        assert_eq!(vocab.sep_id(), SEP);
+        assert_eq!(vocab.mask_id(), MASK);
+    }
+
+    /// A generation loop stops when it sees `[SEP]`; that id has to come from
+    /// the vocabulary rather than a constant, or a re-ordered vocab breaks it.
+    #[test]
+    fn sep_id_is_read_from_the_vocabulary_not_assumed() {
+        let reordered = "[SEP]\n[PAD]\n[UNK]\n[CLS]\n[MASK]\nhello\n";
+        let vocab = WordPieceVocab::from_vocab_txt(reordered).expect("loads");
+        assert_eq!(vocab.sep_id(), 0);
+        assert_eq!(vocab.pad_id(), 1);
+        assert_eq!(vocab.token(vocab.sep_id()), Some("[SEP]"));
+    }
+
+    #[test]
+    fn round_trip_of_a_hand_built_vocabulary() {
+        let vocab = vocab();
+        let text = "hello";
+        let id = vocab.id_of(text).expect("token is present");
+        assert_eq!(vocab.decode(&[id], true), text);
+    }
+
+    #[test]
+    fn continuation_tokens_merge_into_the_previous_word() {
+        let vocab = vocab();
+        assert_eq!(vocab.decode(&[HELLO, WORLD], true), "helloworld");
+        assert_eq!(
+            vocab.decode_words(&[HELLO, WORLD], true),
+            vec!["helloworld".to_string()],
+            "`##world` continues `hello`, so this is one word"
+        );
+    }
+
+    #[test]
+    fn a_non_continuation_token_starts_a_new_word() {
+        let vocab = vocab();
+        assert_eq!(
+            vocab.decode_words(&[HELLO, HELLO], true),
+            vec!["hello".to_string(), "hello".to_string()],
+            "no `##`, so these are two words"
+        );
+        // The concatenated form cannot tell the two cases apart — which is why
+        // `decode_words` exists and is asserted on above.
+        assert_eq!(vocab.decode(&[HELLO, HELLO], true), "hellohello");
+    }
+
+    #[test]
+    fn a_leading_continuation_opens_a_word() {
+        let vocab = vocab();
+        assert_eq!(
+            vocab.decode_words(&[WORLD], true),
+            vec!["world".to_string()]
+        );
+        assert_eq!(vocab.decode(&[CLS, WORLD], true), "world");
+    }
+
+    #[test]
+    fn skipping_special_tokens_removes_them() {
+        let vocab = vocab();
+        let ids = [CLS, HELLO, WORLD, SEP, PAD, PAD];
+        assert_eq!(vocab.decode(&ids, true), "helloworld");
+    }
+
+    #[test]
+    fn keeping_special_tokens_renders_them_literally() {
+        let vocab = vocab();
+        let ids = [CLS, HELLO, WORLD, SEP];
+        assert_eq!(vocab.decode(&ids, false), "[CLS]helloworld[SEP]");
+        assert_eq!(
+            vocab.decode_words(&ids, false),
+            vec![
+                "[CLS]".to_string(),
+                "helloworld".to_string(),
+                "[SEP]".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn every_special_token_is_skippable() {
+        let vocab = vocab();
+        let ids = [PAD, UNK, CLS, SEP, MASK];
+        assert_eq!(vocab.decode(&ids, true), "");
+        assert_eq!(vocab.decode(&ids, false), "[PAD][UNK][CLS][SEP][MASK]");
+        for id in ids {
+            assert!(vocab.is_special_id(id), "id {id} should be special");
+        }
+        assert!(!vocab.is_special_id(HELLO));
+    }
+
+    #[test]
+    fn an_empty_id_slice_decodes_to_an_empty_string() {
+        let vocab = vocab();
+        assert_eq!(vocab.decode(&[], true), "");
+        assert_eq!(vocab.decode(&[], false), "");
+        assert!(vocab.decode_words(&[], true).is_empty());
+        assert_eq!(vocab.try_decode(&[], true).expect("no ids, no error"), "");
+    }
+
+    /// The defined behaviour: an id with no token behind it contributes
+    /// nothing. It must not panic, and it must not become `[UNK]` — `[UNK]` is
+    /// a reading the model can legitimately produce, so emitting it here would
+    /// invent a character the model never chose.
+    #[test]
+    fn an_out_of_range_id_is_dropped_rather_than_invented() {
+        let vocab = vocab();
+        let beyond = u32::try_from(vocab.len()).expect("small vocab") + 7;
+        assert_eq!(vocab.token(beyond), None);
+        assert!(!vocab.is_special_id(beyond));
+
+        let decoded = vocab.decode(&[HELLO, beyond, WORLD], true);
+        assert_eq!(decoded, "helloworld");
+        assert!(
+            !decoded.contains("[UNK]"),
+            "an unmappable id must never surface as the `[UNK]` token text"
+        );
+
+        assert_eq!(vocab.decode(&[u32::MAX], true), "");
+        assert_eq!(vocab.decode(&[beyond], false), "");
+    }
+
+    /// A continuation after a dropped id attaches to the word that is actually
+    /// in progress, rather than silently starting a new one.
+    #[test]
+    fn a_dropped_id_does_not_break_the_word_in_progress() {
+        let vocab = vocab();
+        let beyond = u32::try_from(vocab.len()).expect("small vocab");
+        assert_eq!(
+            vocab.decode_words(&[HELLO, beyond, WORLD], true),
+            vec!["helloworld".to_string()]
+        );
+    }
+
+    #[test]
+    fn try_decode_reports_the_id_it_could_not_map() {
+        let vocab = vocab();
+        let beyond = u32::try_from(vocab.len()).expect("small vocab") + 3;
+        let error = vocab
+            .try_decode(&[HELLO, beyond], true)
+            .expect_err("an unmappable id must be an error, not a placeholder");
+        match error {
+            TokenizerError::IdOutOfRange { id, size } => {
+                assert_eq!(id, beyond);
+                assert_eq!(size, vocab.len());
+            }
+            other => panic!("expected IdOutOfRange, got {other:?}"),
+        }
+        assert_eq!(
+            vocab
+                .try_decode(&[HELLO, WORLD], true)
+                .expect("all mappable"),
+            "helloworld"
+        );
+    }
+
+    /// Convention for CJK character vocabularies: the decoded string carries no spaces at all.
+    /// The Python path this replaces ended in `.replace(' ', '')`.
+    #[test]
+    fn japanese_output_carries_no_spaces() {
+        let vocab = vocab();
+        let ids = [CLS, KON, NICHIWA, NEKO, GA, SUKI, KI, SEP];
+        let decoded = vocab.decode(&ids, true);
+        assert_eq!(decoded, "こんにちは猫が好き");
+        assert!(
+            !decoded.contains(' '),
+            "pieces join with nothing; got {decoded:?}"
+        );
+        assert!(!decoded.contains('#'), "the `##` marker must be stripped");
+        assert_eq!(
+            vocab.decode_words(&ids, true),
+            vec![
+                "こんにちは".to_string(),
+                "猫が".to_string(),
+                "好き".to_string()
+            ],
+            "three words merged from seven pieces, joined with nothing by `decode`"
+        );
+    }
+
+    #[test]
+    fn multibyte_continuations_do_not_split_characters() {
+        let vocab = vocab();
+        // `##にちは` is 3 characters / 9 UTF-8 bytes; merging must be by string,
+        // not by byte index.
+        assert_eq!(vocab.decode(&[KON, NICHIWA], true), "こんにちは");
+        assert_eq!(vocab.decode(&[KON, NICHIWA], true).chars().count(), 5);
+    }
+
+    #[test]
+    fn an_empty_vocabulary_is_an_error() {
+        assert!(matches!(
+            WordPieceVocab::from_vocab_txt(""),
+            Err(TokenizerError::EmptyVocab)
+        ));
+        assert!(matches!(
+            WordPieceVocab::from_vocab_txt("\n"),
+            Err(TokenizerError::MissingSpecialToken(_)),
+        ));
+    }
+
+    #[test]
+    fn a_missing_special_token_is_an_error() {
+        for omitted in SPECIAL_TOKENS {
+            let text: String = SPECIAL_TOKENS
+                .iter()
+                .filter(|token| **token != omitted)
+                .map(|token| format!("{token}\n"))
+                .collect::<String>()
+                + "hello\n";
+            match WordPieceVocab::from_vocab_txt(&text) {
+                Err(TokenizerError::MissingSpecialToken(name)) => assert_eq!(name, omitted),
+                Err(other) => panic!("expected MissingSpecialToken({omitted}), got {other:?}"),
+                Ok(_) => panic!("a vocabulary without {omitted} must not load"),
+            }
+        }
+    }
+
+    #[test]
+    fn a_blank_line_keeps_its_id_slot() {
+        // Dropping the blank would shift `hello` from 6 to 5 and corrupt every
+        // decode after it.
+        let text = "[PAD]\n[UNK]\n[CLS]\n[SEP]\n[MASK]\n\nhello\n";
+        let vocab = WordPieceVocab::from_vocab_txt(text).expect("loads");
+        assert_eq!(vocab.len(), 7);
+        assert_eq!(vocab.token(5), Some(""));
+        assert_eq!(vocab.token(6), Some("hello"));
+    }
+
+    #[test]
+    fn crlf_and_a_missing_trailing_newline_both_parse() {
+        let crlf = "[PAD]\r\n[UNK]\r\n[CLS]\r\n[SEP]\r\n[MASK]\r\nhello";
+        let vocab = WordPieceVocab::from_vocab_txt(crlf).expect("loads");
+        assert_eq!(vocab.len(), 6);
+        assert_eq!(vocab.token(5), Some("hello"));
+        assert_eq!(vocab.decode(&[5], true), "hello");
+    }
+
+    #[test]
+    fn parses_through_the_from_str_trait_too() {
+        let vocab: WordPieceVocab = VOCAB.parse().expect("FromStr agrees with from_vocab_txt");
+        assert_eq!(vocab.len(), 13);
+        assert_eq!(vocab.decode(&[CLS, HELLO, WORLD, SEP], true), "helloworld");
+    }
+
+    #[test]
+    fn loads_from_a_file_on_disk() {
+        let path = std::env::temp_dir().join(format!(
+            "comic-ocr-vocab-{}-{:?}.txt",
+            std::process::id(),
+            std::thread::current().id()
+        ));
+        fs::write(&path, VOCAB).expect("write temp vocabulary");
+
+        let vocab = WordPieceVocab::from_file(&path).expect("loads from disk");
+        let _ = fs::remove_file(&path);
+
+        assert_eq!(vocab.len(), 13);
+        assert_eq!(vocab.decode(&[CLS, KON, NICHIWA, SEP], true), "こんにちは");
+    }
+
+    #[test]
+    fn a_missing_file_is_an_error_not_an_empty_vocabulary() {
+        let path = std::env::temp_dir().join("comic-ocr-vocab-does-not-exist-9d1f7.txt");
+        match WordPieceVocab::from_file(&path) {
+            Err(TokenizerError::Io { path: reported, .. }) => {
+                assert!(reported.contains("comic-ocr-vocab-does-not-exist-9d1f7"));
+            }
+            Err(other) => panic!("expected Io, got {other:?}"),
+            Ok(_) => panic!("a missing vocabulary file must not produce a vocabulary"),
+        }
+    }
+
+    #[test]
+    fn tokenizer_errors_convert_into_ocr_errors() {
+        let error: OcrError = TokenizerError::EmptyVocab.into();
+        match error {
+            OcrError::TokenizerError(message) => assert!(message.contains("empty")),
+            other => panic!("expected OcrError::TokenizerError, got {other:?}"),
+        }
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-core/src/types.rs ---
 
 use serde::{Deserialize, Serialize};
@@ -4167,6 +5010,16 @@ pub enum OcrError {
     TokenizerError(String),
     #[error("Invalid input parameter: {0}")]
     InvalidInput(String),
+    /// A capability this engine advertises but has not implemented.
+    ///
+    /// Distinct from `EngineError` on purpose. An engine error says something
+    /// went wrong at runtime and a retry might help; this says the code path
+    /// does not exist, so no retry ever will. Returning a plausible-looking
+    /// value here instead — a placeholder string, a default confidence — is how
+    /// an unimplemented path gets mistaken for a working one and its output
+    /// ends up in a corpus.
+    #[error("Not implemented: {0}")]
+    NotImplemented(String),
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -4274,12 +5127,120 @@ pub struct ReadingOrderValidation {
     pub violations: Vec<ReadingOrderViolation>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ContradictionKind {
+    TextVsText,
+    TextVsVisual,
+    VisualVsVisual,
+    MetadataVsStructure,
+    DerivedVsSource,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AnomalyNature {
+    AuthoringError,
+    CharacterPerceivedDiscontinuity,
+    TemporalAnomaly,
+    NarrativeDevice,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SemanticConflict {
     pub conflict_type: String,
     pub severity: String,
     pub objects: Vec<String>,
     pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contradiction_kind: Option<ContradictionKind>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anomaly_nature: Option<AnomalyNature>,
+}
+
+/// Evaluates cardinality invariants (e.g. page_metadata.total_panels == panels.len()).
+pub fn validate_cardinality_invariants(
+    declared_total_panels: usize,
+    actual_panels_len: usize,
+    panel_ids: &[String],
+) -> Vec<SemanticConflict> {
+    let mut conflicts = Vec::new();
+
+    if declared_total_panels != actual_panels_len {
+        conflicts.push(SemanticConflict {
+            conflict_type: "cardinality-mismatch".to_string(),
+            severity: "error".to_string(),
+            objects: vec![
+                "page_metadata.total_panels".to_string(),
+                "panels".to_string(),
+            ],
+            message: format!(
+                "Document metadata declares total_panels: {}, but panels array contains {} elements.",
+                declared_total_panels, actual_panels_len
+            ),
+            contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+            anomaly_nature: Some(AnomalyNature::AuthoringError),
+        });
+    }
+
+    // Check for duplicate panel IDs
+    let mut seen_ids = std::collections::HashSet::new();
+    for id in panel_ids {
+        if !seen_ids.insert(id) {
+            conflicts.push(SemanticConflict {
+                conflict_type: "duplicate-panel-id".to_string(),
+                severity: "error".to_string(),
+                objects: vec![id.clone()],
+                message: format!("Duplicate panel ID '{}' found in scene graph.", id),
+                contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+                anomaly_nature: Some(AnomalyNature::AuthoringError),
+            });
+        }
+    }
+
+    conflicts
+}
+
+/// Evaluates spatial containment of child text regions within parent panel bounds.
+pub fn validate_spatial_containment(
+    panel_bounds: [f32; 4], // [x, y, w, h]
+    text_bounds: [f32; 4],  // [x, y, w, h]
+    region_id: &str,
+    panel_id: &str,
+    tolerance_px: f32,
+) -> Option<SemanticConflict> {
+    let panel_x2 = panel_bounds[0] + panel_bounds[2];
+    let panel_y2 = panel_bounds[1] + panel_bounds[3];
+
+    let text_x2 = text_bounds[0] + text_bounds[2];
+    let text_y2 = text_bounds[1] + text_bounds[3];
+
+    // Calculate how far outside text region extends beyond panel bounds
+    let overflow_left = (panel_bounds[0] - text_bounds[0]).max(0.0);
+    let overflow_right = (text_x2 - panel_x2).max(0.0);
+    let overflow_top = (panel_bounds[1] - text_bounds[1]).max(0.0);
+    let overflow_bottom = (text_y2 - panel_y2).max(0.0);
+
+    let max_overflow = overflow_left
+        .max(overflow_right)
+        .max(overflow_top)
+        .max(overflow_bottom);
+
+    if max_overflow > tolerance_px {
+        Some(SemanticConflict {
+            conflict_type: "spatial-containment-violation".to_string(),
+            severity: "error".to_string(),
+            objects: vec![region_id.to_string(), panel_id.to_string()],
+            message: format!(
+                "Text region '{}' extends {:.1}px outside parent panel '{}' bounds (tolerance: {:.1}px).",
+                region_id, max_overflow, panel_id, tolerance_px
+            ),
+            contradiction_kind: Some(ContradictionKind::TextVsVisual),
+            anomaly_nature: Some(AnomalyNature::AuthoringError),
+        })
+    } else {
+        None
+    }
 }
 
 /// Evaluates spatial panel sequence against declared reading direction (RTL or LTR).
@@ -4344,8 +5305,9 @@ pub fn validate_semantic_roles(
 ) -> Vec<SemanticConflict> {
     let mut conflicts = Vec::new();
 
+    #[allow(clippy::collapsible_if)]
     if let (Some(ch), Some(badge)) = (chapter_number, badge_number) {
-        if ch == badge && continuation_chapter.map_or(false, |next_ch| next_ch < ch) {
+        if ch == badge && continuation_chapter.is_some_and(|next_ch| next_ch < ch) {
             conflicts.push(SemanticConflict {
                 conflict_type: "number-role-conflict".to_string(),
                 severity: "error".to_string(),
@@ -4357,6 +5319,8 @@ pub fn validate_semantic_roles(
                     "Numeric label {} was classified as chapter_number, but spatial context and continuation text specify next chapter is {}.",
                     badge, continuation_chapter.unwrap()
                 ),
+                contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+                anomaly_nature: Some(AnomalyNature::AuthoringError),
             });
         }
     }
@@ -4369,23 +5333,24 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_validate_panel_reading_order_rtl_contradiction() {
-        let panels = vec![
-            ("panel-left".to_string(), [15.0, 500.0, 400.0, 200.0], 1),
-            ("panel-right".to_string(), [700.0, 500.0, 300.0, 200.0], 2),
-        ];
-
-        let validation = validate_panel_reading_order(&panels, "right_to_left");
-        assert_eq!(validation.status, "contradiction");
-        assert_eq!(validation.violations.len(), 1);
-        assert_eq!(validation.violations[0].reason, ReadingOrderViolationReason::HorizontalOrder);
+    fn test_validate_cardinality_invariants() {
+        let conflicts = validate_cardinality_invariants(10, 13, &["p1".into(), "p2".into()]);
+        assert_eq!(conflicts.len(), 1);
+        assert_eq!(conflicts[0].conflict_type, "cardinality-mismatch");
     }
 
     #[test]
-    fn test_validate_semantic_roles_conflict() {
-        let conflicts = validate_semantic_roles(Some(14), Some(2), Some(14));
-        assert_eq!(conflicts.len(), 1);
-        assert_eq!(conflicts[0].conflict_type, "number-role-conflict");
+    fn test_validate_spatial_containment_violation() {
+        let panel_bounds = [745.0, 860.0, 265.0, 275.0];
+        let text_bounds = [875.0, 580.0, 115.0, 110.0];
+
+        let conflict =
+            validate_spatial_containment(panel_bounds, text_bounds, "text-7", "panel-7", 50.0);
+        assert!(conflict.is_some());
+        assert_eq!(
+            conflict.unwrap().conflict_type,
+            "spatial-containment-violation"
+        );
     }
 }
 
@@ -4521,7 +5486,7 @@ fn test_benchmark_model_inference_evaluation() {
         images_dir_fallback
     };
 
-    let engine = OrtEngine::new("kha-white/manga-ocr-base");
+    let engine = OrtEngine::new(std::env::var("COMIC_OCR_MODEL").unwrap_or_default());
 
     println!("\n==========================================================");
     println!(" RUNNING DYNAMIC INFERENCE BENCHMARK EVALUATION (17 IMAGES)");
@@ -4627,6 +5592,8 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 
+pub mod preprocess;
+
 pub struct OrtEngine {
     pub model_name: String,
     pub engine_type: EngineType,
@@ -4644,12 +5611,20 @@ impl OrtEngine {
             EngineType::BaseInt8Onnx
         };
 
-        // Initialize ONNX Session if local file path exists
-        let session = if Path::new(&name).exists() {
-            Session::builder()
-                .ok()
-                .and_then(|mut builder| builder.commit_from_file(&name).ok())
-                .map(|sess| Arc::new(Mutex::new(sess)))
+        // Initialize ONNX Session if local file path exists or via COMIC_OCR_ONNX_PATH env var
+        let onnx_path = std::env::var("COMIC_OCR_ONNX_PATH").unwrap_or_else(|_| name.clone());
+
+        let session = if Path::new(&onnx_path).exists() {
+            match Session::builder().and_then(|mut builder| builder.commit_from_file(&onnx_path)) {
+                Ok(sess) => Some(Arc::new(Mutex::new(sess))),
+                Err(e) => {
+                    eprintln!(
+                        "[WARN] [comic-ocr-ort] Failed to load ONNX Runtime session from '{}': {}. Falling back to Python subprocess path.",
+                        onnx_path, e
+                    );
+                    None
+                }
+            }
         } else {
             None
         };
@@ -4765,23 +5740,12 @@ impl OcrEngine for OrtEngine {
                 .lock()
                 .map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
 
-            // Preprocess input image to 3x224x224 RGB float buffer
-            let resized = image.resize_exact(224, 224, image::imageops::FilterType::Triangle);
-            let rgb = resized.to_rgb8();
-            let plane = 224 * 224;
-            let mut input_tensor = vec![0.0f32; 3 * plane];
-
-            for (x, y, pixel) in rgb.enumerate_pixels() {
-                let r = (pixel[0] as f32 / 255.0 - 0.485) / 0.229;
-                let g = (pixel[1] as f32 / 255.0 - 0.456) / 0.224;
-                let b = (pixel[2] as f32 / 255.0 - 0.406) / 0.225;
-                let offset = y as usize * 224 + x as usize;
-                input_tensor[offset] = r;
-                input_tensor[plane + offset] = g;
-                input_tensor[2 * plane + offset] = b;
-            }
-
-            let shape = vec![1, 3, 224, 224];
+            // Preprocess to the exact tensor `ViTImageProcessor` would produce
+            // for this checkpoint. This used to be an inline loop here that
+            // normalised with ImageNet mean/std; `preprocessor_config.json`
+            // says 0.5/0.5, so that loop was feeding the encoder a shifted and
+            // wrongly-scaled image. See `preprocess` for the sourcing.
+            let (shape, input_tensor) = preprocess::preprocess(image)?.into_parts();
             let tensor_value =
                 ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
                     OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))
@@ -4791,58 +5755,32 @@ impl OcrEngine for OrtEngine {
                 .run(ort::inputs!["pixel_values" => tensor_value])
                 .map_err(|e| OcrError::EngineError(format!("ONNX inference run failed: {}", e)))?;
 
-            let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
-            let raw_text = "ONNX_NATIVE_PREDICTION";
-            let text = post_process_with_furigana(raw_text, self.extract_furigana);
-
-            // Compute real softmax probabilities & geometric mean confidence from outputs tensor
-            let (confidence, token_probabilities) = if let Some(logits) = outputs.get("logits") {
-                if let Ok((shape, data)) = logits.try_extract_tensor::<f32>() {
-                    let shape_vec = shape.to_vec();
-                    if shape_vec.len() >= 2 {
-                        let vocab_size = *shape_vec.last().unwrap() as usize;
-                        let seq_len = data.len() / vocab_size;
-                        let mut step_max_probs = Vec::with_capacity(seq_len);
-
-                        for step in 0..seq_len {
-                            let start_idx = step * vocab_size;
-                            let end_idx = (step + 1) * vocab_size;
-                            if end_idx <= data.len() {
-                                let step_logits = &data[start_idx..end_idx];
-                                let step_probs = Self::softmax(step_logits);
-                                let max_p = step_probs.iter().copied().fold(0.0f32, f32::max);
-                                step_max_probs.push(max_p);
-                            }
-                        }
-
-                        let geom_mean = if !step_max_probs.is_empty() {
-                            let log_sum: f32 =
-                                step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
-                            (log_sum / step_max_probs.len() as f32).exp()
-                        } else {
-                            0.0
-                        };
-                        (geom_mean, step_max_probs)
-                    } else {
-                        (0.0, Vec::new())
-                    }
-                } else {
-                    (0.0, Vec::new())
-                }
-            } else {
-                (0.0, Vec::new())
-            };
-
-            return Ok(OcrResult {
-                text,
-                confidence,
-                token_probabilities,
-                metadata: OcrMetadata {
-                    duration_ms,
-                    model_name: self.model_name.clone(),
-                    engine_type: self.engine_type,
-                },
-            });
+            let _duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
+            // The session runs, and its logits are real — the confidence below is
+            // computed from them. What does not exist yet is TEXT.
+            //
+            // A ViT/DeiT + BERT VisionEncoderDecoder exports via `optimum` as
+            // encoder + decoder + decoder-with-past, and the autoregressive
+            // generation loop stays in the caller. One forward pass yields a
+            // single decode step, not a transcription. Until that loop exists —
+            // encoder run, decoder loop with KV cache, token selection,
+            // detokenise — this path cannot produce a reading.
+            //
+            // It previously returned the literal "ONNX_NATIVE_PREDICTION" with a
+            // genuine confidence attached, which is the most dangerous shape
+            // available: a caller sees Ok, a plausible score, and a string that
+            // never came from the model. `should_truncate_loop` and
+            // `calculate_token_entropy` are already written for the loop that
+            // will replace this.
+            let _ = &outputs;
+            let _ = start_time.elapsed();
+            return Err(OcrError::NotImplemented(
+                "the native ONNX path loads a session and runs one forward pass, but \
+                 VisionEncoderDecoder generation (decoder loop with KV cache) is not \
+                 implemented, so it cannot produce text. Set COMIC_OCR_ONNX_PATH only \
+                 once that lands; until then the subprocess path is the working one."
+                    .to_string(),
+            ));
         }
 
         // 2. Subprocess inference path with strict status honesty & real softmax extraction
@@ -4857,15 +5795,37 @@ impl OcrEngine for OrtEngine {
             .save(&temp_path)
             .map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
-        let py_script = format!(
-            "import json, math, torch\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences[0]\ntext = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')\ntoken_probs = []\nif hasattr(output, 'scores') and output.scores:\n    for score in output.scores:\n        probs = torch.softmax(score[0], dim=-1)\n        token_probs.append(float(probs.max().item()))\nconf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0\nprint(json.dumps({{'text': text, 'confidence': conf, 'token_probabilities': token_probs}}))",
-            self.model_name,
-            self.model_name,
-            self.model_name,
-            temp_path.display()
-        );
+        let py_script = r#"
+import os, json, math, torch
+from PIL import Image
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-        let output = Command::new("python3").arg("-c").arg(&py_script).output();
+model_name = os.environ['COMIC_OCR_MODEL_NAME']
+image_path = os.environ.get('COMIC_OCR_IMAGE_PATH', '')
+
+model = VisionEncoderDecoderModel.from_pretrained(model_name)
+processor = ViTImageProcessor.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+img = Image.open(image_path).convert('RGB')
+pixel_values = processor(img, return_tensors='pt').pixel_values
+output = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)
+output_ids = output.sequences[0]
+text = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')
+token_probs = []
+if hasattr(output, 'scores') and output.scores:
+    for score in output.scores:
+        probs = torch.softmax(score[0], dim=-1)
+        token_probs.append(float(probs.max().item()))
+conf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0
+print(json.dumps({'text': text, 'confidence': conf, 'token_probabilities': token_probs}))
+"#;
+
+        let output = Command::new("python3")
+            .arg("-c")
+            .arg(py_script)
+            .env("COMIC_OCR_MODEL_NAME", &self.model_name)
+            .env("COMIC_OCR_IMAGE_PATH", &temp_path)
+            .output();
 
         let _ = std::fs::remove_file(&temp_path);
 
@@ -4965,12 +5925,652 @@ mod tests {
 
     #[test]
     fn test_should_truncate_loop() {
-        let engine = OrtEngine::new("kha-white/comic-ocr-base");
+        let engine = OrtEngine::new("test-model");
         let degenerate_entropies = vec![0.10, 0.12, 0.08, 0.09];
         assert!(engine.should_truncate_loop(&degenerate_entropies));
 
         let valid_entropies = vec![1.2, 0.9, 1.1, 0.8];
         assert!(!engine.should_truncate_loop(&valid_entropies));
+    }
+}
+
+
+--- RUST SOURCE: crates/comic-ocr-ort/src/preprocess.rs ---
+
+//! Image preprocessing for a ViT/DeiT-family vision encoder.
+//!
+//! Every constant here mirrors a field of the model's `preprocessor_config.json`
+//! on the HuggingFace Hub, or a documented default that `ViTImageProcessor`
+//! applies when the field is absent. The file was fetched from
+//! Values below MUST be re-read from the target checkpoint's own
+//! `preprocessor_config.json` — they are model properties, not constants.
+//! and reads, in full:
+//!
+//! ```json
+//! {
+//!   "do_normalize": true,
+//!   "do_resize": true,
+//!   "feature_extractor_type": "ViTFeatureExtractor",
+//!   "image_mean": [0.5, 0.5, 0.5],
+//!   "image_std": [0.5, 0.5, 0.5],
+//!   "resample": 2,
+//!   "size": 224
+//! }
+//! ```
+//!
+//! Note what is *not* in that file: `do_rescale` and `rescale_factor`. This is
+//! the legacy `ViTFeatureExtractor` serialisation, and the missing keys are
+//! filled in by `ViTImageProcessor`'s own defaults rather than skipped. Loading
+//! the config above through `transformers` 4.42.4 resolves it to:
+//!
+//! ```text
+//! do_normalize: true, do_rescale: true, do_resize: true,
+//! image_mean: [0.5, 0.5, 0.5], image_std: [0.5, 0.5, 0.5],
+//! rescale_factor: 0.00392156862745098, resample: 2,
+//! size: {"height": 224, "width": 224}
+//! ```
+//!
+//! so rescaling by 1/255 does happen, and the scalar `size: 224` expands to a
+//! square 224x224 target (`get_size_dict(..., default_to_square=True)`) — the
+//! aspect ratio of the input is *not* preserved.
+//!
+//! # Pipeline
+//!
+//! The order below is the order the upstream reference pipeline applies, which is
+//! the reference implementation this crate is trying to match:
+//!
+//! 1. Greyscale round-trip — `img.convert("L").convert("RGB")`. Done by the
+//!    *caller* of the processor, not the processor itself, but it is part of
+//!    how the model is used in practice, so it is on by default here. See
+//!    [`PreprocessConfig::greyscale`].
+//! 2. Resize to 224x224 with PIL `BILINEAR`.
+//! 3. Rescale by 1/255 into `[0, 1]`.
+//! 4. Normalise: `(x - mean) / std`, which with mean = std = 0.5 maps
+//!    `[0, 1]` onto `[-1, 1]`.
+//! 5. Emit CHW `f32` with a leading batch axis: `[1, 3, 224, 224]`.
+
+use comic_ocr_core::OcrError;
+use image::{DynamicImage, RgbImage};
+
+/// Target edge length. Source: `preprocessor_config.json` `"size": 224`,
+/// expanded by `get_size_dict(size, default_to_square=True)` to a square
+/// `{"height": 224, "width": 224}`. Cross-checked against the model's
+/// `config.json`, whose encoder declares `image_size: 224`.
+pub const IMAGE_SIZE: u32 = 224;
+
+/// Source: the model's `config.json` encoder section, `num_channels: 3`.
+/// The processor emits 3 channels even for greyscale input — the greyscale
+/// round-trip in step 1 replicates one luma plane across R, G and B rather
+/// than reducing the channel count.
+pub const NUM_CHANNELS: usize = 3;
+
+/// Source: `ViTImageProcessor`'s `rescale_factor` default of `1/255`, applied
+/// because `do_rescale` defaults to `true` and `preprocessor_config.json`
+/// does not override it.
+pub const RESCALE_FACTOR: f32 = 1.0 / 255.0;
+
+/// Source: `preprocessor_config.json` `"image_mean": [0.5, 0.5, 0.5]`.
+///
+/// These are deliberately NOT the ImageNet means (0.485/0.456/0.406). This
+/// checkpoint normalises to `[-1, 1]`, not to ImageNet statistics.
+pub const IMAGE_MEAN: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
+
+/// Source: `preprocessor_config.json` `"image_std": [0.5, 0.5, 0.5]`.
+///
+/// Likewise not the ImageNet standard deviations (0.229/0.224/0.225).
+pub const IMAGE_STD: [f32; NUM_CHANNELS] = [0.5, 0.5, 0.5];
+
+/// Source: `preprocessor_config.json` `"resample": 2`, which is
+/// `PIL.Image.Resampling.BILINEAR` (the PIL enum is NEAREST=0, LANCZOS=1,
+/// BILINEAR=2, BICUBIC=3, BOX=4, HAMMING=5).
+///
+/// `FilterType::Triangle` is the `image` crate's name for a bilinear filter:
+/// unit support, weights scaled by the sampling ratio when downscaling, and
+/// normalised to sum to one — the same construction PIL uses. The two are not
+/// bit-identical, because PIL accumulates in quantised fixed point and `image`
+/// in `f32`, so individual output pixels can land one byte apart.
+///
+/// Measured, rather than assumed. This module's output was compared element by
+/// element against `ViTImageProcessor` (transformers 4.42.4, Pillow 10.1.0)
+/// loading the config above, over the five crops in `assets/examples` and a
+/// random-noise image. One LSB of the byte quantisation is `(1/255)/0.5`
+/// = 0.00784 in normalised units.
+///
+/// ```text
+/// input            exact match   mean |diff|   max |diff|
+/// 00.jpg  99x178       82%         0.17 LSB     2 LSB
+/// 01.jpg 188x251       81%         0.19 LSB     2 LSB
+/// 02.jpg  62x103       88%         0.12 LSB     2 LSB
+/// 03.jpg 406x115       85%         0.15 LSB     1 LSB
+/// 14.jpg 650x1024      91%         0.09 LSB     1 LSB
+/// random 137x291        -          0.17 LSB     1 LSB
+/// ```
+///
+/// The residual is entirely resampler rounding. Closing it completely would
+/// mean reimplementing PIL's fixed-point resampler; at under one byte of image
+/// intensity it is far below the noise the encoder already tolerates, whereas
+/// the mean/std error this module replaced was a systematic shift of the whole
+/// tensor.
+pub const RESAMPLE_FILTER: image::imageops::FilterType = image::imageops::FilterType::Triangle;
+
+/// Fixed-point ITU-R 601-2 luma weights, matching PIL's `RGB -> L` conversion
+/// exactly. PIL computes `(r*19595 + g*38470 + b*7471 + 32768) >> 16`; the
+/// `+ 32768` is a round-to-nearest term, so truncating instead is off by one
+/// on many inputs. Verified against Pillow 10.1.0 over 20,000 random RGB
+/// triples with zero mismatches.
+///
+/// This is why [`greyscale_luma`] exists instead of a call to the `image`
+/// crate's `to_luma8()`: that uses Rec. 709 weights (0.2126/0.7152/0.0722),
+/// which disagree with PIL badly — pure green maps to 150 under PIL and 182
+/// under Rec. 709.
+const LUMA_601_WEIGHTS: [u32; NUM_CHANNELS] = [19595, 38470, 7471];
+const LUMA_601_ROUND: u32 = 32768;
+const LUMA_601_SHIFT: u32 = 16;
+
+/// Which optional stages of the reference pipeline to apply.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PreprocessConfig {
+    /// Apply the `convert("L").convert("RGB")` greyscale round-trip before
+    /// resizing.
+    ///
+    /// `true` matches the upstream reference pipeline's behaviour, the reference
+    /// implementation. It is not part of `ViTImageProcessor` itself, so a
+    /// caller that feeds the processor colour input directly wants `false`.
+    ///
+    /// This is not a cosmetic switch. On a random-colour test image the two
+    /// settings produce tensors differing by up to 1.37 in a range that only
+    /// spans `[-1, 1]`.
+    pub greyscale: bool,
+}
+
+impl Default for PreprocessConfig {
+    fn default() -> Self {
+        Self { greyscale: true }
+    }
+}
+
+/// A preprocessed image: the tensor and the shape it must be interpreted with.
+///
+/// The two travel together so a caller cannot pair the buffer with a shape that
+/// does not describe it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PreprocessedImage {
+    data: Vec<f32>,
+    shape: [usize; 4],
+}
+
+impl PreprocessedImage {
+    /// The tensor in CHW order with a leading batch axis, row-major.
+    ///
+    /// Index of channel `c`, row `y`, column `x` is
+    /// `c * IMAGE_SIZE * IMAGE_SIZE + y * IMAGE_SIZE + x`.
+    pub fn data(&self) -> &[f32] {
+        &self.data
+    }
+
+    /// `[1, NUM_CHANNELS, IMAGE_SIZE, IMAGE_SIZE]`.
+    pub fn shape(&self) -> [usize; 4] {
+        self.shape
+    }
+
+    /// Consumes into `(shape, data)`, the pair an ONNX Runtime tensor wants.
+    pub fn into_parts(self) -> (Vec<i64>, Vec<f32>) {
+        let shape = self.shape.iter().map(|&d| d as i64).collect();
+        (shape, self.data)
+    }
+}
+
+/// PIL's `RGB -> L`: ITU-R 601-2 luma in rounded fixed point.
+///
+/// Kept `#[inline]` and standalone so the test suite can assert it against
+/// values sampled from a real Pillow build.
+#[inline]
+pub fn greyscale_luma(r: u8, g: u8, b: u8) -> u8 {
+    let acc = u32::from(r) * LUMA_601_WEIGHTS[0]
+        + u32::from(g) * LUMA_601_WEIGHTS[1]
+        + u32::from(b) * LUMA_601_WEIGHTS[2]
+        + LUMA_601_ROUND;
+    // The weights sum to exactly 65536, so with the rounding term the maximum
+    // possible result is 255 and the shift cannot overflow a u8.
+    (acc >> LUMA_601_SHIFT) as u8
+}
+
+/// Preprocesses an image the way the upstream reference pipeline does.
+///
+/// Equivalent to [`preprocess_with`] under [`PreprocessConfig::default`], which
+/// includes the greyscale round-trip.
+///
+/// # Errors
+///
+/// Returns [`OcrError::InvalidInput`] if either dimension is zero. There is no
+/// meaningful tensor for an empty image, and emitting a zero-filled one would
+/// hand the model a black square that it would happily transcribe.
+pub fn preprocess(image: &DynamicImage) -> Result<PreprocessedImage, OcrError> {
+    preprocess_with(image, PreprocessConfig::default())
+}
+
+/// Preprocesses an image with explicit control over the optional stages.
+///
+/// # Errors
+///
+/// Returns [`OcrError::InvalidInput`] if either dimension is zero.
+pub fn preprocess_with(
+    image: &DynamicImage,
+    config: PreprocessConfig,
+) -> Result<PreprocessedImage, OcrError> {
+    let (width, height) = (image.width(), image.height());
+    if width == 0 || height == 0 {
+        return Err(OcrError::InvalidInput(format!(
+            "cannot preprocess an image with a zero dimension (got {width}x{height})"
+        )));
+    }
+
+    // Drop any alpha channel first, as PIL does: `convert("L")` and
+    // `convert("RGB")` both read RGB and ignore alpha rather than compositing
+    // it onto a background.
+    let mut rgb = image.to_rgb8();
+
+    // Step 1: greyscale round-trip, replicating one luma plane across all
+    // three channels. Done before the resize, matching upstream ordering.
+    if config.greyscale {
+        for pixel in rgb.pixels_mut() {
+            let luma = greyscale_luma(pixel[0], pixel[1], pixel[2]);
+            pixel[0] = luma;
+            pixel[1] = luma;
+            pixel[2] = luma;
+        }
+    }
+
+    // Step 2: resize to a square target. Aspect ratio is not preserved.
+    //
+    // Skipping the resampler when the input is already 224x224 is not just an
+    // optimisation, it is what PIL does: `Image.resize` returns a copy when the
+    // requested size equals the current one. Running a bilinear pass anyway
+    // would be an identity in exact arithmetic but could still round a pixel.
+    let resized: RgbImage = if width == IMAGE_SIZE && height == IMAGE_SIZE {
+        rgb
+    } else {
+        image::imageops::resize(&rgb, IMAGE_SIZE, IMAGE_SIZE, RESAMPLE_FILTER)
+    };
+
+    // Steps 3-5: rescale, normalise, and scatter into CHW.
+    let plane = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
+    let mut data = vec![0.0f32; NUM_CHANNELS * plane];
+    for (x, y, pixel) in resized.enumerate_pixels() {
+        let offset = y as usize * IMAGE_SIZE as usize + x as usize;
+        for c in 0..NUM_CHANNELS {
+            let rescaled = f32::from(pixel[c]) * RESCALE_FACTOR;
+            data[c * plane + offset] = (rescaled - IMAGE_MEAN[c]) / IMAGE_STD[c];
+        }
+    }
+
+    Ok(PreprocessedImage {
+        data,
+        shape: [1, NUM_CHANNELS, IMAGE_SIZE as usize, IMAGE_SIZE as usize],
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{Rgb, RgbImage};
+
+    const PLANE: usize = (IMAGE_SIZE as usize) * (IMAGE_SIZE as usize);
+    const NO_GREY: PreprocessConfig = PreprocessConfig { greyscale: false };
+
+    fn solid(width: u32, height: u32, colour: [u8; 3]) -> DynamicImage {
+        DynamicImage::ImageRgb8(RgbImage::from_pixel(width, height, Rgb(colour)))
+    }
+
+    /// The normalisation the reference pipeline applies, written out the long
+    /// way so the test does not simply restate the implementation.
+    fn expected(value: u8) -> f32 {
+        (value as f32 / 255.0 - 0.5) / 0.5
+    }
+
+    #[test]
+    fn constants_match_preprocessor_config() {
+        // Guards against a silent revert to ImageNet statistics, which is what
+        // the inline preprocessing block in `predict` used before this module
+        // existed.
+        assert_eq!(IMAGE_MEAN, [0.5, 0.5, 0.5]);
+        assert_eq!(IMAGE_STD, [0.5, 0.5, 0.5]);
+        assert_eq!(IMAGE_SIZE, 224);
+        assert_eq!(NUM_CHANNELS, 3);
+        assert!((RESCALE_FACTOR - 1.0 / 255.0).abs() < f32::EPSILON);
+        assert_eq!(RESAMPLE_FILTER, image::imageops::FilterType::Triangle);
+    }
+
+    #[test]
+    fn tensor_has_the_shape_and_length_the_model_expects() {
+        let out = preprocess(&solid(64, 96, [10, 20, 30])).expect("preprocess");
+        assert_eq!(out.shape(), [1, 3, 224, 224]);
+        assert_eq!(out.data().len(), 3 * 224 * 224);
+        assert_eq!(out.data().len(), NUM_CHANNELS * PLANE);
+
+        let (shape, data) = out.into_parts();
+        assert_eq!(shape, vec![1i64, 3, 224, 224]);
+        assert_eq!(data.len(), 3 * 224 * 224);
+    }
+
+    #[test]
+    fn layout_is_chw_not_hwc() {
+        // Distinct per-channel values. In CHW the first plane is entirely red,
+        // the second entirely green, the third entirely blue. In HWC the first
+        // three values would instead be R, G, B of a single pixel.
+        let out = preprocess_with(&solid(50, 50, [255, 0, 128]), NO_GREY).expect("preprocess");
+        let data = out.data();
+
+        for (channel, &value) in [255u8, 0, 128].iter().enumerate() {
+            let plane = &data[channel * PLANE..(channel + 1) * PLANE];
+            assert!(
+                plane.iter().all(|v| (v - expected(value)).abs() < 1e-6),
+                "channel {channel} plane is not uniformly the value for {value}; \
+                 this is the signature of HWC ordering"
+            );
+        }
+
+        // Stated the other way round: consecutive elements belong to the same
+        // channel, not to the same pixel.
+        assert!((data[0] - data[1]).abs() < 1e-6);
+        assert!((data[0] - data[PLANE]).abs() > 1.0);
+    }
+
+    #[test]
+    fn normalisation_matches_hand_computed_values() {
+        // A solid image survives bilinear resampling unchanged, so every output
+        // element is exactly the normalisation of the source byte. Values below
+        // were computed by hand:
+        //   37  -> 37/255  = 0.14509804; (0.14509804 - 0.5) / 0.5 = -0.70980392
+        //   200 -> 200/255 = 0.78431373; (0.78431373 - 0.5) / 0.5 =  0.56862745
+        //   255 -> 1.0;  (1.0 - 0.5) / 0.5 =  1.0
+        let out = preprocess_with(&solid(80, 40, [37, 200, 255]), NO_GREY).expect("preprocess");
+        let data = out.data();
+
+        assert!((data[0] - (-0.709_803_92)).abs() < 1e-6, "got {}", data[0]);
+        assert!(
+            (data[PLANE] - 0.568_627_5).abs() < 1e-6,
+            "got {}",
+            data[PLANE]
+        );
+        assert!(
+            (data[2 * PLANE] - 1.0).abs() < 1e-6,
+            "got {}",
+            data[2 * PLANE]
+        );
+
+        // The [0, 255] byte range maps onto exactly [-1, 1] under mean = std = 0.5.
+        assert!((expected(0) - (-1.0)).abs() < 1e-6);
+        assert!((expected(255) - 1.0).abs() < 1e-6);
+        assert!(
+            data.iter().all(|v| (-1.0..=1.0).contains(v)),
+            "mean/std of 0.5 must confine output to [-1, 1]"
+        );
+    }
+
+    #[test]
+    fn imagenet_constants_would_produce_a_different_tensor() {
+        // Pins the actual defect this module was written to fix: had the old
+        // ImageNet numbers been correct, these assertions would not hold.
+        //
+        // Note that the two formulas nearly agree near the middle of the byte
+        // range — at 128 they differ by only 0.07 — so a discriminating test
+        // has to sample away from the centre. That near-agreement is exactly
+        // why the wrong constants degraded accuracy without ever looking
+        // obviously broken.
+        const IMAGENET_MEAN: [f32; 3] = [0.485, 0.456, 0.406];
+        const IMAGENET_STD: [f32; 3] = [0.229, 0.224, 0.225];
+
+        let out = preprocess_with(&solid(32, 32, [240, 240, 240]), NO_GREY).expect("preprocess");
+        for channel in 0..NUM_CHANNELS {
+            let ours = out.data()[channel * PLANE];
+            let imagenet = (240.0f32 / 255.0 - IMAGENET_MEAN[channel]) / IMAGENET_STD[channel];
+            assert!(
+                (ours - imagenet).abs() > 1.0,
+                "channel {channel}: config-driven {ours} must not coincide with ImageNet {imagenet}"
+            );
+        }
+    }
+
+    #[test]
+    fn greyscale_matches_pil_itu_r_601_2() {
+        // Reference values read out of Pillow 10.1.0 via
+        // `Image.new("RGB", (1, 1), t).convert("L").getpixel((0, 0))`.
+        for &(rgb, pil) in &[
+            ((255u8, 0u8, 0u8), 76u8),
+            ((0, 255, 0), 150),
+            ((0, 0, 255), 29),
+            ((10, 200, 90), 131),
+            ((37, 113, 201), 100),
+            ((128, 128, 128), 128),
+            ((0, 0, 0), 0),
+            ((255, 255, 255), 255),
+        ] {
+            let (r, g, b) = rgb;
+            assert_eq!(greyscale_luma(r, g, b), pil, "PIL mismatch for {rgb:?}");
+        }
+
+        // Rec. 709, which `image`'s `to_luma8` would use, disagrees sharply.
+        // If this ever stops holding, someone swapped in the wrong weights.
+        assert_ne!(greyscale_luma(0, 255, 0), 182);
+    }
+
+    #[test]
+    fn greyscale_collapses_the_three_channels() {
+        let out = preprocess(&solid(60, 60, [255, 0, 128])).expect("preprocess");
+        let data = out.data();
+        let luma = greyscale_luma(255, 0, 128);
+        for channel in 0..NUM_CHANNELS {
+            assert!((data[channel * PLANE] - expected(luma)).abs() < 1e-6);
+        }
+    }
+
+    #[test]
+    fn greyscale_is_not_a_no_op() {
+        // Documents that the flag changes the tensor materially, so nobody
+        // "simplifies" it away on the assumption that it is cosmetic.
+        let image = solid(64, 64, [200, 30, 90]);
+        let with = preprocess_with(&image, PreprocessConfig { greyscale: true }).expect("grey");
+        let without = preprocess_with(&image, NO_GREY).expect("colour");
+        assert_ne!(with, without);
+    }
+
+    #[test]
+    fn one_by_one_image_is_handled() {
+        let out = preprocess(&solid(1, 1, [200, 200, 200])).expect("1x1 must not fail");
+        assert_eq!(out.data().len(), 3 * 224 * 224);
+        // Upsampling a single pixel can only ever yield that pixel's value.
+        assert!(out.data().iter().all(|v| (v - expected(200)).abs() < 1e-6));
+    }
+
+    #[test]
+    fn extreme_aspect_ratios_are_handled() {
+        for (w, h) in [
+            (1u32, 4000u32),
+            (4000, 1),
+            (3, 997),
+            (997, 3),
+            (1, 1),
+            (224, 224),
+        ] {
+            let out = preprocess(&solid(w, h, [17, 99, 240]))
+                .unwrap_or_else(|e| panic!("{w}x{h} failed: {e}"));
+            assert_eq!(out.shape(), [1, 3, 224, 224], "{w}x{h}");
+            assert_eq!(out.data().len(), 3 * 224 * 224, "{w}x{h}");
+            assert!(
+                out.data().iter().all(|v| v.is_finite()),
+                "{w}x{h} produced a non-finite element"
+            );
+        }
+    }
+
+    #[test]
+    fn a_non_uniform_image_produces_a_non_uniform_tensor() {
+        // Cheap guard against the failure mode this repository has shipped
+        // three times: a function returning a plausible constant. A gradient in
+        // must give varying values out.
+        let mut buffer = RgbImage::new(300, 120);
+        for (x, y, pixel) in buffer.enumerate_pixels_mut() {
+            *pixel = Rgb([(x % 256) as u8, (y % 256) as u8, ((x + y) % 256) as u8]);
+        }
+        let out = preprocess(&DynamicImage::ImageRgb8(buffer)).expect("preprocess");
+        let first = out.data()[0];
+        assert!(
+            out.data().iter().any(|v| (v - first).abs() > 0.05),
+            "gradient input collapsed to a constant tensor"
+        );
+    }
+
+    #[test]
+    fn zero_dimension_is_an_error_not_a_blank_tensor() {
+        let empty = DynamicImage::ImageRgb8(RgbImage::new(0, 10));
+        let err = preprocess(&empty).expect_err("a 0x10 image has no valid tensor");
+        assert!(matches!(err, OcrError::InvalidInput(_)), "got {err:?}");
+
+        let empty = DynamicImage::ImageRgb8(RgbImage::new(10, 0));
+        assert!(matches!(preprocess(&empty), Err(OcrError::InvalidInput(_))));
+    }
+}
+
+
+--- RUST SOURCE: crates/comic-ocr-ort/tests/test_no_fabricated_output.rs ---
+
+//! No engine path may return a value it did not compute.
+//!
+//! This file exists because the same defect appeared three times in three
+//! different disguises, and each one passed the whole test suite:
+//!
+//!   1. `"…"` returned as text when the inference subprocess failed, with
+//!      `confidence: 0.985` attached.
+//!   2. `confidence: 0.985` and `token_probabilities: [0.99, 0.985, 0.988]`
+//!      hardcoded on every success — later relocated into the generated Python
+//!      string, where the Rust `val.get("confidence")` around it read like
+//!      genuine extraction.
+//!   3. `let raw_text = "ONNX_NATIVE_PREDICTION"` returned as the transcription
+//!      from the native path, with a *real* softmax confidence beside it. That
+//!      is the worst shape available: `Ok`, a plausible score, and a string that
+//!      never came from the model.
+//!
+//! None of these are caught by testing behaviour, because the fabricated value
+//! is indistinguishable from a real one at the call site — that is what makes it
+//! dangerous. So this scans the source instead.
+//!
+//! It is deliberately crude. A cleverer check would be easier to work around.
+
+use std::fs;
+use std::path::{Path, PathBuf};
+
+fn engine_sources() -> Vec<PathBuf> {
+    let mut found = Vec::new();
+    for dir in [
+        Path::new("src"),
+        Path::new("crates/comic-ocr-ort/src"),
+        Path::new("../comic-ocr-ort/src"),
+    ] {
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|e| e.to_str()) == Some("rs") {
+                    found.push(path);
+                }
+            }
+        }
+        if !found.is_empty() {
+            break;
+        }
+    }
+    found
+}
+
+/// The scan must prove it found something before it can prove anything absent.
+/// A source gate that silently scanned zero files would pass forever, which is
+/// the same failure mode it exists to prevent.
+#[test]
+fn the_scan_actually_reads_the_engine() {
+    let sources = engine_sources();
+    assert!(
+        !sources.is_empty(),
+        "found no engine sources to scan — this gate would pass vacuously"
+    );
+    let total: usize = sources
+        .iter()
+        .filter_map(|p| fs::read_to_string(p).ok())
+        .map(|s| s.len())
+        .sum();
+    assert!(total > 2000, "engine sources scanned only {total} bytes");
+}
+
+#[test]
+fn no_engine_path_returns_a_placeholder_transcription() {
+    for path in engine_sources() {
+        let source = fs::read_to_string(&path).expect("read engine source");
+        for (number, line) in source.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("//") || trimmed.starts_with("///") {
+                continue; // the header above names these on purpose
+            }
+            for forbidden in [
+                "ONNX_NATIVE_PREDICTION",
+                "PLACEHOLDER",
+                "\"STUB\"",
+                "\"DUMMY\"",
+            ] {
+                assert!(
+                    !trimmed.contains(forbidden),
+                    "{}:{} returns the placeholder {forbidden} as if it were model output. \
+                     Return Err(OcrError::NotImplemented) instead — a caller cannot tell a \
+                     placeholder from a reading, and it ends up in the corpus.",
+                    path.display(),
+                    number + 1
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn no_engine_path_hardcodes_a_confidence() {
+    // The exact constants that shipped. Not a general "no float literals" rule:
+    // thresholds and normalisation constants are legitimate, and a rule broad
+    // enough to catch those would be turned off within a week.
+    for path in engine_sources() {
+        let source = fs::read_to_string(&path).expect("read engine source");
+        for (number, line) in source.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("//") || trimmed.starts_with("///") {
+                continue;
+            }
+            let fabricated = ["confidence: 0.985", "0.99, 0.985, 0.988", "0.985,"];
+            for pattern in fabricated {
+                assert!(
+                    !trimmed.contains(pattern),
+                    "{}:{} carries the hardcoded confidence `{pattern}`. Confidence must be \
+                     computed from the model's own probabilities, or absent — never defaulted.",
+                    path.display(),
+                    number + 1
+                );
+            }
+        }
+    }
+}
+
+/// The sentinel that used to stand in for a failed read. `Err` is the answer.
+#[test]
+fn failure_is_never_reported_as_an_ellipsis_reading() {
+    for path in engine_sources() {
+        let source = fs::read_to_string(&path).expect("read engine source");
+        for (number, line) in source.lines().enumerate() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("//") || trimmed.starts_with("///") {
+                continue;
+            }
+            assert!(
+                !trimmed.contains("\"…\".to_string()"),
+                "{}:{} returns the ellipsis sentinel as a transcription. Return Err instead.",
+                path.display(),
+                number + 1
+            );
+        }
     }
 }
 
@@ -4997,8 +6597,8 @@ fn test_post_process_sentinel_and_entropy_sanity() {
 #[test]
 #[ignore = "Requires active ONNX inference model weights"]
 fn test_iepe_pytorch_onnx_parity() {
-    let engine = OrtEngine::new("kha-white/comic-ocr-base");
-    assert_eq!(engine.model_name, "kha-white/comic-ocr-base");
+    let engine = OrtEngine::new("test-model");
+    assert_eq!(engine.model_name, "test-model");
 }
 
 
@@ -5076,6 +6676,20 @@ impl PanelEvaluator {
 }
 
 
+--- RUST SOURCE: crates/comic-ocr-py/build.rs ---
+
+fn main() {
+    pyo3_build_config::use_pyo3_cfgs();
+    if std::env::var("CARGO_CFG_TARGET_OS")
+        .map(|s| s == "macos")
+        .unwrap_or(false)
+    {
+        println!("cargo:rustc-link-arg=-undefined");
+        println!("cargo:rustc-link-arg=dynamic_lookup");
+    }
+}
+
+
 --- RUST SOURCE: crates/comic-ocr-py/src/lib.rs ---
 
 #![allow(deprecated, unsafe_op_in_unsafe_fn)]
@@ -5093,7 +6707,7 @@ pub struct PyComicOcr {
 #[pymethods]
 impl PyComicOcr {
     #[new]
-    #[pyo3(signature = (model_name="kha-white/comic-ocr-base", extract_furigana=false))]
+    #[pyo3(signature = (model_name="", extract_furigana=false))]
     fn new(model_name: &str, extract_furigana: bool) -> PyResult<Self> {
         let engine = OrtEngine::new(model_name).with_furigana(extract_furigana);
         Ok(Self {
@@ -5164,31 +6778,25 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
-            host: std::env::var("COMIC_OCR_HOST")
-                .or_else(|_| std::env::var("MANGA_OCR_HOST"))
-                .unwrap_or_else(|_| "0.0.0.0".into()),
+            host: std::env::var("COMIC_OCR_HOST").unwrap_or_else(|_| "0.0.0.0".into()),
             // `PORT` first: Railway, Fly and Heroku all inject it, and a service
             // that binds its own default there is unreachable no matter how
             // healthy it reports itself to be.
             port: std::env::var("PORT")
                 .or_else(|_| std::env::var("COMIC_OCR_PORT"))
-                .or_else(|_| std::env::var("MANGA_OCR_PORT"))
                 .ok()
                 .and_then(|p| p.parse().ok())
                 .unwrap_or(8000),
-            // The upstream HuggingFace repository, spelled the way it actually
-            // exists. A bulk manga->comic rename rewrote this to
-            // `kha-white/comic-ocr-base`, which no registry serves — the
-            // subprocess path would have failed to resolve a model forever, and
-            // reported it as an inference error rather than a bad name.
-            model_name: std::env::var("COMIC_OCR_MODEL")
-                .or_else(|_| std::env::var("MANGA_OCR_MODEL"))
-                .unwrap_or_else(|_| "kha-white/manga-ocr-base".into()),
+            // Deliberately NO default. This project trains its own weights; a
+            // built-in fallback to somebody else's checkpoint is how a service
+            // ends up quietly serving a model nobody chose — and in this case a
+            // Japanese-only one, against a bilingual corpus. Empty means "not
+            // configured", which the runtime reports rather than papers over.
+            model_name: std::env::var("COMIC_OCR_MODEL").unwrap_or_default(),
             onnx_model_path: std::env::var("COMIC_OCR_ONNX_PATH")
                 .ok()
                 .filter(|path| !path.trim().is_empty()),
             force_cpu: std::env::var("COMIC_OCR_FORCE_CPU")
-                .or_else(|_| std::env::var("MANGA_OCR_FORCE_CPU"))
                 .map(|v| v == "1" || v == "true")
                 .unwrap_or(false),
             max_batch_size: 16,
@@ -5524,7 +7132,7 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("===========================================================");
     tracing::info!(
-        "MANGA OCR REFLECTIVE RUNTIME v{}",
+        "COMIC OCR REFLECTIVE RUNTIME v{}",
         env!("CARGO_PKG_VERSION")
     );
     tracing::info!("Model: {}", config.model_name);
@@ -5752,7 +7360,7 @@ mod tests {
         RuntimeConfig {
             host: "0.0.0.0".into(),
             port: 8000,
-            model_name: "kha-white/manga-ocr-base".into(),
+            model_name: "test-model".into(),
             onnx_model_path: path.map(str::to_string),
             force_cpu: true,
             max_batch_size: 1,

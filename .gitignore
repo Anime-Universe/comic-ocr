@@ -162,6 +162,17 @@ out/
 *.safetensors
 *.onnx
 
+# ONNX export artefacts. `scripts/export_onnx.py models/onnx` writes ~655 MB of
+# graphs there (encoder / decoder / decoder_with_past / decoder_model_merged)
+# plus the vocab and configs. `models/` above already covers the default target;
+# these keep the weights out of git if someone exports to another directory.
+# The signatures they must satisfy live in docs/ONNX_GRAPH_CONTRACT.md.
+*.onnx_data
+onnx/
+
+# Local virtualenv used only for the offline ONNX export
+.venv-export/
+
 # Allow .agents customization root
 !.agents/
 

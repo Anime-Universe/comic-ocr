@@ -72,7 +72,7 @@ graph TD
     subgraph "Inference Domain (comic_ocr)"
         MMain["comic_ocr.__main__"] --> MRun["comic_ocr.run"]
         MRun --> MOcr["comic_ocr.ocr.MangaOcr"]
-        MOcr --> HuggingFace["HuggingFace Hub (kha-white/comic-ocr-base)"]
+        MOcr --> HuggingFace["HuggingFace Hub (the reference checkpoint)"]
     end
 
     subgraph "Development & Training Domain (comic_ocr_dev)"

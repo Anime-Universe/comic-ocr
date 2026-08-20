@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 #[command(
     name = "comic-ocr",
     version,
-    about = "High-performance Japanese Manga OCR Operational CLI Tooling & Pipeline Verification Gate"
+    about = "High-performance multilingual comic & manga OCR CLI tooling and pipeline verification gate"
 )]
 struct Cli {
     /// Path to a single input image file
@@ -199,11 +199,12 @@ fn main() -> anyhow::Result<()> {
     }
 
     println!(
-        "\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===",
+        "\n=== Executing Comic OCR pipeline across {} image(s) ===",
         target_files.len()
     );
 
-    let engine = OrtEngine::new("kha-white/comic-ocr-base").with_furigana(cli.extract_furigana);
+    let engine = OrtEngine::new(std::env::var("COMIC_OCR_MODEL").unwrap_or_default())
+        .with_furigana(cli.extract_furigana);
 
     for (idx, img_path) in target_files.iter().enumerate() {
         println!(

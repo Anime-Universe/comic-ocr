@@ -72,7 +72,7 @@ $$S = \exp\left( \frac{1}{N} \sum_{i=1}^N \ln P(w_i \mid w_{<i}, \mathbf{X}) \ri
 Geometric mean of sequence token probabilities derived from model logit softmax distributions.
 
 ### 4.2 Evidence Class Discounting (ACS)
-In multi-engine panel evaluation (e.g. PyTorch `kha-white/comic-ocr-base` + ONNX Runtime + Tesseract fallback):
+In multi-engine panel evaluation (e.g. PyTorch `the reference checkpoint` + ONNX Runtime + Tesseract fallback):
 
 $$W_{\text{final}} = W_{\text{raw}} \cdot \alpha_{\text{provenance}} \cdot \beta_{\text{consensus}}$$
 

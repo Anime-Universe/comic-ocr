@@ -18,6 +18,6 @@ fn test_post_process_sentinel_and_entropy_sanity() {
 #[test]
 #[ignore = "Requires active ONNX inference model weights"]
 fn test_iepe_pytorch_onnx_parity() {
-    let engine = OrtEngine::new("kha-white/comic-ocr-base");
-    assert_eq!(engine.model_name, "kha-white/comic-ocr-base");
+    let engine = OrtEngine::new("test-model");
+    assert_eq!(engine.model_name, "test-model");
 }

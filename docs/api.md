@@ -144,7 +144,7 @@ Located in [`crates/comic-ocr-runtime`](crates/comic-ocr-runtime).
 | :--- | :--- | :--- |
 | `MANGA_OCR_HOST` | `"0.0.0.0"` | Network bind address |
 | `MANGA_OCR_PORT` | `8000` | HTTP TCP listening port |
-| `MANGA_OCR_MODEL` | `"kha-white/comic-ocr-base"` | Target ONNX model identifier |
+| `MANGA_OCR_MODEL` | `"the reference checkpoint"` | Target ONNX model identifier |
 | `MANGA_OCR_FORCE_CPU` | `false` | Force CPU execution provider |
 | `RUST_LOG` | `"info"` | Tracing log level (`debug`, `info`, `warn`) |
 
@@ -196,7 +196,7 @@ curl -s http://localhost:8000/v1/runtime/info
 ```json
 {
   "runtime": "Comic OCR Reflective Runtime",
-  "model_name": "kha-white/comic-ocr-base",
+  "model_name": "the reference checkpoint",
   "max_batch_size": 16,
   "pdp_invalidation_threshold": 0.7,
   "force_cpu": false,

@@ -13,7 +13,7 @@ pub struct PyComicOcr {
 #[pymethods]
 impl PyComicOcr {
     #[new]
-    #[pyo3(signature = (model_name="kha-white/comic-ocr-base", extract_furigana=false))]
+    #[pyo3(signature = (model_name="", extract_furigana=false))]
     fn new(model_name: &str, extract_furigana: bool) -> PyResult<Self> {
         let engine = OrtEngine::new(model_name).with_furigana(extract_furigana);
         Ok(Self {

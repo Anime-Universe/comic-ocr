@@ -65,9 +65,9 @@ def run_gate(benchmark_file="tests/data/benchmark_results.json"):
         return True
 
     print("Executing live neural model inference across benchmark dataset...")
-    model = VisionEncoderDecoderModel.from_pretrained("kha-white/manga-ocr-base")
-    processor = ViTImageProcessor.from_pretrained("kha-white/manga-ocr-base")
-    tokenizer = AutoTokenizer.from_pretrained("kha-white/manga-ocr-base")
+    model = VisionEncoderDecoderModel.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+    processor = ViTImageProcessor.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+    tokenizer = AutoTokenizer.from_pretrained(os.environ["COMIC_OCR_MODEL"])
 
     clean_passes = 0
     known_fails = 0
@@ -130,10 +130,10 @@ def process_images(image_paths, out_dir=None):
 
     print(f"\n=== Executing Operational Pipeline across {len(image_paths)} image(s) ===")
 
-    print("Loading kha-white/manga-ocr-base neural network weights...")
-    model = VisionEncoderDecoderModel.from_pretrained("kha-white/manga-ocr-base")
-    processor = ViTImageProcessor.from_pretrained("kha-white/manga-ocr-base")
-    tokenizer = AutoTokenizer.from_pretrained("kha-white/manga-ocr-base")
+    print("Loading comic-ocr neural network weights...")
+    model = VisionEncoderDecoderModel.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+    processor = ViTImageProcessor.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+    tokenizer = AutoTokenizer.from_pretrained(os.environ["COMIC_OCR_MODEL"])
 
     def run_ocr(crop_img):
         pixel_values = processor(crop_img, return_tensors="pt").pixel_values
@@ -187,7 +187,7 @@ def process_images(image_paths, out_dir=None):
     print("=== Pipeline Execution Complete ===")
 
 def main():
-    parser = argparse.ArgumentParser(description="Manga OCR Operational Pipeline Tooling & Quality Gate")
+    parser = argparse.ArgumentParser(description="Comic OCR pipeline tooling and quality gate")
     parser.add_argument("--image", help="Single image file path (e.g. tests/data/images/12.jpg)")
     parser.add_argument("--group", help="Comma-separated list of image files or filenames (e.g. 12.jpg,14.jpg)")
     parser.add_argument("--glob", help="Glob pattern for image search (e.g. tests/data/images/*.jpg)")

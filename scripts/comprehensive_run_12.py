@@ -30,7 +30,7 @@ ocr_result = {
     "token_probabilities": [0.992, 0.985, 0.987, 0.988, 0.990],
     "metadata": {
         "duration_ms": 28.4,
-        "model_name": "kha-white/manga-ocr-base",
+        "model_name": os.environ["COMIC_OCR_MODEL"],
         "engine_type": "BaseInt8Onnx"
     }
 }

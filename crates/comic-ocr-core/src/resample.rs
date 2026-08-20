@@ -1,6 +1,22 @@
 use image::{DynamicImage, GenericImageView};
 
 /// Resamples an input image buffer into aspect-preserving tiles.
+///
+/// **Not wired into the OCR path.** Exported and tested, but nothing calls it —
+/// so its threshold has never been exercised against real crops.
+///
+/// The problem it addresses is real: the vision encoder takes a fixed square
+/// input, so a tall narrow text region — the characteristic shape of a vertical
+/// Japanese column — is crushed when squashed to it, and the glyphs stop being
+/// legible. Tiling preserves glyph aspect at the cost of needing the per-tile
+/// transcriptions joined afterwards. That join does not exist yet; the 0.20
+/// overlap is what would make it possible.
+///
+/// `max_aspect_ratio = 3.0` is **provisional**. Whether tiling is needed at all
+/// depends on what the model was trained on: train on tall column crops and the
+/// encoder handles them natively, leaving tiling for genuine outliers. The
+/// threshold should be set from the aspect ratio at which measured CER starts
+/// climbing — an output of training, not an input to it.
 /// If aspect ratio (Height / Width or Width / Height) <= `max_aspect_ratio` (default 3.0), letterbox padding is applied.
 /// If aspect ratio > 3.0, Multi-Tile Sliding Window Slicing is applied with overlap fraction `overlap_fraction` (default 0.20).
 pub fn resample_tiles(

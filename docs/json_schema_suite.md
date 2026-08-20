@@ -48,7 +48,7 @@ Running `assets/examples/12.jpg` through the complete 4-layer pipeline generates
     "token_probabilities": [0.99, 0.985, 0.98, 0.985],
     "metadata": {
       "duration_ms": 4.2,
-      "model_name": "kha-white/manga-ocr-base",
+      "model_name": "the reference checkpoint",
       "engine_type": "BaseInt8Onnx"
     }
   },

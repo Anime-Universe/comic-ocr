@@ -6,7 +6,7 @@ This document summarizes key takeaways, model footprint optimizations, dataset i
 
 ## 1. Key Insights & Benchmark Comparison
 
-| Dimension | Standard `kha-white/comic-ocr` | Reference `ComicOCR` (PaddleOCR/TrOCR) | Our Rust Migration Target (`comic-ocr-rust`) |
+| Dimension | Standard `the reference checkpoint` | Reference `ComicOCR` (PaddleOCR/TrOCR) | Our Rust Migration Target (`comic-ocr-rust`) |
 | :--- | :--- | :--- | :--- |
 | **Model Size** | 444 MB | **~8 MB** (55x smaller) | **8 MB (Nano) / 120 MB (Base INT8)** |
 | **Character Error Rate (CER)** | 2.5% – 5.0% | ~14.4% | **2.5% (Base) / <8% (Nano)** |

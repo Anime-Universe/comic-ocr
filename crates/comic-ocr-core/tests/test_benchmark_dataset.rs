@@ -127,7 +127,7 @@ fn test_benchmark_model_inference_evaluation() {
         images_dir_fallback
     };
 
-    let engine = OrtEngine::new("kha-white/manga-ocr-base");
+    let engine = OrtEngine::new(std::env::var("COMIC_OCR_MODEL").unwrap_or_default());
 
     println!("\n==========================================================");
     println!(" RUNNING DYNAMIC INFERENCE BENCHMARK EVALUATION (17 IMAGES)");

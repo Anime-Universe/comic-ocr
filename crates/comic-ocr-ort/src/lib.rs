@@ -6,6 +6,8 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 
+pub mod preprocess;
+
 pub struct OrtEngine {
     pub model_name: String,
     pub engine_type: EngineType,
@@ -24,9 +26,7 @@ impl OrtEngine {
         };
 
         // Initialize ONNX Session if local file path exists or via COMIC_OCR_ONNX_PATH env var
-        let onnx_path = std::env::var("COMIC_OCR_ONNX_PATH")
-            .or_else(|_| std::env::var("MANGA_OCR_ONNX_PATH"))
-            .unwrap_or_else(|_| name.clone());
+        let onnx_path = std::env::var("COMIC_OCR_ONNX_PATH").unwrap_or_else(|_| name.clone());
 
         let session = if Path::new(&onnx_path).exists() {
             match Session::builder().and_then(|mut builder| builder.commit_from_file(&onnx_path)) {
@@ -154,23 +154,12 @@ impl OcrEngine for OrtEngine {
                 .lock()
                 .map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
 
-            // Preprocess input image to 3x224x224 RGB float buffer
-            let resized = image.resize_exact(224, 224, image::imageops::FilterType::Triangle);
-            let rgb = resized.to_rgb8();
-            let plane = 224 * 224;
-            let mut input_tensor = vec![0.0f32; 3 * plane];
-
-            for (x, y, pixel) in rgb.enumerate_pixels() {
-                let r = (pixel[0] as f32 / 255.0 - 0.485) / 0.229;
-                let g = (pixel[1] as f32 / 255.0 - 0.456) / 0.224;
-                let b = (pixel[2] as f32 / 255.0 - 0.406) / 0.225;
-                let offset = y as usize * 224 + x as usize;
-                input_tensor[offset] = r;
-                input_tensor[plane + offset] = g;
-                input_tensor[2 * plane + offset] = b;
-            }
-
-            let shape = vec![1, 3, 224, 224];
+            // Preprocess to the exact tensor `ViTImageProcessor` would produce
+            // for this checkpoint. This used to be an inline loop here that
+            // normalised with ImageNet mean/std; `preprocessor_config.json`
+            // says 0.5/0.5, so that loop was feeding the encoder a shifted and
+            // wrongly-scaled image. See `preprocess` for the sourcing.
+            let (shape, input_tensor) = preprocess::preprocess(image)?.into_parts();
             let tensor_value =
                 ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
                     OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))
@@ -184,7 +173,7 @@ impl OcrEngine for OrtEngine {
             // The session runs, and its logits are real — the confidence below is
             // computed from them. What does not exist yet is TEXT.
             //
-            // `manga-ocr-base` is a VisionEncoderDecoder: `optimum` exports it as
+            // A ViT/DeiT + BERT VisionEncoderDecoder exports via `optimum` as
             // encoder + decoder + decoder-with-past, and the autoregressive
             // generation loop stays in the caller. One forward pass yields a
             // single decode step, not a transcription. Until that loop exists —
@@ -225,7 +214,7 @@ import os, json, math, torch
 from PIL import Image
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-model_name = os.environ.get('COMIC_OCR_MODEL_NAME', 'kha-white/manga-ocr-base')
+model_name = os.environ['COMIC_OCR_MODEL_NAME']
 image_path = os.environ.get('COMIC_OCR_IMAGE_PATH', '')
 
 model = VisionEncoderDecoderModel.from_pretrained(model_name)
@@ -350,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_should_truncate_loop() {
-        let engine = OrtEngine::new("kha-white/comic-ocr-base");
+        let engine = OrtEngine::new("test-model");
         let degenerate_entropies = vec![0.10, 0.12, 0.08, 0.09];
         assert!(engine.should_truncate_loop(&degenerate_entropies));
 

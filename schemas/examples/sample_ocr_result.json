@@ -5,7 +5,7 @@
   "token_probabilities": [0.99, 0.98, 0.985, 0.992],
   "metadata": {
     "duration_ms": 42.5,
-    "model_name": "kha-white/manga-ocr-base",
+    "model_name": "comic-ocr",
     "engine_type": "BaseInt8Onnx"
   }
 }

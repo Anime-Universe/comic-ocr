@@ -1,6 +1,8 @@
 # Manga & Comic OCR Rust
 
-High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of **Manga, Western Comics, Graphic Novels, Manhwa, and Webtoons** in both **Japanese** and **English**.
+High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of **Manga, Western Comics, and Graphic Novels** in both **Japanese** and **English**.
+
+Paged formats. Long-strip webtoons are out of scope for v1 — they are a different page geometry, not just another language, and the corpus this serves contains none (0 of 1,019 pages are strip-shaped).
 
 ---
 
@@ -8,7 +10,7 @@ High-performance, zero-cost, multi-crate Rust workspace for optical character re
 
 - **Japanese Manga & Manhua**: Vertical reading mode (`vertical-rl`), horizontal text, Furigana reading extraction (`漢[かん]字[じ]`), Tate-chū-yoko patch rotation, dynamic sound effect (*onomatopoeia*) LM bypass.
 - **English Comics & Graphic Novels**: Western reading order, speech bubble text, ASCII punctuation normalization, contraction standardization, and clean formatting.
-- **Webtoons & Long-Strip Comics**: Multi-tile aspect-ratio preserving sliding window resampling ($\delta = 0.20$ overlap) for tall vertical bubbles (aspect ratio $> 3:1$).
+- **Tall text regions**: Multi-tile aspect-ratio preserving sliding window resampling ($\delta = 0.20$ overlap) for text regions too tall to survive a square encoder input — principally vertical Japanese columns. *Currently unwired; see `resample.rs`.*
 - **Full Page & Speech Bubble Topology**: 2-Level topological reading order graph sorting speech bubbles Right-to-Left / Left-to-Right and Top-to-Bottom.
 
 ---

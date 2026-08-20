@@ -5,10 +5,10 @@ from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoToken
 
 print("=== Building Hierarchical Master Benchmark Results Ledger with Real Neural Inference ===")
 
-print("Loading kha-white/manga-ocr-base model weights...")
-model = VisionEncoderDecoderModel.from_pretrained("kha-white/manga-ocr-base")
-processor = ViTImageProcessor.from_pretrained("kha-white/manga-ocr-base")
-tokenizer = AutoTokenizer.from_pretrained("kha-white/manga-ocr-base")
+print("Loading comic-ocr model weights...")
+model = VisionEncoderDecoderModel.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+processor = ViTImageProcessor.from_pretrained(os.environ["COMIC_OCR_MODEL"])
+tokenizer = AutoTokenizer.from_pretrained(os.environ["COMIC_OCR_MODEL"])
 
 def run_real_inference(img_path):
     img = Image.open(img_path).convert("RGB")
@@ -73,7 +73,7 @@ for fn in sorted(os.listdir("tests/data/images")):
         "token_probabilities": token_probs,
         "metadata": {
             "duration_ms": dur_ms,
-            "model_name": "kha-white/manga-ocr-base",
+            "model_name": os.environ["COMIC_OCR_MODEL"],
             "engine_type": "BaseInt8Onnx"
         }
     }
@@ -177,7 +177,7 @@ for fn in sorted(os.listdir("tests/data/images")):
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
         "id": f"doc_{fn.replace('.', '_')}",
         "metadata": {
-            "title": f"Manga OCR Sample Crop {fn}",
+            "title": f"Comic OCR sample crop {fn}",
             "series": "Example Benchmark Suite",
             "volume": "1",
             "chapter": "1",

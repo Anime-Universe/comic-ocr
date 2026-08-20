@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("===========================================================");
     tracing::info!(
-        "MANGA OCR REFLECTIVE RUNTIME v{}",
+        "COMIC OCR REFLECTIVE RUNTIME v{}",
         env!("CARGO_PKG_VERSION")
     );
     tracing::info!("Model: {}", config.model_name);

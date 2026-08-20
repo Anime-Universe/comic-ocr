@@ -68,7 +68,7 @@ def compile_full_corpus():
 
     corpus_parts = []
     corpus_parts.append("================================================================================")
-    corpus_parts.append("MANGA OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full.txt)")
+    corpus_parts.append("COMIC OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full.txt)")
     corpus_parts.append("================================================================================")
     corpus_parts.append("\n\n")
 
