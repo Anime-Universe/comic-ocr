@@ -699,24 +699,25 @@ gantt
 
 ---
 
-## Phase 5: 4-Layer Comic Scene Graph & Localization Engine (In Progress)
+## Phase 5: 4-Layer Comic Scene Graph & Localization Engine (Completed)
 
 - [x] **Scene Graph Data Substrate (`comic-ocr-core`)**: Defined `MangaDocument`, `MangaPage`, `PanelBand`, `Panel`, `TextContainer`, `TextRegion`, `DualRect`, `LayoutEnvelope`, `ArtRegion`, `MaskRegion`.
-- [ ] **Scene Graph Parser & Dual Coordinate Converter (`comic-ocr-core`)**: Implement JSON import/export parser and bi-directional pixel <-> normalized coordinate scaling (`px` $\leftrightarrow$ `normalized`).
-- [ ] **Topological Panel Graph Extractor (`comic-ocr-core`)**: Extract panel bands, content bounds, safe bounds, bleed bounds, and explicit reading order sequence from page artwork.
-- [ ] **Protected Art Region Avoidance Solver (`comic-ocr-core`)**: Segment character faces, eyes, and important artwork to evaluate `AvoidConstraint` penalty maps during layout placement.
-- [ ] **Layout Envelope & Auto-Lettering Solver (`comic-ocr-core`)**: Fit localized text within `SpatialBounds` (`min`, `preferred`, `max`, `hard`) and `TypographyEnvelope` limits without overlapping protected art.
-- [ ] **Background Cleanup Mask Generator (`comic-ocr-core`)**: Generate solid-fill balloon masks and inpaint texture masks for sound effect removal.
-- [ ] **Reflective Runtime Scene Graph REST API (`comic-ocr-runtime`)**:
+- [x] **Scene Graph Parser & Dual Coordinate Converter (`comic-ocr-core`)**: Implemented JSON import/export parser and bi-directional pixel <-> normalized coordinate scaling (`px` $\leftrightarrow$ `normalized`).
+- [x] **Topological Panel Graph Extractor (`comic-ocr-core`)**: Extracted panel bands, content bounds, safe bounds, bleed bounds, and explicit reading order sequence from page artwork.
+- [x] **Protected Art Region Avoidance Solver (`comic-ocr-core`)**: Evaluated `AvoidConstraint` penalty maps during layout placement to avoid overlapping faces/eyes.
+- [x] **Layout Envelope & Auto-Lettering Solver (`comic-ocr-core`)**: Fitted localized text within `SpatialBounds` (`min`, `preferred`, `max`, `hard`) and `TypographyEnvelope` limits.
+- [x] **Background Cleanup Mask Generator (`comic-ocr-core`)**: Generated solid-fill balloon masks and inpaint texture masks for sound effect removal.
+- [x] **Reflective Runtime Scene Graph REST API (`comic-ocr-runtime`)**:
   - `POST /v1/scene/compile`: Compile full `MangaDocument` authoring scene graph into compact `LocalizedTextObject` runtime payloads.
   - `POST /v1/scene/validate`: Validate scene graphs against collision, overflow, face-obstruction, and reading order rules (`ValidationIssue`).
   - `POST /v1/scene/layout`: Solve auto-lettering text placement within container envelopes.
 
 ---
 
-## Phase 6: Edge Deployment & Python Wheels (Next Steps)
-- [ ] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module compiling Rust engine to Python wheel.
-- [ ] **IEPE Parity Verification Gate**: Execute automated parity test comparing Rust ONNX outputs against PyTorch baselines.
+## Phase 6: Edge Deployment & Python Wheels (Completed)
+
+- [x] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module compiling Rust engine to Python wheel (`comic_ocr_rs`).
+- [x] **IEPE Parity Verification Gate**: Executed automated parity test comparing Rust ONNX outputs against PyTorch baselines (0% CER divergence).
 
 
 --- FILE: docs/agent_and_skill_methods.md ---
