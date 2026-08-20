@@ -45,6 +45,12 @@ impl OrtEngine {
     /// Loads OrtEngine with native in-memory ONNX Runtime session from file path.
     pub fn from_onnx_file(model_path: impl AsRef<Path>) -> Result<Self, OcrError> {
         let path = model_path.as_ref();
+        if !path.exists() {
+            return Err(OcrError::EngineError(format!(
+                "ONNX model file not found at path {}",
+                path.display()
+            )));
+        }
         let name = path.to_string_lossy().to_string();
         let mut builder = Session::builder().map_err(|e| {
             OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e))

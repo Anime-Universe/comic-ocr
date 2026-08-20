@@ -1,9 +1,57 @@
-import os, json, glob
+import os, json, math
 from PIL import Image
+import torch
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-print("=== Building Hierarchical Master Benchmark Results Ledger ===")
+print("=== Building Hierarchical Master Benchmark Results Ledger with Real Neural Inference ===")
+
+print("Loading kha-white/manga-ocr-base model weights...")
+model = VisionEncoderDecoderModel.from_pretrained("kha-white/manga-ocr-base")
+processor = ViTImageProcessor.from_pretrained("kha-white/manga-ocr-base")
+tokenizer = AutoTokenizer.from_pretrained("kha-white/manga-ocr-base")
+
+def run_real_inference(img_path):
+    img = Image.open(img_path).convert("RGB")
+    pixel_values = processor(img, return_tensors="pt").pixel_values
+    
+    t0 = os.times().user + os.times().system
+    output = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)
+    t1 = os.times().user + os.times().system
+    dur_ms = max((t1 - t0) * 1000.0, 10.0)
+    
+    output_ids = output.sequences[0]
+    text = tokenizer.decode(output_ids, skip_special_tokens=True).replace(" ", "")
+    
+    token_probs = []
+    if hasattr(output, "scores") and output.scores:
+        for score in output.scores:
+            probs = torch.softmax(score[0], dim=-1)
+            token_probs.append(float(probs.max().item()))
+            
+    conf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0
+    return text, round(conf, 4), [round(p, 4) for p in token_probs], round(dur_ms, 2)
 
 unified_records = []
+
+gt_map = {
+    "00.jpg": "素直にあやまるしか",
+    "01.jpg": "立川で見た〝穴〟の下の巨大な眼は:",
+    "02.jpg": "実戦剣術も一流です",
+    "03.jpg": "第30話重苦しい闇の奥で静かに呼吸づきながら",
+    "04.jpg": "きのうハンパーヶとって、ゴメン!!!",
+    "05.jpg": "ぎゃっ",
+    "06.jpg": "ピンポーーン",
+    "07.jpg": "LINK!私達7人の力でガノンの塔の結界をやります",
+    "08.jpg": "ファイアパンチ",
+    "09.jpg": "少し黙っている",
+    "10.jpg": "わかるかな〜?",
+    "11.jpg": "警察にも先生にも町中の人達に!!",
+    "12.jpg": "はっ、はぁっ... そういえば、そうだったんだけど",
+    "13.jpg": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+    "14.jpg": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+    "cc-100.jpg": "「...",
+    "random.jpg": "それは..."
+}
 
 for fn in sorted(os.listdir("tests/data/images")):
     if not (fn.endswith(".jpg") or fn.endswith(".png")):
@@ -14,37 +62,17 @@ for fn in sorted(os.listdir("tests/data/images")):
     img = Image.open(path)
     w, h = img.size
 
-    # Ground truth mapping for benchmark dataset
-    gt_map = {
-        "00.jpg": "素直にあやまるしか",
-        "01.jpg": "立川で見た〝穴〟の下の巨大な眼は:",
-        "02.jpg": "実戦剣術も一流です",
-        "03.jpg": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-        "04.jpg": "きのうハンパーヶとって、ゴメン!!!",
-        "05.jpg": "ぎゃっ",
-        "06.jpg": "ピンポーーン",
-        "07.jpg": "LINK!私達7人の力でガノンの塔の結界をやります",
-        "08.jpg": "ファイアパンチ",
-        "09.jpg": "少し黙っている",
-        "10.jpg": "わかるかな〜?",
-        "11.jpg": "警察にも先生にも町中の人達に!!",
-        "12.jpg": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "13.jpg": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "14.jpg": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "cc-100.jpg": "「...",
-        "random.jpg": "それは..."
-    }
-
-    text = gt_map.get(fn, "...")
+    exp_text = gt_map.get(fn, "...")
+    actual_text, conf, token_probs, dur_ms = run_real_inference(path)
 
     # Level 4: OcrResult (Leaf)
     ocr_result = {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-        "text": text,
-        "confidence": 0.9850,
-        "token_probabilities": [0.99, 0.985, 0.98, 0.985],
+        "text": actual_text,
+        "confidence": conf,
+        "token_probabilities": token_probs,
         "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": dur_ms,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
         }
@@ -53,15 +81,15 @@ for fn in sorted(os.listdir("tests/data/images")):
     # Level 3: PdpDecision
     pdp_decision = {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-        "selected_text": text,
-        "confidence": 0.9850,
+        "selected_text": actual_text,
+        "confidence": conf,
         "is_validated": True,
         "candidates": [
             {
                 "engine_type": "BaseInt8Onnx",
-                "text": text,
-                "raw_confidence": 0.9850,
-                "acs_score": 0.9900
+                "text": actual_text,
+                "raw_confidence": conf,
+                "acs_score": conf
             }
         ],
         "ocr_result": ocr_result
@@ -78,9 +106,9 @@ for fn in sorted(os.listdir("tests/data/images")):
         "logicalOrder": 1,
         "source": {
             "language": "ja",
-            "raw": text,
-            "normalized": text,
-            "reading": text,
+            "raw": actual_text,
+            "normalized": actual_text,
+            "reading": actual_text,
             "writing": {
                 "mode": "vertical-rl",
                 "characterDirection": "top-to-bottom"
@@ -88,9 +116,9 @@ for fn in sorted(os.listdir("tests/data/images")):
         },
         "translation": {
             "language": "en",
-            "literal": text,
-            "localized": text,
-            "displayText": text
+            "literal": actual_text,
+            "localized": actual_text,
+            "displayText": actual_text
         },
         "geometry": {
             "bounds": {
@@ -135,8 +163,8 @@ for fn in sorted(os.listdir("tests/data/images")):
                         "id": f"container_{fn.replace('.', '_')}",
                         "reading_order": 1,
                         "bounds": [10.0, 10.0, float(w - 20), float(h - 20)],
-                        "text": text,
-                        "confidence": 0.9850
+                        "text": actual_text,
+                        "confidence": conf
                     }
                 ]
             }
@@ -238,17 +266,32 @@ for fn in sorted(os.listdir("tests/data/images")):
         ]
     }
 
+    def compute_cer(exp, act):
+        if not exp:
+            return 0.0 if not act else 1.0
+        m, n = len(exp), len(act)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m + 1): dp[i][0] = i
+        for j in range(n + 1): dp[0][j] = j
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                cost = 0 if exp[i-1] == act[j-1] else 1
+                dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + cost)
+        return float(dp[m][n]) / float(m)
+
+    cer_div = round(compute_cer(exp_text, actual_text), 4)
+
     # Consolidated Unified Master Record
     record = {
         "filename": fn,
         "size_bytes": size_bytes,
         "image_dimensions": { "width": w, "height": h },
-        "status": "success",
-        "expected_text": text,
-        "actual_text": text,
-        "cer_divergence": 0.0,
-        "confidence": 0.9850,
-        "duration_ms": 42.5,
+        "status": "success" if cer_div <= 0.20 else "fail",
+        "expected_text": exp_text,
+        "actual_text": actual_text,
+        "cer_divergence": cer_div,
+        "confidence": conf,
+        "duration_ms": dur_ms,
         "comic_scene_graph": comic_scene_graph,
         "page_result": page_result,
         "localized_text_object": localized_text_object,

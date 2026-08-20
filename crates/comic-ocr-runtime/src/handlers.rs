@@ -26,8 +26,14 @@ pub struct PredictResponse {
 
 pub async fn health_handler(State(state): State<SharedRuntimeState>) -> Json<Value> {
     let uptime_secs = state.metrics.start_time.elapsed().as_secs();
+    // "up" and "able to read text" are different facts. A health check that
+    // reports only the first is how a deployment looks green while failing every
+    // request — so the backend, and whether inference is available at all,
+    // travel with the status.
     Json(json!({
-        "status": "ok",
+        "status": if state.backend.inference_available() { "ok" } else { "degraded" },
+        "inference_available": state.backend.inference_available(),
+        "backend": state.backend,
         "service": "comic-ocr-runtime",
         "version": env!("CARGO_PKG_VERSION"),
         "uptime_secs": uptime_secs,
@@ -42,7 +48,10 @@ pub async fn health_handler(State(state): State<SharedRuntimeState>) -> Json<Val
 pub async fn runtime_info_handler(State(state): State<SharedRuntimeState>) -> Json<Value> {
     Json(json!({
         "runtime": "Comic OCR Reflective Runtime",
+        "backend": state.backend,
+        "inference_available": state.backend.inference_available(),
         "model_name": state.config.model_name,
+        "onnx_model_path": state.config.onnx_model_path,
         "max_batch_size": state.config.max_batch_size,
         "pdp_invalidation_threshold": state.config.pdp_invalidation_threshold,
         "force_cpu": state.config.force_cpu,

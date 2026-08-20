@@ -5,6 +5,14 @@ pub struct RuntimeConfig {
     pub host: String,
     pub port: u16,
     pub model_name: String,
+    /// Filesystem path to an ONNX model. When set, the runtime loads a native
+    /// session and never touches the Python subprocess path.
+    ///
+    /// This is what makes the ONNX engine reachable from the service at all:
+    /// `OrtEngine::new` builds an engine with `session: None`, so a runtime that
+    /// only ever called it could take the subprocess path and nothing else —
+    /// while the container ships no Python.
+    pub onnx_model_path: Option<String>,
     pub force_cpu: bool,
     pub max_batch_size: usize,
     pub pdp_invalidation_threshold: f32,
@@ -14,14 +22,31 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
-            host: std::env::var("MANGA_OCR_HOST").unwrap_or_else(|_| "0.0.0.0".into()),
-            port: std::env::var("MANGA_OCR_PORT")
+            host: std::env::var("COMIC_OCR_HOST")
+                .or_else(|_| std::env::var("MANGA_OCR_HOST"))
+                .unwrap_or_else(|_| "0.0.0.0".into()),
+            // `PORT` first: Railway, Fly and Heroku all inject it, and a service
+            // that binds its own default there is unreachable no matter how
+            // healthy it reports itself to be.
+            port: std::env::var("PORT")
+                .or_else(|_| std::env::var("COMIC_OCR_PORT"))
+                .or_else(|_| std::env::var("MANGA_OCR_PORT"))
                 .ok()
                 .and_then(|p| p.parse().ok())
                 .unwrap_or(8000),
-            model_name: std::env::var("MANGA_OCR_MODEL")
-                .unwrap_or_else(|_| "kha-white/comic-ocr-base".into()),
-            force_cpu: std::env::var("MANGA_OCR_FORCE_CPU")
+            // The upstream HuggingFace repository, spelled the way it actually
+            // exists. A bulk manga->comic rename rewrote this to
+            // `kha-white/comic-ocr-base`, which no registry serves — the
+            // subprocess path would have failed to resolve a model forever, and
+            // reported it as an inference error rather than a bad name.
+            model_name: std::env::var("COMIC_OCR_MODEL")
+                .or_else(|_| std::env::var("MANGA_OCR_MODEL"))
+                .unwrap_or_else(|_| "kha-white/manga-ocr-base".into()),
+            onnx_model_path: std::env::var("COMIC_OCR_ONNX_PATH")
+                .ok()
+                .filter(|path| !path.trim().is_empty()),
+            force_cpu: std::env::var("COMIC_OCR_FORCE_CPU")
+                .or_else(|_| std::env::var("MANGA_OCR_FORCE_CPU"))
                 .map(|v| v == "1" || v == "true")
                 .unwrap_or(false),
             max_batch_size: 16,

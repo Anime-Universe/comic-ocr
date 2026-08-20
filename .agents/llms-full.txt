@@ -2625,7 +2625,7 @@ python -m comic_ocr_dev.training.train \
 --- RUST SOURCE: crates/comic-ocr-cli/src/main.rs ---
 
 use clap::Parser;
-use comic_ocr_core::{TextDetector, OcrEngine};
+use comic_ocr_core::{OcrEngine, TextDetector};
 use comic_ocr_ort::OrtEngine;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -2710,19 +2710,22 @@ fn main() -> anyhow::Result<()> {
     if cli.all || (target_files.is_empty() && !cli.gate) {
         let default_dir = Path::new("tests/data/images");
         let fallback_dir = Path::new("../../tests/data/images");
-        let target_dir = if default_dir.exists() { default_dir } else { fallback_dir };
+        let target_dir = if default_dir.exists() {
+            default_dir
+        } else {
+            fallback_dir
+        };
 
-        if target_dir.exists() {
-            if let Ok(entries) = fs::read_dir(target_dir) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if let Some(ext) = path.extension() {
-                        if ext == "jpg" || ext == "png" {
-                            if !target_files.contains(&path) {
-                                target_files.push(path);
-                            }
-                        }
-                    }
+        if target_dir.exists()
+            && let Ok(entries) = fs::read_dir(target_dir)
+        {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if let Some(ext) = path.extension()
+                    && (ext == "jpg" || ext == "png")
+                    && !target_files.contains(&path)
+                {
+                    target_files.push(path);
                 }
             }
         }
@@ -2732,9 +2735,15 @@ fn main() -> anyhow::Result<()> {
 
     // 1. Quality Verification Gate Mode
     if cli.gate {
-        println!("\n==========================================================================================");
-        println!("                         QUALITY VERIFICATION GATE EVALUATION                             ");
-        println!("==========================================================================================");
+        println!(
+            "\n=========================================================================================="
+        );
+        println!(
+            "                         QUALITY VERIFICATION GATE EVALUATION                             "
+        );
+        println!(
+            "=========================================================================================="
+        );
 
         let benchmark_file = if Path::new("tests/data/benchmark_results.json").exists() {
             "tests/data/benchmark_results.json"
@@ -2747,27 +2756,65 @@ fn main() -> anyhow::Result<()> {
             let json_val: serde_json::Value = serde_json::from_str(&content)?;
             if let Some(arr) = json_val.as_array() {
                 let mut total_passed = 0;
-                println!("{:<12} | {:<12} | {:<8} | {:<10} | {:<30}", "FILENAME", "STATUS", "CER DIVERG", "DURATION", "EXPECTED TEXT");
-                println!("------------------------------------------------------------------------------------------");
+                println!(
+                    "{:<12} | {:<12} | {:<8} | {:<10} | {:<30}",
+                    "FILENAME", "STATUS", "CER DIVERG", "DURATION", "EXPECTED TEXT"
+                );
+                println!(
+                    "------------------------------------------------------------------------------------------"
+                );
                 for item in arr {
-                    let fn_name = item.get("filename").and_then(|v| v.as_str()).unwrap_or("unknown");
-                    let status = item.get("status").and_then(|v| v.as_str()).unwrap_or("fail");
-                    let cer = item.get("cer_divergence").and_then(|v| v.as_f64()).unwrap_or(1.0);
-                    let duration = item.get("duration_ms").and_then(|v| v.as_f64()).unwrap_or(0.0);
-                    let exp = item.get("expected_text").and_then(|v| v.as_str()).unwrap_or("");
+                    let fn_name = item
+                        .get("filename")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("unknown");
+                    let status = item
+                        .get("status")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("fail");
+                    let cer = item
+                        .get("cer_divergence")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(1.0);
+                    let duration = item
+                        .get("duration_ms")
+                        .and_then(|v| v.as_f64())
+                        .unwrap_or(0.0);
+                    let exp = item
+                        .get("expected_text")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("");
 
                     if status == "success" && cer <= 0.05 {
                         total_passed += 1;
                     }
 
-                    println!("{:<12} | {:<12} | {:<7.2}% | {:<7.2} ms | \"{}\"", fn_name, status, cer * 100.0, duration, exp);
+                    println!(
+                        "{:<12} | {:<12} | {:<7.2}% | {:<7.2} ms | \"{}\"",
+                        fn_name,
+                        status,
+                        cer * 100.0,
+                        duration,
+                        exp
+                    );
                 }
-                println!("------------------------------------------------------------------------------------------");
-                println!(" VERIFICATION RESULT: [{}/{}] TEST SUITES PASSED CLEANLY (CER <= 0.05%)", total_passed, arr.len());
-                println!("==========================================================================================\n");
+                println!(
+                    "------------------------------------------------------------------------------------------"
+                );
+                println!(
+                    " VERIFICATION RESULT: [{}/{}] TEST SUITES PASSED CLEANLY (CER <= 0.05%)",
+                    total_passed,
+                    arr.len()
+                );
+                println!(
+                    "==========================================================================================\n"
+                );
             }
         } else {
-            println!("[WARN] benchmark_results.json file not found at {}", benchmark_file);
+            println!(
+                "[WARN] benchmark_results.json file not found at {}",
+                benchmark_file
+            );
         }
         return Ok(());
     }
@@ -2777,12 +2824,20 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    println!("\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===", target_files.len());
+    println!(
+        "\n=== Executing Manga OCR Operational Pipeline across {} image(s) ===",
+        target_files.len()
+    );
 
     let engine = OrtEngine::new("kha-white/comic-ocr-base").with_furigana(cli.extract_furigana);
 
     for (idx, img_path) in target_files.iter().enumerate() {
-        println!(" [{:02}/{:02}] Processing: {:?}", idx + 1, target_files.len(), img_path);
+        println!(
+            " [{:02}/{:02}] Processing: {:?}",
+            idx + 1,
+            target_files.len(),
+            img_path
+        );
 
         if let Ok(img) = image::open(img_path) {
             let regions = TextDetector::detect_regions(&img);
@@ -2877,8 +2932,8 @@ impl TextDetector {
         // Horizontal & Vertical Connected Component Dilation Grid
         let grid_w = 32;
         let grid_h = 32;
-        let cell_w = (width as usize + grid_w - 1) / grid_w;
-        let cell_h = (height as usize + grid_h - 1) / grid_h;
+        let cell_w = (width as usize).div_ceil(grid_w);
+        let cell_h = (height as usize).div_ceil(grid_h);
 
         let mut active_cells = vec![false; grid_w * grid_h];
 
@@ -2949,8 +3004,10 @@ impl TextDetector {
 
                     let px_x = (min_gx * cell_w) as f64;
                     let px_y = (min_gy * cell_h) as f64;
-                    let px_w = (((max_gx + 1) * cell_w).min(width as usize) - min_gx * cell_w) as f64;
-                    let px_h = (((max_gy + 1) * cell_h).min(height as usize) - min_gy * cell_h) as f64;
+                    let px_w =
+                        (((max_gx + 1) * cell_w).min(width as usize) - min_gx * cell_w) as f64;
+                    let px_h =
+                        (((max_gy + 1) * cell_h).min(height as usize) - min_gy * cell_h) as f64;
                     let area = px_w * px_h;
 
                     // Filter out full-page container or tiny noise
@@ -3025,13 +3082,10 @@ pub fn post_process_en(input: &str) -> String {
     let mut chars = normalized.chars().peekable();
 
     while let Some(ch) = chars.next() {
-        if ch == ' ' {
-            // If space is followed by punctuation or another space, skip it
-            if let Some(&next_ch) = chars.peek() {
-                if matches!(next_ch, ',' | '.' | '!' | '?' | ';' | ':' | ' ') {
-                    continue;
-                }
-            }
+        if ch == ' '
+            && matches!(chars.peek(), Some(&next_ch) if matches!(next_ch, ',' | '.' | '!' | '?' | ';' | ':' | ' '))
+        {
+            continue;
         }
         cleaned.push(ch);
     }
@@ -3067,7 +3121,10 @@ mod tests {
     fn test_post_process_en_normalization() {
         assert_eq!(post_process_en("  Hello ,  world !  "), "Hello, world!");
         assert_eq!(post_process_en("It’s  a   test…"), "It's a test...");
-        assert_eq!(post_process_en("im sure you dont know"), "I'm sure you don't know");
+        assert_eq!(
+            post_process_en("im sure you dont know"),
+            "I'm sure you don't know"
+        );
     }
 }
 
@@ -3163,8 +3220,10 @@ pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
 
     for box_item in bubbles.iter() {
         if let Some(current_row) = rows.last_mut() {
-            let row_y_avg = current_row.iter().map(|b| b.y as f64).sum::<f64>() / current_row.len() as f64;
-            let threshold = current_row.iter().map(|b| b.height as f64).sum::<f64>() / current_row.len() as f64;
+            let row_y_avg =
+                current_row.iter().map(|b| b.y as f64).sum::<f64>() / current_row.len() as f64;
+            let threshold =
+                current_row.iter().map(|b| b.height as f64).sum::<f64>() / current_row.len() as f64;
             let max_delta = (threshold * 0.75).max(40.0);
 
             if (box_item.y as f64 - row_y_avg).abs() <= max_delta {
@@ -3178,7 +3237,7 @@ pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
     // Sort within each row bucket: Right-to-Left (x descending)
     let mut idx = 0;
     for mut row in rows {
-        row.sort_by(|a, b| b.x.cmp(&a.x));
+        row.sort_by_key(|b| std::cmp::Reverse(b.x));
         for item in row {
             bubbles[idx] = item;
             idx += 1;
@@ -3869,10 +3928,8 @@ pub fn evaluate_art_protection_penalty(
     let mut hard_violation = false;
 
     for art in art_regions {
-        if let (Some(p_id), Some(art_panel)) = (panel_id, &art.panel_id) {
-            if art_panel != p_id {
-                continue;
-            }
+        if matches!((panel_id, &art.panel_id), (Some(p_id), Some(art_panel)) if art_panel != p_id) {
+            continue;
         }
 
         let overlap = if let Some(ref art_bounds) = art.bounds {
@@ -4127,6 +4184,8 @@ pub trait OcrEngine: Send + Sync {
 
 --- RUST SOURCE: crates/comic-ocr-core/tests/test_benchmark_dataset.rs ---
 
+use comic_ocr_core::OcrEngine;
+use comic_ocr_ort::OrtEngine;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
@@ -4156,16 +4215,20 @@ pub fn compute_cer(expected: &str, actual: &str) -> f64 {
     let n = act_chars.len();
     let mut dp = vec![vec![0usize; n + 1]; m + 1];
 
-    for i in 0..=m {
-        dp[i][0] = i;
+    for (i, row) in dp.iter_mut().enumerate() {
+        row[0] = i;
     }
-    for j in 0..=n {
-        dp[0][j] = j;
+    for (j, val) in dp[0].iter_mut().enumerate() {
+        *val = j;
     }
 
     for i in 1..=m {
         for j in 1..=n {
-            let cost = if exp_chars[i - 1] == act_chars[j - 1] { 0 } else { 1 };
+            let cost = if exp_chars[i - 1] == act_chars[j - 1] {
+                0
+            } else {
+                1
+            };
             dp[i][j] = (dp[i - 1][j] + 1)
                 .min(dp[i][j - 1] + 1)
                 .min(dp[i - 1][j - 1] + cost);
@@ -4195,20 +4258,39 @@ fn test_benchmark_schema_integrity() {
     };
 
     let json_filenames: HashSet<String> = records.iter().map(|p| p.filename.clone()).collect();
-    assert_eq!(records.len(), 17, "Expected 17 benchmark entries in benchmark_results.json");
+    assert!(
+        records.len() >= 17,
+        "Expected at least 17 benchmark entries in benchmark_results.json"
+    );
 
     for record in &records {
         let img_file = target_dir.join(&record.filename);
-        assert!(img_file.exists(), "Image file {} specified in benchmark_results.json does not exist", record.filename);
-        assert!(!record.expected_text.trim().is_empty(), "Expected text for {} is empty", record.filename);
-        
+        assert!(
+            img_file.exists(),
+            "Image file {} specified in benchmark_results.json does not exist",
+            record.filename
+        );
+        assert!(
+            !record.expected_text.trim().is_empty(),
+            "Expected text for {} is empty",
+            record.filename
+        );
+
         // Assert CER math consistency
         let calculated_cer = compute_cer(&record.expected_text, &record.actual_text);
-        assert!((calculated_cer - record.cer_divergence).abs() < 1e-4, "CER mismatch for {}", record.filename);
+        assert!(
+            (calculated_cer - record.cer_divergence).abs() < 1e-4,
+            "CER mismatch for {}",
+            record.filename
+        );
     }
 
     for required in &["12.jpg", "13.jpg", "14.jpg", "cc-100.jpg", "random.jpg"] {
-        assert!(json_filenames.contains(*required), "Missing required image {} in benchmark_results.json", required);
+        assert!(
+            json_filenames.contains(*required),
+            "Missing required image {} in benchmark_results.json",
+            required
+        );
     }
 }
 
@@ -4223,29 +4305,57 @@ fn test_benchmark_model_inference_evaluation() {
     let records: Vec<BenchmarkRecord> =
         serde_json::from_str(&json_str).expect("Failed to deserialize benchmark_results.json");
 
+    let images_dir = Path::new("tests/data/images");
+    let images_dir_fallback = Path::new("../../tests/data/images");
+    let target_dir = if images_dir.exists() {
+        images_dir
+    } else {
+        images_dir_fallback
+    };
+
+    let engine = OrtEngine::new("kha-white/manga-ocr-base");
+
     println!("\n==========================================================");
     println!(" RUNNING DYNAMIC INFERENCE BENCHMARK EVALUATION (17 IMAGES)");
     println!("==========================================================");
 
     let mut total_cer = 0.0f64;
     for (idx, record) in records.iter().enumerate() {
-        let cer = compute_cer(&record.expected_text, &record.actual_text);
+        let img_path = target_dir.join(&record.filename);
+        let img = image::open(&img_path)
+            .unwrap_or_else(|_| panic!("Failed to open image {}", img_path.display()));
+
+        let ocr_result = engine
+            .predict(&img)
+            .unwrap_or_else(|e| panic!("OCR prediction failed for {}: {}", record.filename, e));
+
+        let cer = compute_cer(&record.expected_text, &ocr_result.text);
         total_cer += cer;
 
         println!(
-            " [{:02}/{:02}] {:<12} | Expected: \"{}\" | Computed CER: {:.2}%",
+            " [{:02}/{:02}] {:<12} | Expected: \"{}\" | Predicted: \"{}\" | CER: {:.2}%",
             idx + 1,
             records.len(),
             record.filename,
             record.expected_text,
+            ocr_result.text,
             cer * 100.0
         );
 
-        assert!(cer <= 0.20, "Character Error Rate for {} exceeded maximum 20% tolerance: {:.2}%", record.filename, cer * 100.0);
+        assert!(
+            cer <= 0.20,
+            "Character Error Rate for {} exceeded maximum 20% tolerance: {:.2}%",
+            record.filename,
+            cer * 100.0
+        );
     }
 
     let avg_cer = total_cer / records.len() as f64;
-    assert!(avg_cer <= 0.05, "Average dataset CER exceeded maximum 5% threshold: {:.2}%", avg_cer * 100.0);
+    assert!(
+        avg_cer <= 0.05,
+        "Average dataset CER exceeded maximum 5% threshold: {:.2}%",
+        avg_cer * 100.0
+    );
 }
 
 
@@ -4269,8 +4379,8 @@ fn test_schema_json_suite_deserialization() {
     let text_obj_json = fs::read_to_string("schemas/examples/sample_localized_text_object.json")
         .or_else(|_| fs::read_to_string("../../schemas/examples/sample_localized_text_object.json"))
         .expect("Failed to read sample_localized_text_object.json");
-    let text_obj: serde_json::Value =
-        serde_json::from_str(&text_obj_json).expect("Failed to parse sample_localized_text_object.json");
+    let text_obj: serde_json::Value = serde_json::from_str(&text_obj_json)
+        .expect("Failed to parse sample_localized_text_object.json");
     assert_eq!(text_obj["role"], "dialogue");
 
     // 3. OCR Result
@@ -4348,12 +4458,24 @@ impl OrtEngine {
     /// Loads OrtEngine with native in-memory ONNX Runtime session from file path.
     pub fn from_onnx_file(model_path: impl AsRef<Path>) -> Result<Self, OcrError> {
         let path = model_path.as_ref();
+        if !path.exists() {
+            return Err(OcrError::EngineError(format!(
+                "ONNX model file not found at path {}",
+                path.display()
+            )));
+        }
         let name = path.to_string_lossy().to_string();
-        let mut builder = Session::builder()
-            .map_err(|e| OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e)))?;
+        let mut builder = Session::builder().map_err(|e| {
+            OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e))
+        })?;
 
-        let session = builder.commit_from_file(path)
-            .map_err(|e| OcrError::EngineError(format!("Failed to load ONNX model from file {}: {}", path.display(), e)))?;
+        let session = builder.commit_from_file(path).map_err(|e| {
+            OcrError::EngineError(format!(
+                "Failed to load ONNX model from file {}: {}",
+                path.display(),
+                e
+            ))
+        })?;
 
         Ok(Self {
             model_name: name,
@@ -4366,11 +4488,13 @@ impl OrtEngine {
 
     /// Loads OrtEngine with native in-memory ONNX Runtime session from byte buffer.
     pub fn from_onnx_bytes(model_bytes: &[u8]) -> Result<Self, OcrError> {
-        let mut builder = Session::builder()
-            .map_err(|e| OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e)))?;
+        let mut builder = Session::builder().map_err(|e| {
+            OcrError::EngineError(format!("Failed to create ONNX SessionBuilder: {}", e))
+        })?;
 
-        let session = builder.commit_from_memory(model_bytes)
-            .map_err(|e| OcrError::EngineError(format!("Failed to load ONNX model from byte buffer: {}", e)))?;
+        let session = builder.commit_from_memory(model_bytes).map_err(|e| {
+            OcrError::EngineError(format!("Failed to load ONNX model from byte buffer: {}", e))
+        })?;
 
         Ok(Self {
             model_name: "in-memory-onnx-bytes".to_string(),
@@ -4429,30 +4553,34 @@ impl OcrEngine for OrtEngine {
 
         // 1. Native ONNX Runtime C++ Session execution path (if model weights loaded)
         if let Some(ref session_mutex) = self.session {
-            let mut session = session_mutex.lock().map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
+            let mut session = session_mutex
+                .lock()
+                .map_err(|e| OcrError::EngineError(format!("Session mutex lock failed: {}", e)))?;
 
             // Preprocess input image to 3x224x224 RGB float buffer
             let resized = image.resize_exact(224, 224, image::imageops::FilterType::Triangle);
             let rgb = resized.to_rgb8();
-            let mut input_tensor = vec![0.0f32; 1 * 3 * 224 * 224];
+            let plane = 224 * 224;
+            let mut input_tensor = vec![0.0f32; 3 * plane];
 
             for (x, y, pixel) in rgb.enumerate_pixels() {
                 let r = (pixel[0] as f32 / 255.0 - 0.485) / 0.229;
                 let g = (pixel[1] as f32 / 255.0 - 0.456) / 0.224;
                 let b = (pixel[2] as f32 / 255.0 - 0.406) / 0.225;
-                let idx_r = (0 * 3 + 0) * 224 * 224 + y as usize * 224 + x as usize;
-                let idx_g = (0 * 3 + 1) * 224 * 224 + y as usize * 224 + x as usize;
-                let idx_b = (0 * 3 + 2) * 224 * 224 + y as usize * 224 + x as usize;
-                input_tensor[idx_r] = r;
-                input_tensor[idx_g] = g;
-                input_tensor[idx_b] = b;
+                let offset = y as usize * 224 + x as usize;
+                input_tensor[offset] = r;
+                input_tensor[plane + offset] = g;
+                input_tensor[2 * plane + offset] = b;
             }
 
             let shape = vec![1, 3, 224, 224];
-            let tensor_value = ort::value::Value::from_array((shape, input_tensor))
-                .map_err(|e| OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e)))?;
+            let tensor_value =
+                ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
+                    OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))
+                })?;
 
-            let outputs = session.run(ort::inputs!["pixel_values" => tensor_value])
+            let outputs = session
+                .run(ort::inputs!["pixel_values" => tensor_value])
                 .map_err(|e| OcrError::EngineError(format!("ONNX inference run failed: {}", e)))?;
 
             let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
@@ -4480,7 +4608,8 @@ impl OcrEngine for OrtEngine {
                         }
 
                         let geom_mean = if !step_max_probs.is_empty() {
-                            let log_sum: f32 = step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
+                            let log_sum: f32 =
+                                step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
                             (log_sum / step_max_probs.len() as f32).exp()
                         } else {
                             0.0
@@ -4510,49 +4639,77 @@ impl OcrEngine for OrtEngine {
 
         // 2. Subprocess inference path with strict status honesty & real softmax extraction
         let temp_dir = std::env::temp_dir();
-        let temp_path = temp_dir.join(format!("ocr_input_{}_{}.png", std::process::id(), start_time.elapsed().as_nanos()));
+        let temp_path = temp_dir.join(format!(
+            "ocr_input_{}_{}.png",
+            std::process::id(),
+            start_time.elapsed().as_nanos()
+        ));
 
-        image.save(&temp_path).map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
+        image
+            .save(&temp_path)
+            .map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
         let py_script = format!(
             "import json, math, torch\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences[0]\ntext = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')\ntoken_probs = []\nif hasattr(output, 'scores') and output.scores:\n    for score in output.scores:\n        probs = torch.softmax(score[0], dim=-1)\n        token_probs.append(float(probs.max().item()))\nconf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0\nprint(json.dumps({{'text': text, 'confidence': conf, 'token_probabilities': token_probs}}))",
-            self.model_name, self.model_name, self.model_name, temp_path.display()
+            self.model_name,
+            self.model_name,
+            self.model_name,
+            temp_path.display()
         );
 
-        let output = Command::new("python3")
-            .arg("-c")
-            .arg(&py_script)
-            .output();
+        let output = Command::new("python3").arg("-c").arg(&py_script).output();
 
         let _ = std::fs::remove_file(&temp_path);
 
-        let out = output.map_err(|e| OcrError::EngineError(format!("Failed to execute inference process: {}", e)))?;
+        let out = output.map_err(|e| {
+            OcrError::EngineError(format!("Failed to execute inference process: {}", e))
+        })?;
 
         if !out.status.success() {
             let err_msg = String::from_utf8_lossy(&out.stderr);
-            return Err(OcrError::EngineError(format!("Inference model process failed: {}", err_msg.trim())));
+            return Err(OcrError::EngineError(format!(
+                "Inference model process failed: {}",
+                err_msg.trim()
+            )));
         }
 
         let raw_stdout = String::from_utf8_lossy(&out.stdout).trim().to_string();
         if raw_stdout.is_empty() {
-            return Err(OcrError::EngineError("Inference model output empty text string".to_string()));
+            return Err(OcrError::EngineError(
+                "Inference model output empty text string".to_string(),
+            ));
         }
 
         // Parse JSON output or plain string
-        let (raw_text, confidence, token_probs) = if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw_stdout) {
-            let txt = val.get("text").and_then(|v| v.as_str()).unwrap_or("").to_string();
-            let conf = val.get("confidence").and_then(|v| v.as_f64()).unwrap_or(0.0) as f32;
-            let probs = val.get("token_probabilities")
-                .and_then(|v| v.as_array())
-                .map(|arr| arr.iter().filter_map(|x| x.as_f64().map(|f| f as f32)).collect())
-                .unwrap_or_default();
-            (txt, conf, probs)
-        } else {
-            (raw_stdout, 0.0f32, Vec::new())
-        };
+        let (raw_text, confidence, token_probs) =
+            if let Ok(val) = serde_json::from_str::<serde_json::Value>(&raw_stdout) {
+                let txt = val
+                    .get("text")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let conf = val
+                    .get("confidence")
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(0.0) as f32;
+                let probs = val
+                    .get("token_probabilities")
+                    .and_then(|v| v.as_array())
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|x| x.as_f64().map(|f| f as f32))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                (txt, conf, probs)
+            } else {
+                (raw_stdout, 0.0f32, Vec::new())
+            };
 
         if raw_text.is_empty() {
-            return Err(OcrError::EngineError("Inference model parsed empty text string".to_string()));
+            return Err(OcrError::EngineError(
+                "Inference model parsed empty text string".to_string(),
+            ));
         }
 
         let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
@@ -4713,6 +4870,8 @@ impl PanelEvaluator {
 
 --- RUST SOURCE: crates/comic-ocr-py/src/lib.rs ---
 
+#![allow(deprecated, unsafe_op_in_unsafe_fn)]
+
 use comic_ocr_core::OcrEngine;
 use comic_ocr_ort::OrtEngine;
 use pyo3::prelude::*;
@@ -4754,10 +4913,9 @@ impl PyComicOcr {
             for buf in images {
                 let img = image::load_from_memory(&buf)
                     .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e.to_string()))?;
-                let res = self
-                    .engine
-                    .predict(&img)
-                    .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
+                let res = self.engine.predict(&img).map_err(|e| {
+                    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string())
+                })?;
                 results.push(res.text);
             }
             Ok(results)
@@ -4781,6 +4939,14 @@ pub struct RuntimeConfig {
     pub host: String,
     pub port: u16,
     pub model_name: String,
+    /// Filesystem path to an ONNX model. When set, the runtime loads a native
+    /// session and never touches the Python subprocess path.
+    ///
+    /// This is what makes the ONNX engine reachable from the service at all:
+    /// `OrtEngine::new` builds an engine with `session: None`, so a runtime that
+    /// only ever called it could take the subprocess path and nothing else —
+    /// while the container ships no Python.
+    pub onnx_model_path: Option<String>,
     pub force_cpu: bool,
     pub max_batch_size: usize,
     pub pdp_invalidation_threshold: f32,
@@ -4790,14 +4956,31 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
-            host: std::env::var("MANGA_OCR_HOST").unwrap_or_else(|_| "0.0.0.0".into()),
-            port: std::env::var("MANGA_OCR_PORT")
+            host: std::env::var("COMIC_OCR_HOST")
+                .or_else(|_| std::env::var("MANGA_OCR_HOST"))
+                .unwrap_or_else(|_| "0.0.0.0".into()),
+            // `PORT` first: Railway, Fly and Heroku all inject it, and a service
+            // that binds its own default there is unreachable no matter how
+            // healthy it reports itself to be.
+            port: std::env::var("PORT")
+                .or_else(|_| std::env::var("COMIC_OCR_PORT"))
+                .or_else(|_| std::env::var("MANGA_OCR_PORT"))
                 .ok()
                 .and_then(|p| p.parse().ok())
                 .unwrap_or(8000),
-            model_name: std::env::var("MANGA_OCR_MODEL")
-                .unwrap_or_else(|_| "kha-white/comic-ocr-base".into()),
-            force_cpu: std::env::var("MANGA_OCR_FORCE_CPU")
+            // The upstream HuggingFace repository, spelled the way it actually
+            // exists. A bulk manga->comic rename rewrote this to
+            // `kha-white/comic-ocr-base`, which no registry serves — the
+            // subprocess path would have failed to resolve a model forever, and
+            // reported it as an inference error rather than a bad name.
+            model_name: std::env::var("COMIC_OCR_MODEL")
+                .or_else(|_| std::env::var("MANGA_OCR_MODEL"))
+                .unwrap_or_else(|_| "kha-white/manga-ocr-base".into()),
+            onnx_model_path: std::env::var("COMIC_OCR_ONNX_PATH")
+                .ok()
+                .filter(|path| !path.trim().is_empty()),
+            force_cpu: std::env::var("COMIC_OCR_FORCE_CPU")
+                .or_else(|_| std::env::var("MANGA_OCR_FORCE_CPU"))
                 .map(|v| v == "1" || v == "true")
                 .unwrap_or(false),
             max_batch_size: 16,
@@ -4838,8 +5021,14 @@ pub struct PredictResponse {
 
 pub async fn health_handler(State(state): State<SharedRuntimeState>) -> Json<Value> {
     let uptime_secs = state.metrics.start_time.elapsed().as_secs();
+    // "up" and "able to read text" are different facts. A health check that
+    // reports only the first is how a deployment looks green while failing every
+    // request — so the backend, and whether inference is available at all,
+    // travel with the status.
     Json(json!({
-        "status": "ok",
+        "status": if state.backend.inference_available() { "ok" } else { "degraded" },
+        "inference_available": state.backend.inference_available(),
+        "backend": state.backend,
         "service": "comic-ocr-runtime",
         "version": env!("CARGO_PKG_VERSION"),
         "uptime_secs": uptime_secs,
@@ -4854,7 +5043,10 @@ pub async fn health_handler(State(state): State<SharedRuntimeState>) -> Json<Val
 pub async fn runtime_info_handler(State(state): State<SharedRuntimeState>) -> Json<Value> {
     Json(json!({
         "runtime": "Comic OCR Reflective Runtime",
+        "backend": state.backend,
+        "inference_available": state.backend.inference_available(),
         "model_name": state.config.model_name,
+        "onnx_model_path": state.config.onnx_model_path,
         "max_batch_size": state.config.max_batch_size,
         "pdp_invalidation_threshold": state.config.pdp_invalidation_threshold,
         "force_cpu": state.config.force_cpu,
@@ -5216,6 +5408,29 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
 
+/// Which inference path this process actually has.
+///
+/// Reported on `/v1/runtime/health` because "the server is up" and "the server
+/// can read text" are different facts, and a deployment that conflates them
+/// looks healthy while failing every request. The container ships no Python, so
+/// `Subprocess` in production means inference is unavailable — the runtime says
+/// so rather than waiting for callers to discover it one 502 at a time.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Backend {
+    /// A native ONNX session is loaded. Inference is available in-process.
+    Onnx { model_path: String },
+    /// No ONNX model was configured or it failed to load; the engine will shell
+    /// out to `python3`. Viable locally, never in the shipped image.
+    Subprocess { reason: String },
+}
+
+impl Backend {
+    pub fn inference_available(&self) -> bool {
+        matches!(self, Backend::Onnx { .. })
+    }
+}
+
 pub struct RuntimeMetrics {
     pub total_requests: AtomicU64,
     pub total_successful_ocr: AtomicU64,
@@ -5226,23 +5441,74 @@ pub struct RuntimeMetrics {
 pub struct RuntimeState {
     pub config: RuntimeConfig,
     pub engine: OrtEngine,
+    pub backend: Backend,
     pub pdp_evaluator: PanelEvaluator,
     pub metrics: RuntimeMetrics,
 }
 
 pub type SharedRuntimeState = Arc<RuntimeState>;
 
+/// Build an engine, preferring a native ONNX session.
+///
+/// Returns the backend alongside the engine so the failure is a value the
+/// service can publish rather than a log line nobody reads. A configured model
+/// path that fails to load is NOT silently downgraded to the subprocess path
+/// without saying which error caused it.
+fn build_engine(config: &RuntimeConfig) -> (OrtEngine, Backend) {
+    match config.onnx_model_path.as_deref() {
+        Some(path) => match OrtEngine::from_onnx_file(path) {
+            Ok(engine) => (
+                engine,
+                Backend::Onnx {
+                    model_path: path.to_string(),
+                },
+            ),
+            Err(error) => {
+                tracing::error!(
+                    model_path = %path,
+                    error = %error,
+                    "[comic-ocr] ONNX model configured but did not load; inference is UNAVAILABLE"
+                );
+                (
+                    OrtEngine::new(config.model_name.clone()),
+                    Backend::Subprocess {
+                        reason: format!("ONNX model at {path} failed to load: {error}"),
+                    },
+                )
+            }
+        },
+        None => (
+            OrtEngine::new(config.model_name.clone()),
+            Backend::Subprocess {
+                reason: "COMIC_OCR_ONNX_PATH is not set".to_string(),
+            },
+        ),
+    }
+}
+
 impl RuntimeState {
     pub fn new(config: RuntimeConfig) -> Self {
-        let engine = OrtEngine::new(config.model_name.clone());
+        let (engine, backend) = build_engine(&config);
+
+        if backend.inference_available() {
+            tracing::info!(backend = ?backend, "[comic-ocr] native ONNX session loaded");
+        } else {
+            tracing::warn!(
+                backend = ?backend,
+                "[comic-ocr] no native session; this image ships no python3, so \
+                 /v1/ocr/predict will return errors until COMIC_OCR_ONNX_PATH points at a model"
+            );
+        }
+
         let pdp_evaluator = PanelEvaluator::new(
-            vec![Box::new(OrtEngine::new(config.model_name.clone()))],
+            vec![Box::new(build_engine(&config).0)],
             config.pdp_invalidation_threshold,
         );
 
         Self {
             config,
             engine,
+            backend,
             pdp_evaluator,
             metrics: RuntimeMetrics {
                 total_requests: AtomicU64::new(0),
@@ -5267,5 +5533,50 @@ impl RuntimeState {
         self.metrics
             .total_failed_ocr
             .fetch_add(1, Ordering::Relaxed);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn config_with(path: Option<&str>) -> RuntimeConfig {
+        RuntimeConfig {
+            host: "0.0.0.0".into(),
+            port: 8000,
+            model_name: "kha-white/manga-ocr-base".into(),
+            onnx_model_path: path.map(str::to_string),
+            force_cpu: true,
+            max_batch_size: 1,
+            pdp_invalidation_threshold: 0.7,
+            log_level: "info".into(),
+        }
+    }
+
+    /// The default deployment posture must not claim inference it cannot do.
+    #[test]
+    fn no_model_path_reports_inference_unavailable() {
+        let (_engine, backend) = build_engine(&config_with(None));
+        assert!(!backend.inference_available());
+        match backend {
+            Backend::Subprocess { reason } => assert!(reason.contains("COMIC_OCR_ONNX_PATH")),
+            other => panic!("expected subprocess backend, got {other:?}"),
+        }
+    }
+
+    /// A configured-but-broken model is the dangerous case: it looks deliberate.
+    /// It must degrade to an UNAVAILABLE backend that names the path, not to a
+    /// silent subprocess fallback that reports the same thing as "not configured".
+    #[test]
+    fn a_model_path_that_does_not_load_says_which_path_failed() {
+        let (_engine, backend) = build_engine(&config_with(Some("/nonexistent/model.onnx")));
+        assert!(!backend.inference_available());
+        match backend {
+            Backend::Subprocess { reason } => {
+                assert!(reason.contains("/nonexistent/model.onnx"), "got {reason}");
+                assert!(reason.contains("failed to load"), "got {reason}");
+            }
+            other => panic!("expected subprocess backend, got {other:?}"),
+        }
     }
 }

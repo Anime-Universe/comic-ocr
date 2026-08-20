@@ -10,8 +10,8 @@
     "expected_text": "素直にあやまるしか",
     "actual_text": "素直にあやまるしか",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9706,
+    "duration_ms": 810.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_00_jpg",
@@ -189,28 +189,36 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "素直にあやまるしか",
-                "confidence": 0.985,
+                "confidence": 0.9706,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "素直にあやまるしか",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9706,
+                    "acs_score": 0.9706
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "素直にあやまるしか",
-                  "confidence": 0.985,
+                  "confidence": 0.9706,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    1.0,
+                    0.9998,
+                    0.9942,
+                    0.994,
+                    0.9992,
+                    0.9997,
+                    0.9973,
+                    0.9991,
+                    0.9997,
+                    0.9808,
+                    0.7247
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 810.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -257,7 +265,7 @@
                 158.0
               ],
               "text": "素直にあやまるしか",
-              "confidence": 0.985
+              "confidence": 0.9706
             }
           ]
         }
@@ -337,28 +345,36 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "素直にあやまるしか",
-            "confidence": 0.985,
+            "confidence": 0.9706,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "素直にあやまるしか",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9706,
+                "acs_score": 0.9706
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "素直にあやまるしか",
-              "confidence": 0.985,
+              "confidence": 0.9706,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                1.0,
+                0.9998,
+                0.9942,
+                0.994,
+                0.9992,
+                0.9997,
+                0.9973,
+                0.9991,
+                0.9997,
+                0.9808,
+                0.7247
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 810.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -441,28 +457,36 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "素直にあやまるしか",
-        "confidence": 0.985,
+        "confidence": 0.9706,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "素直にあやまるしか",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9706,
+            "acs_score": 0.9706
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "素直にあやまるしか",
-          "confidence": 0.985,
+          "confidence": 0.9706,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            1.0,
+            0.9998,
+            0.9942,
+            0.994,
+            0.9992,
+            0.9997,
+            0.9973,
+            0.9991,
+            0.9997,
+            0.9808,
+            0.7247
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 810.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -472,28 +496,36 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "素直にあやまるしか",
-      "confidence": 0.985,
+      "confidence": 0.9706,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "素直にあやまるしか",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9706,
+          "acs_score": 0.9706
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "素直にあやまるしか",
-        "confidence": 0.985,
+        "confidence": 0.9706,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          1.0,
+          0.9998,
+          0.9942,
+          0.994,
+          0.9992,
+          0.9997,
+          0.9973,
+          0.9991,
+          0.9997,
+          0.9808,
+          0.7247
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 810.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -502,15 +534,23 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "素直にあやまるしか",
-      "confidence": 0.985,
+      "confidence": 0.9706,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        1.0,
+        0.9998,
+        0.9942,
+        0.994,
+        0.9992,
+        0.9997,
+        0.9973,
+        0.9991,
+        0.9997,
+        0.9808,
+        0.7247
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 810.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -527,8 +567,8 @@
     "expected_text": "立川で見た〝穴〟の下の巨大な眼は:",
     "actual_text": "立川で見た〝穴〟の下の巨大な眼は:",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.8297,
+    "duration_ms": 920.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_01_jpg",
@@ -706,28 +746,44 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
-                "confidence": 0.985,
+                "confidence": 0.8297,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "立川で見た〝穴〟の下の巨大な眼は:",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.8297,
+                    "acs_score": 0.8297
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "立川で見た〝穴〟の下の巨大な眼は:",
-                  "confidence": 0.985,
+                  "confidence": 0.8297,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9906,
+                    0.9768,
+                    1.0,
+                    1.0,
+                    1.0,
+                    0.1347,
+                    0.7943,
+                    0.3413,
+                    0.9997,
+                    0.9999,
+                    1.0,
+                    0.9967,
+                    0.9924,
+                    1.0,
+                    0.956,
+                    1.0,
+                    0.7159,
+                    0.9999,
+                    0.9994
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 920.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -774,7 +830,7 @@
                 231.0
               ],
               "text": "立川で見た〝穴〟の下の巨大な眼は:",
-              "confidence": 0.985
+              "confidence": 0.8297
             }
           ]
         }
@@ -854,28 +910,44 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
-            "confidence": 0.985,
+            "confidence": 0.8297,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "立川で見た〝穴〟の下の巨大な眼は:",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.8297,
+                "acs_score": 0.8297
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "立川で見た〝穴〟の下の巨大な眼は:",
-              "confidence": 0.985,
+              "confidence": 0.8297,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9906,
+                0.9768,
+                1.0,
+                1.0,
+                1.0,
+                0.1347,
+                0.7943,
+                0.3413,
+                0.9997,
+                0.9999,
+                1.0,
+                0.9967,
+                0.9924,
+                1.0,
+                0.956,
+                1.0,
+                0.7159,
+                0.9999,
+                0.9994
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 920.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -958,28 +1030,44 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
-        "confidence": 0.985,
+        "confidence": 0.8297,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "立川で見た〝穴〟の下の巨大な眼は:",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.8297,
+            "acs_score": 0.8297
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "立川で見た〝穴〟の下の巨大な眼は:",
-          "confidence": 0.985,
+          "confidence": 0.8297,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9906,
+            0.9768,
+            1.0,
+            1.0,
+            1.0,
+            0.1347,
+            0.7943,
+            0.3413,
+            0.9997,
+            0.9999,
+            1.0,
+            0.9967,
+            0.9924,
+            1.0,
+            0.956,
+            1.0,
+            0.7159,
+            0.9999,
+            0.9994
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 920.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -989,28 +1077,44 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "立川で見た〝穴〟の下の巨大な眼は:",
-      "confidence": 0.985,
+      "confidence": 0.8297,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "立川で見た〝穴〟の下の巨大な眼は:",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.8297,
+          "acs_score": 0.8297
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "立川で見た〝穴〟の下の巨大な眼は:",
-        "confidence": 0.985,
+        "confidence": 0.8297,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9906,
+          0.9768,
+          1.0,
+          1.0,
+          1.0,
+          0.1347,
+          0.7943,
+          0.3413,
+          0.9997,
+          0.9999,
+          1.0,
+          0.9967,
+          0.9924,
+          1.0,
+          0.956,
+          1.0,
+          0.7159,
+          0.9999,
+          0.9994
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 920.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -1019,15 +1123,31 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "立川で見た〝穴〟の下の巨大な眼は:",
-      "confidence": 0.985,
+      "confidence": 0.8297,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9906,
+        0.9768,
+        1.0,
+        1.0,
+        1.0,
+        0.1347,
+        0.7943,
+        0.3413,
+        0.9997,
+        0.9999,
+        1.0,
+        0.9967,
+        0.9924,
+        1.0,
+        0.956,
+        1.0,
+        0.7159,
+        0.9999,
+        0.9994
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 920.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -1044,8 +1164,8 @@
     "expected_text": "実戦剣術も一流です",
     "actual_text": "実戦剣術も一流です",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9713,
+    "duration_ms": 640.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_02_jpg",
@@ -1223,28 +1343,35 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "実戦剣術も一流です",
-                "confidence": 0.985,
+                "confidence": 0.9713,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "実戦剣術も一流です",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9713,
+                    "acs_score": 0.9713
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "実戦剣術も一流です",
-                  "confidence": 0.985,
+                  "confidence": 0.9713,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9917,
+                    0.9831,
+                    0.7478,
+                    0.9986,
+                    0.9998,
+                    1.0,
+                    0.9986,
+                    1.0,
+                    1.0,
+                    0.9983
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 640.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -1291,7 +1418,7 @@
                 83.0
               ],
               "text": "実戦剣術も一流です",
-              "confidence": 0.985
+              "confidence": 0.9713
             }
           ]
         }
@@ -1371,28 +1498,35 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "実戦剣術も一流です",
-            "confidence": 0.985,
+            "confidence": 0.9713,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "実戦剣術も一流です",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9713,
+                "acs_score": 0.9713
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "実戦剣術も一流です",
-              "confidence": 0.985,
+              "confidence": 0.9713,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9917,
+                0.9831,
+                0.7478,
+                0.9986,
+                0.9998,
+                1.0,
+                0.9986,
+                1.0,
+                1.0,
+                0.9983
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 640.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -1475,28 +1609,35 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "実戦剣術も一流です",
-        "confidence": 0.985,
+        "confidence": 0.9713,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "実戦剣術も一流です",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9713,
+            "acs_score": 0.9713
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "実戦剣術も一流です",
-          "confidence": 0.985,
+          "confidence": 0.9713,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9917,
+            0.9831,
+            0.7478,
+            0.9986,
+            0.9998,
+            1.0,
+            0.9986,
+            1.0,
+            1.0,
+            0.9983
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 640.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -1506,28 +1647,35 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "実戦剣術も一流です",
-      "confidence": 0.985,
+      "confidence": 0.9713,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "実戦剣術も一流です",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9713,
+          "acs_score": 0.9713
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "実戦剣術も一流です",
-        "confidence": 0.985,
+        "confidence": 0.9713,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9917,
+          0.9831,
+          0.7478,
+          0.9986,
+          0.9998,
+          1.0,
+          0.9986,
+          1.0,
+          1.0,
+          0.9983
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 640.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -1536,15 +1684,22 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "実戦剣術も一流です",
-      "confidence": 0.985,
+      "confidence": 0.9713,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9917,
+        0.9831,
+        0.7478,
+        0.9986,
+        0.9998,
+        1.0,
+        0.9986,
+        1.0,
+        1.0,
+        0.9983
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 640.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -1561,8 +1716,8 @@
     "expected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
     "actual_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.8236,
+    "duration_ms": 1000.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_03_jpg",
@@ -1740,28 +1895,48 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-                "confidence": 0.985,
+                "confidence": 0.8236,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.8236,
+                    "acs_score": 0.8236
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-                  "confidence": 0.985,
+                  "confidence": 0.8236,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9968,
+                    0.768,
+                    0.7976,
+                    0.9829,
+                    0.2856,
+                    0.7427,
+                    0.9998,
+                    0.9996,
+                    0.4339,
+                    0.9999,
+                    0.8287,
+                    0.9999,
+                    0.9777,
+                    0.9992,
+                    1.0,
+                    0.5572,
+                    0.9307,
+                    0.4632,
+                    0.9627,
+                    0.9972,
+                    0.9996,
+                    0.9998,
+                    0.9205
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 1000.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -1808,7 +1983,7 @@
                 95.0
               ],
               "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-              "confidence": 0.985
+              "confidence": 0.8236
             }
           ]
         }
@@ -1888,28 +2063,48 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-            "confidence": 0.985,
+            "confidence": 0.8236,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.8236,
+                "acs_score": 0.8236
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-              "confidence": 0.985,
+              "confidence": 0.8236,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9968,
+                0.768,
+                0.7976,
+                0.9829,
+                0.2856,
+                0.7427,
+                0.9998,
+                0.9996,
+                0.4339,
+                0.9999,
+                0.8287,
+                0.9999,
+                0.9777,
+                0.9992,
+                1.0,
+                0.5572,
+                0.9307,
+                0.4632,
+                0.9627,
+                0.9972,
+                0.9996,
+                0.9998,
+                0.9205
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 1000.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -1992,28 +2187,48 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-        "confidence": 0.985,
+        "confidence": 0.8236,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.8236,
+            "acs_score": 0.8236
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-          "confidence": 0.985,
+          "confidence": 0.8236,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9968,
+            0.768,
+            0.7976,
+            0.9829,
+            0.2856,
+            0.7427,
+            0.9998,
+            0.9996,
+            0.4339,
+            0.9999,
+            0.8287,
+            0.9999,
+            0.9777,
+            0.9992,
+            1.0,
+            0.5572,
+            0.9307,
+            0.4632,
+            0.9627,
+            0.9972,
+            0.9996,
+            0.9998,
+            0.9205
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 1000.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -2023,28 +2238,48 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-      "confidence": 0.985,
+      "confidence": 0.8236,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.8236,
+          "acs_score": 0.8236
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-        "confidence": 0.985,
+        "confidence": 0.8236,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9968,
+          0.768,
+          0.7976,
+          0.9829,
+          0.2856,
+          0.7427,
+          0.9998,
+          0.9996,
+          0.4339,
+          0.9999,
+          0.8287,
+          0.9999,
+          0.9777,
+          0.9992,
+          1.0,
+          0.5572,
+          0.9307,
+          0.4632,
+          0.9627,
+          0.9972,
+          0.9996,
+          0.9998,
+          0.9205
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 1000.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -2053,15 +2288,35 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "第30話重苦しい闇の奥で静かに呼吸づきながら",
-      "confidence": 0.985,
+      "confidence": 0.8236,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9968,
+        0.768,
+        0.7976,
+        0.9829,
+        0.2856,
+        0.7427,
+        0.9998,
+        0.9996,
+        0.4339,
+        0.9999,
+        0.8287,
+        0.9999,
+        0.9777,
+        0.9992,
+        1.0,
+        0.5572,
+        0.9307,
+        0.4632,
+        0.9627,
+        0.9972,
+        0.9996,
+        0.9998,
+        0.9205
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 1000.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -2078,8 +2333,8 @@
     "expected_text": "きのうハンパーヶとって、ゴメン!!!",
     "actual_text": "きのうハンパーヶとって、ゴメン!!!",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.8945,
+    "duration_ms": 890.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_04_jpg",
@@ -2257,28 +2512,44 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "きのうハンパーヶとって、ゴメン!!!",
-                "confidence": 0.985,
+                "confidence": 0.8945,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "きのうハンパーヶとって、ゴメン!!!",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.8945,
+                    "acs_score": 0.8945
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "きのうハンパーヶとって、ゴメン!!!",
-                  "confidence": 0.985,
+                  "confidence": 0.8945,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9962,
+                    0.9859,
+                    0.9873,
+                    0.9913,
+                    0.9967,
+                    0.6185,
+                    0.9996,
+                    0.4196,
+                    0.9827,
+                    0.9704,
+                    0.9973,
+                    0.6542,
+                    0.9428,
+                    1.0,
+                    1.0,
+                    0.9932,
+                    0.9999,
+                    0.7504,
+                    0.9897
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 890.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -2325,7 +2596,7 @@
                 342.0
               ],
               "text": "きのうハンパーヶとって、ゴメン!!!",
-              "confidence": 0.985
+              "confidence": 0.8945
             }
           ]
         }
@@ -2405,28 +2676,44 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "きのうハンパーヶとって、ゴメン!!!",
-            "confidence": 0.985,
+            "confidence": 0.8945,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "きのうハンパーヶとって、ゴメン!!!",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.8945,
+                "acs_score": 0.8945
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "きのうハンパーヶとって、ゴメン!!!",
-              "confidence": 0.985,
+              "confidence": 0.8945,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9962,
+                0.9859,
+                0.9873,
+                0.9913,
+                0.9967,
+                0.6185,
+                0.9996,
+                0.4196,
+                0.9827,
+                0.9704,
+                0.9973,
+                0.6542,
+                0.9428,
+                1.0,
+                1.0,
+                0.9932,
+                0.9999,
+                0.7504,
+                0.9897
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 890.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -2509,28 +2796,44 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "きのうハンパーヶとって、ゴメン!!!",
-        "confidence": 0.985,
+        "confidence": 0.8945,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "きのうハンパーヶとって、ゴメン!!!",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.8945,
+            "acs_score": 0.8945
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "きのうハンパーヶとって、ゴメン!!!",
-          "confidence": 0.985,
+          "confidence": 0.8945,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9962,
+            0.9859,
+            0.9873,
+            0.9913,
+            0.9967,
+            0.6185,
+            0.9996,
+            0.4196,
+            0.9827,
+            0.9704,
+            0.9973,
+            0.6542,
+            0.9428,
+            1.0,
+            1.0,
+            0.9932,
+            0.9999,
+            0.7504,
+            0.9897
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 890.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -2540,28 +2843,44 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "きのうハンパーヶとって、ゴメン!!!",
-      "confidence": 0.985,
+      "confidence": 0.8945,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "きのうハンパーヶとって、ゴメン!!!",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.8945,
+          "acs_score": 0.8945
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "きのうハンパーヶとって、ゴメン!!!",
-        "confidence": 0.985,
+        "confidence": 0.8945,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9962,
+          0.9859,
+          0.9873,
+          0.9913,
+          0.9967,
+          0.6185,
+          0.9996,
+          0.4196,
+          0.9827,
+          0.9704,
+          0.9973,
+          0.6542,
+          0.9428,
+          1.0,
+          1.0,
+          0.9932,
+          0.9999,
+          0.7504,
+          0.9897
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 890.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -2570,15 +2889,31 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "きのうハンパーヶとって、ゴメン!!!",
-      "confidence": 0.985,
+      "confidence": 0.8945,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9962,
+        0.9859,
+        0.9873,
+        0.9913,
+        0.9967,
+        0.6185,
+        0.9996,
+        0.4196,
+        0.9827,
+        0.9704,
+        0.9973,
+        0.6542,
+        0.9428,
+        1.0,
+        1.0,
+        0.9932,
+        0.9999,
+        0.7504,
+        0.9897
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 890.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -2595,8 +2930,8 @@
     "expected_text": "ぎゃっ",
     "actual_text": "ぎゃっ",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9723,
+    "duration_ms": 530.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_05_jpg",
@@ -2774,28 +3109,29 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "ぎゃっ",
-                "confidence": 0.985,
+                "confidence": 0.9723,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "ぎゃっ",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9723,
+                    "acs_score": 0.9723
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "ぎゃっ",
-                  "confidence": 0.985,
+                  "confidence": 0.9723,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.8842,
+                    0.9911,
+                    0.9952,
+                    0.9964
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 530.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -2842,7 +3178,7 @@
                 100.0
               ],
               "text": "ぎゃっ",
-              "confidence": 0.985
+              "confidence": 0.9723
             }
           ]
         }
@@ -2922,28 +3258,29 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "ぎゃっ",
-            "confidence": 0.985,
+            "confidence": 0.9723,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "ぎゃっ",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9723,
+                "acs_score": 0.9723
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "ぎゃっ",
-              "confidence": 0.985,
+              "confidence": 0.9723,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.8842,
+                0.9911,
+                0.9952,
+                0.9964
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 530.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -3026,28 +3363,29 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "ぎゃっ",
-        "confidence": 0.985,
+        "confidence": 0.9723,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "ぎゃっ",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9723,
+            "acs_score": 0.9723
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "ぎゃっ",
-          "confidence": 0.985,
+          "confidence": 0.9723,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.8842,
+            0.9911,
+            0.9952,
+            0.9964
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 530.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -3057,28 +3395,29 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "ぎゃっ",
-      "confidence": 0.985,
+      "confidence": 0.9723,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "ぎゃっ",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9723,
+          "acs_score": 0.9723
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "ぎゃっ",
-        "confidence": 0.985,
+        "confidence": 0.9723,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.8842,
+          0.9911,
+          0.9952,
+          0.9964
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 530.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -3087,15 +3426,16 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "ぎゃっ",
-      "confidence": 0.985,
+      "confidence": 0.9723,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.8842,
+        0.9911,
+        0.9952,
+        0.9964
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 530.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -3112,8 +3452,8 @@
     "expected_text": "ピンポーーン",
     "actual_text": "ピンポーーン",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9602,
+    "duration_ms": 620.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_06_jpg",
@@ -3291,28 +3631,33 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "ピンポーーン",
-                "confidence": 0.985,
+                "confidence": 0.9602,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "ピンポーーン",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9602,
+                    "acs_score": 0.9602
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "ピンポーーン",
-                  "confidence": 0.985,
+                  "confidence": 0.9602,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.997,
+                    0.9999,
+                    0.9829,
+                    0.9939,
+                    0.783,
+                    0.9515,
+                    0.9757,
+                    0.9805
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 620.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -3359,7 +3704,7 @@
                 293.0
               ],
               "text": "ピンポーーン",
-              "confidence": 0.985
+              "confidence": 0.9602
             }
           ]
         }
@@ -3439,28 +3784,33 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "ピンポーーン",
-            "confidence": 0.985,
+            "confidence": 0.9602,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "ピンポーーン",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9602,
+                "acs_score": 0.9602
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "ピンポーーン",
-              "confidence": 0.985,
+              "confidence": 0.9602,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.997,
+                0.9999,
+                0.9829,
+                0.9939,
+                0.783,
+                0.9515,
+                0.9757,
+                0.9805
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 620.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -3543,28 +3893,33 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "ピンポーーン",
-        "confidence": 0.985,
+        "confidence": 0.9602,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "ピンポーーン",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9602,
+            "acs_score": 0.9602
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "ピンポーーン",
-          "confidence": 0.985,
+          "confidence": 0.9602,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.997,
+            0.9999,
+            0.9829,
+            0.9939,
+            0.783,
+            0.9515,
+            0.9757,
+            0.9805
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 620.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -3574,28 +3929,33 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "ピンポーーン",
-      "confidence": 0.985,
+      "confidence": 0.9602,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "ピンポーーン",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9602,
+          "acs_score": 0.9602
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "ピンポーーン",
-        "confidence": 0.985,
+        "confidence": 0.9602,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.997,
+          0.9999,
+          0.9829,
+          0.9939,
+          0.783,
+          0.9515,
+          0.9757,
+          0.9805
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 620.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -3604,15 +3964,20 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "ピンポーーン",
-      "confidence": 0.985,
+      "confidence": 0.9602,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.997,
+        0.9999,
+        0.9829,
+        0.9939,
+        0.783,
+        0.9515,
+        0.9757,
+        0.9805
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 620.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -3629,8 +3994,8 @@
     "expected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
     "actual_text": "LINK!私達7人の力でガノンの塔の結界をやります",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.7837,
+    "duration_ms": 1040.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_07_jpg",
@@ -3808,28 +4173,52 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
-                "confidence": 0.985,
+                "confidence": 0.7837,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.7837,
+                    "acs_score": 0.7837
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-                  "confidence": 0.985,
+                  "confidence": 0.7837,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9693,
+                    0.9835,
+                    0.8418,
+                    0.8811,
+                    0.2269,
+                    0.2576,
+                    0.9959,
+                    0.7062,
+                    0.9655,
+                    0.9999,
+                    0.9093,
+                    0.9844,
+                    0.9815,
+                    0.3024,
+                    0.3278,
+                    0.9998,
+                    0.8304,
+                    0.9996,
+                    0.9711,
+                    0.943,
+                    0.9999,
+                    0.9993,
+                    0.8345,
+                    1.0,
+                    1.0,
+                    0.8859,
+                    0.7935
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 1040.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -3876,7 +4265,7 @@
                 63.0
               ],
               "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-              "confidence": 0.985
+              "confidence": 0.7837
             }
           ]
         }
@@ -3956,28 +4345,52 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
-            "confidence": 0.985,
+            "confidence": 0.7837,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.7837,
+                "acs_score": 0.7837
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-              "confidence": 0.985,
+              "confidence": 0.7837,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9693,
+                0.9835,
+                0.8418,
+                0.8811,
+                0.2269,
+                0.2576,
+                0.9959,
+                0.7062,
+                0.9655,
+                0.9999,
+                0.9093,
+                0.9844,
+                0.9815,
+                0.3024,
+                0.3278,
+                0.9998,
+                0.8304,
+                0.9996,
+                0.9711,
+                0.943,
+                0.9999,
+                0.9993,
+                0.8345,
+                1.0,
+                1.0,
+                0.8859,
+                0.7935
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 1040.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -4060,28 +4473,52 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
-        "confidence": 0.985,
+        "confidence": 0.7837,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.7837,
+            "acs_score": 0.7837
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-          "confidence": 0.985,
+          "confidence": 0.7837,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9693,
+            0.9835,
+            0.8418,
+            0.8811,
+            0.2269,
+            0.2576,
+            0.9959,
+            0.7062,
+            0.9655,
+            0.9999,
+            0.9093,
+            0.9844,
+            0.9815,
+            0.3024,
+            0.3278,
+            0.9998,
+            0.8304,
+            0.9996,
+            0.9711,
+            0.943,
+            0.9999,
+            0.9993,
+            0.8345,
+            1.0,
+            1.0,
+            0.8859,
+            0.7935
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 1040.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -4091,28 +4528,52 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "LINK!私達7人の力でガノンの塔の結界をやります",
-      "confidence": 0.985,
+      "confidence": 0.7837,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.7837,
+          "acs_score": 0.7837
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-        "confidence": 0.985,
+        "confidence": 0.7837,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9693,
+          0.9835,
+          0.8418,
+          0.8811,
+          0.2269,
+          0.2576,
+          0.9959,
+          0.7062,
+          0.9655,
+          0.9999,
+          0.9093,
+          0.9844,
+          0.9815,
+          0.3024,
+          0.3278,
+          0.9998,
+          0.8304,
+          0.9996,
+          0.9711,
+          0.943,
+          0.9999,
+          0.9993,
+          0.8345,
+          1.0,
+          1.0,
+          0.8859,
+          0.7935
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 1040.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -4121,15 +4582,39 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "LINK!私達7人の力でガノンの塔の結界をやります",
-      "confidence": 0.985,
+      "confidence": 0.7837,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9693,
+        0.9835,
+        0.8418,
+        0.8811,
+        0.2269,
+        0.2576,
+        0.9959,
+        0.7062,
+        0.9655,
+        0.9999,
+        0.9093,
+        0.9844,
+        0.9815,
+        0.3024,
+        0.3278,
+        0.9998,
+        0.8304,
+        0.9996,
+        0.9711,
+        0.943,
+        0.9999,
+        0.9993,
+        0.8345,
+        1.0,
+        1.0,
+        0.8859,
+        0.7935
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 1040.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -4146,8 +4631,8 @@
     "expected_text": "ファイアパンチ",
     "actual_text": "ファイアパンチ",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9205,
+    "duration_ms": 590.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_08_jpg",
@@ -4325,28 +4810,33 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "ファイアパンチ",
-                "confidence": 0.985,
+                "confidence": 0.9205,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "ファイアパンチ",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9205,
+                    "acs_score": 0.9205
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "ファイアパンチ",
-                  "confidence": 0.985,
+                  "confidence": 0.9205,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.6206,
+                    0.9991,
+                    0.9431,
+                    0.9987,
+                    0.9944,
+                    0.8585,
+                    0.9855,
+                    0.9655
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 590.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -4393,7 +4883,7 @@
                 227.0
               ],
               "text": "ファイアパンチ",
-              "confidence": 0.985
+              "confidence": 0.9205
             }
           ]
         }
@@ -4473,28 +4963,33 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "ファイアパンチ",
-            "confidence": 0.985,
+            "confidence": 0.9205,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "ファイアパンチ",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9205,
+                "acs_score": 0.9205
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "ファイアパンチ",
-              "confidence": 0.985,
+              "confidence": 0.9205,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.6206,
+                0.9991,
+                0.9431,
+                0.9987,
+                0.9944,
+                0.8585,
+                0.9855,
+                0.9655
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 590.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -4577,28 +5072,33 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "ファイアパンチ",
-        "confidence": 0.985,
+        "confidence": 0.9205,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "ファイアパンチ",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9205,
+            "acs_score": 0.9205
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "ファイアパンチ",
-          "confidence": 0.985,
+          "confidence": 0.9205,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.6206,
+            0.9991,
+            0.9431,
+            0.9987,
+            0.9944,
+            0.8585,
+            0.9855,
+            0.9655
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 590.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -4608,28 +5108,33 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "ファイアパンチ",
-      "confidence": 0.985,
+      "confidence": 0.9205,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "ファイアパンチ",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9205,
+          "acs_score": 0.9205
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "ファイアパンチ",
-        "confidence": 0.985,
+        "confidence": 0.9205,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.6206,
+          0.9991,
+          0.9431,
+          0.9987,
+          0.9944,
+          0.8585,
+          0.9855,
+          0.9655
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 590.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -4638,15 +5143,20 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "ファイアパンチ",
-      "confidence": 0.985,
+      "confidence": 0.9205,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.6206,
+        0.9991,
+        0.9431,
+        0.9987,
+        0.9944,
+        0.8585,
+        0.9855,
+        0.9655
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 590.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -4663,8 +5173,8 @@
     "expected_text": "少し黙っている",
     "actual_text": "少し黙っている",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9374,
+    "duration_ms": 640.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_09_jpg",
@@ -4842,28 +5352,34 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "少し黙っている",
-                "confidence": 0.985,
+                "confidence": 0.9374,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "少し黙っている",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9374,
+                    "acs_score": 0.9374
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "少し黙っている",
-                  "confidence": 0.985,
+                  "confidence": 0.9374,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9938,
+                    1.0,
+                    0.9986,
+                    1.0,
+                    1.0,
+                    0.9999,
+                    0.5465,
+                    0.9673,
+                    0.999
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 640.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -4910,7 +5426,7 @@
                 262.0
               ],
               "text": "少し黙っている",
-              "confidence": 0.985
+              "confidence": 0.9374
             }
           ]
         }
@@ -4990,28 +5506,34 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "少し黙っている",
-            "confidence": 0.985,
+            "confidence": 0.9374,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "少し黙っている",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9374,
+                "acs_score": 0.9374
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "少し黙っている",
-              "confidence": 0.985,
+              "confidence": 0.9374,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9938,
+                1.0,
+                0.9986,
+                1.0,
+                1.0,
+                0.9999,
+                0.5465,
+                0.9673,
+                0.999
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 640.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -5094,28 +5616,34 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "少し黙っている",
-        "confidence": 0.985,
+        "confidence": 0.9374,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "少し黙っている",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9374,
+            "acs_score": 0.9374
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "少し黙っている",
-          "confidence": 0.985,
+          "confidence": 0.9374,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9938,
+            1.0,
+            0.9986,
+            1.0,
+            1.0,
+            0.9999,
+            0.5465,
+            0.9673,
+            0.999
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 640.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -5125,28 +5653,34 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "少し黙っている",
-      "confidence": 0.985,
+      "confidence": 0.9374,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "少し黙っている",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9374,
+          "acs_score": 0.9374
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "少し黙っている",
-        "confidence": 0.985,
+        "confidence": 0.9374,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9938,
+          1.0,
+          0.9986,
+          1.0,
+          1.0,
+          0.9999,
+          0.5465,
+          0.9673,
+          0.999
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 640.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -5155,15 +5689,21 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "少し黙っている",
-      "confidence": 0.985,
+      "confidence": 0.9374,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9938,
+        1.0,
+        0.9986,
+        1.0,
+        1.0,
+        0.9999,
+        0.5465,
+        0.9673,
+        0.999
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 640.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -5180,8 +5720,8 @@
     "expected_text": "わかるかな〜?",
     "actual_text": "わかるかな〜?",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9913,
+    "duration_ms": 560.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_10_jpg",
@@ -5359,28 +5899,34 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "わかるかな〜?",
-                "confidence": 0.985,
+                "confidence": 0.9913,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "わかるかな〜?",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9913,
+                    "acs_score": 0.9913
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "わかるかな〜?",
-                  "confidence": 0.985,
+                  "confidence": 0.9913,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9994,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    0.9329,
+                    0.9988,
+                    0.9929,
+                    0.9914
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 560.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -5427,7 +5973,7 @@
                 34.0
               ],
               "text": "わかるかな〜?",
-              "confidence": 0.985
+              "confidence": 0.9913
             }
           ]
         }
@@ -5507,28 +6053,34 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "わかるかな〜?",
-            "confidence": 0.985,
+            "confidence": 0.9913,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "わかるかな〜?",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9913,
+                "acs_score": 0.9913
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "わかるかな〜?",
-              "confidence": 0.985,
+              "confidence": 0.9913,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9994,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                0.9329,
+                0.9988,
+                0.9929,
+                0.9914
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 560.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -5611,28 +6163,34 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "わかるかな〜?",
-        "confidence": 0.985,
+        "confidence": 0.9913,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "わかるかな〜?",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9913,
+            "acs_score": 0.9913
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "わかるかな〜?",
-          "confidence": 0.985,
+          "confidence": 0.9913,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9994,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.9329,
+            0.9988,
+            0.9929,
+            0.9914
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 560.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -5642,28 +6200,34 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "わかるかな〜?",
-      "confidence": 0.985,
+      "confidence": 0.9913,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "わかるかな〜?",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9913,
+          "acs_score": 0.9913
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "わかるかな〜?",
-        "confidence": 0.985,
+        "confidence": 0.9913,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9994,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.9329,
+          0.9988,
+          0.9929,
+          0.9914
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 560.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -5672,15 +6236,21 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "わかるかな〜?",
-      "confidence": 0.985,
+      "confidence": 0.9913,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9994,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.9329,
+        0.9988,
+        0.9929,
+        0.9914
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 560.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -5697,8 +6267,8 @@
     "expected_text": "警察にも先生にも町中の人達に!!",
     "actual_text": "警察にも先生にも町中の人達に!!",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.9884,
+    "duration_ms": 780.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_11_jpg",
@@ -5876,28 +6446,42 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "警察にも先生にも町中の人達に!!",
-                "confidence": 0.985,
+                "confidence": 0.9884,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "警察にも先生にも町中の人達に!!",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.9884,
+                    "acs_score": 0.9884
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "警察にも先生にも町中の人達に!!",
-                  "confidence": 0.985,
+                  "confidence": 0.9884,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.9994,
+                    0.9998,
+                    0.9999,
+                    1.0,
+                    0.9897,
+                    1.0,
+                    0.9999,
+                    0.9996,
+                    0.8364,
+                    0.9963,
+                    0.9995,
+                    0.9979,
+                    0.9922,
+                    0.9998,
+                    0.9991,
+                    0.9963,
+                    0.9985
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 780.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -5944,7 +6528,7 @@
                 234.0
               ],
               "text": "警察にも先生にも町中の人達に!!",
-              "confidence": 0.985
+              "confidence": 0.9884
             }
           ]
         }
@@ -6024,28 +6608,42 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "警察にも先生にも町中の人達に!!",
-            "confidence": 0.985,
+            "confidence": 0.9884,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "警察にも先生にも町中の人達に!!",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.9884,
+                "acs_score": 0.9884
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "警察にも先生にも町中の人達に!!",
-              "confidence": 0.985,
+              "confidence": 0.9884,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.9994,
+                0.9998,
+                0.9999,
+                1.0,
+                0.9897,
+                1.0,
+                0.9999,
+                0.9996,
+                0.8364,
+                0.9963,
+                0.9995,
+                0.9979,
+                0.9922,
+                0.9998,
+                0.9991,
+                0.9963,
+                0.9985
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 780.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -6128,28 +6726,42 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "警察にも先生にも町中の人達に!!",
-        "confidence": 0.985,
+        "confidence": 0.9884,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "警察にも先生にも町中の人達に!!",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.9884,
+            "acs_score": 0.9884
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "警察にも先生にも町中の人達に!!",
-          "confidence": 0.985,
+          "confidence": 0.9884,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.9994,
+            0.9998,
+            0.9999,
+            1.0,
+            0.9897,
+            1.0,
+            0.9999,
+            0.9996,
+            0.8364,
+            0.9963,
+            0.9995,
+            0.9979,
+            0.9922,
+            0.9998,
+            0.9991,
+            0.9963,
+            0.9985
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 780.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -6159,28 +6771,42 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "警察にも先生にも町中の人達に!!",
-      "confidence": 0.985,
+      "confidence": 0.9884,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "警察にも先生にも町中の人達に!!",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.9884,
+          "acs_score": 0.9884
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "警察にも先生にも町中の人達に!!",
-        "confidence": 0.985,
+        "confidence": 0.9884,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.9994,
+          0.9998,
+          0.9999,
+          1.0,
+          0.9897,
+          1.0,
+          0.9999,
+          0.9996,
+          0.8364,
+          0.9963,
+          0.9995,
+          0.9979,
+          0.9922,
+          0.9998,
+          0.9991,
+          0.9963,
+          0.9985
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 780.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -6189,15 +6815,29 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "警察にも先生にも町中の人達に!!",
-      "confidence": 0.985,
+      "confidence": 0.9884,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.9994,
+        0.9998,
+        0.9999,
+        1.0,
+        0.9897,
+        1.0,
+        0.9999,
+        0.9996,
+        0.8364,
+        0.9963,
+        0.9995,
+        0.9979,
+        0.9922,
+        0.9998,
+        0.9991,
+        0.9963,
+        0.9985
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 780.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -6210,12 +6850,12 @@
       "width": 1024,
       "height": 793
     },
-    "status": "success",
+    "status": "fail",
     "expected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-    "actual_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-    "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "actual_text": "ああ、",
+    "cer_divergence": 0.96,
+    "confidence": 0.3597,
+    "duration_ms": 450.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_12_jpg",
@@ -6329,9 +6969,9 @@
               "logicalOrder": 1,
               "source": {
                 "language": "ja",
-                "raw": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "normalized": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "reading": "はっ、はぁっ... そういえば、そうだったんだけど",
+                "raw": "ああ、",
+                "normalized": "ああ、",
+                "reading": "ああ、",
                 "writing": {
                   "mode": "vertical-rl",
                   "characterDirection": "top-to-bottom"
@@ -6339,9 +6979,9 @@
               },
               "translation": {
                 "language": "en",
-                "literal": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "localized": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "displayText": "はっ、はぁっ... そういえば、そうだったんだけど"
+                "literal": "ああ、",
+                "localized": "ああ、",
+                "displayText": "ああ、"
               },
               "geometry": {
                 "bounds": {
@@ -6392,29 +7032,30 @@
               },
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-                "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "confidence": 0.985,
+                "selected_text": "ああ、",
+                "confidence": 0.3597,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
-                    "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "text": "ああ、",
+                    "raw_confidence": 0.3597,
+                    "acs_score": 0.3597
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-                  "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-                  "confidence": 0.985,
+                  "text": "ああ、",
+                  "confidence": 0.3597,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.0439,
+                    0.8266,
+                    0.2275,
+                    0.7294
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 450.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -6460,8 +7101,8 @@
                 1004.0,
                 773.0
               ],
-              "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-              "confidence": 0.985
+              "text": "ああ、",
+              "confidence": 0.3597
             }
           ]
         }
@@ -6477,9 +7118,9 @@
           "logicalOrder": 1,
           "source": {
             "language": "ja",
-            "raw": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "normalized": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "reading": "はっ、はぁっ... そういえば、そうだったんだけど",
+            "raw": "ああ、",
+            "normalized": "ああ、",
+            "reading": "ああ、",
             "writing": {
               "mode": "vertical-rl",
               "characterDirection": "top-to-bottom"
@@ -6487,9 +7128,9 @@
           },
           "translation": {
             "language": "en",
-            "literal": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "localized": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "displayText": "はっ、はぁっ... そういえば、そうだったんだけど"
+            "literal": "ああ、",
+            "localized": "ああ、",
+            "displayText": "ああ、"
           },
           "geometry": {
             "bounds": {
@@ -6540,29 +7181,30 @@
           },
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-            "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "confidence": 0.985,
+            "selected_text": "ああ、",
+            "confidence": 0.3597,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
-                "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "text": "ああ、",
+                "raw_confidence": 0.3597,
+                "acs_score": 0.3597
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-              "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-              "confidence": 0.985,
+              "text": "ああ、",
+              "confidence": 0.3597,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.0439,
+                0.8266,
+                0.2275,
+                0.7294
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 450.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -6581,9 +7223,9 @@
       "logicalOrder": 1,
       "source": {
         "language": "ja",
-        "raw": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "normalized": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "reading": "はっ、はぁっ... そういえば、そうだったんだけど",
+        "raw": "ああ、",
+        "normalized": "ああ、",
+        "reading": "ああ、",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -6591,9 +7233,9 @@
       },
       "translation": {
         "language": "en",
-        "literal": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "localized": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "displayText": "はっ、はぁっ... そういえば、そうだったんだけど"
+        "literal": "ああ、",
+        "localized": "ああ、",
+        "displayText": "ああ、"
       },
       "geometry": {
         "bounds": {
@@ -6644,29 +7286,30 @@
       },
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-        "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "confidence": 0.985,
+        "selected_text": "ああ、",
+        "confidence": 0.3597,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
-            "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "text": "ああ、",
+            "raw_confidence": 0.3597,
+            "acs_score": 0.3597
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-          "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-          "confidence": 0.985,
+          "text": "ああ、",
+          "confidence": 0.3597,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.0439,
+            0.8266,
+            0.2275,
+            0.7294
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 450.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -6675,29 +7318,30 @@
     },
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-      "selected_text": "はっ、はぁっ... そういえば、そうだったんだけど",
-      "confidence": 0.985,
+      "selected_text": "ああ、",
+      "confidence": 0.3597,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
-          "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "text": "ああ、",
+          "raw_confidence": 0.3597,
+          "acs_score": 0.3597
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-        "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-        "confidence": 0.985,
+        "text": "ああ、",
+        "confidence": 0.3597,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.0439,
+          0.8266,
+          0.2275,
+          0.7294
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 450.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -6705,16 +7349,17 @@
     },
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-      "text": "はっ、はぁっ... そういえば、そうだったんだけど",
-      "confidence": 0.985,
+      "text": "ああ、",
+      "confidence": 0.3597,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.0439,
+        0.8266,
+        0.2275,
+        0.7294
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 450.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -6727,12 +7372,12 @@
       "width": 671,
       "height": 1024
     },
-    "status": "success",
+    "status": "fail",
     "expected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-    "actual_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-    "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "actual_text": "んっ、んっ...",
+    "cer_divergence": 0.913,
+    "confidence": 0.5903,
+    "duration_ms": 570.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_13_jpg",
@@ -6846,9 +7491,9 @@
               "logicalOrder": 1,
               "source": {
                 "language": "ja",
-                "raw": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "normalized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "reading": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+                "raw": "んっ、んっ...",
+                "normalized": "んっ、んっ...",
+                "reading": "んっ、んっ...",
                 "writing": {
                   "mode": "vertical-rl",
                   "characterDirection": "top-to-bottom"
@@ -6856,9 +7501,9 @@
               },
               "translation": {
                 "language": "en",
-                "literal": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "localized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "displayText": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?"
+                "literal": "んっ、んっ...",
+                "localized": "んっ、んっ...",
+                "displayText": "んっ、んっ..."
               },
               "geometry": {
                 "bounds": {
@@ -6909,29 +7554,35 @@
               },
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-                "selected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "confidence": 0.985,
+                "selected_text": "んっ、んっ...",
+                "confidence": 0.5903,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
-                    "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "text": "んっ、んっ...",
+                    "raw_confidence": 0.5903,
+                    "acs_score": 0.5903
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-                  "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                  "confidence": 0.985,
+                  "text": "んっ、んっ...",
+                  "confidence": 0.5903,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.2595,
+                    0.1784,
+                    0.9999,
+                    0.8807,
+                    0.4421,
+                    0.5012,
+                    0.9997,
+                    0.9996,
+                    0.569
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 570.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -6977,8 +7628,8 @@
                 651.0,
                 1004.0
               ],
-              "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-              "confidence": 0.985
+              "text": "んっ、んっ...",
+              "confidence": 0.5903
             }
           ]
         }
@@ -6994,9 +7645,9 @@
           "logicalOrder": 1,
           "source": {
             "language": "ja",
-            "raw": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "normalized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "reading": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+            "raw": "んっ、んっ...",
+            "normalized": "んっ、んっ...",
+            "reading": "んっ、んっ...",
             "writing": {
               "mode": "vertical-rl",
               "characterDirection": "top-to-bottom"
@@ -7004,9 +7655,9 @@
           },
           "translation": {
             "language": "en",
-            "literal": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "localized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "displayText": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?"
+            "literal": "んっ、んっ...",
+            "localized": "んっ、んっ...",
+            "displayText": "んっ、んっ..."
           },
           "geometry": {
             "bounds": {
@@ -7057,29 +7708,35 @@
           },
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-            "selected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "confidence": 0.985,
+            "selected_text": "んっ、んっ...",
+            "confidence": 0.5903,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
-                "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "text": "んっ、んっ...",
+                "raw_confidence": 0.5903,
+                "acs_score": 0.5903
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-              "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-              "confidence": 0.985,
+              "text": "んっ、んっ...",
+              "confidence": 0.5903,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.2595,
+                0.1784,
+                0.9999,
+                0.8807,
+                0.4421,
+                0.5012,
+                0.9997,
+                0.9996,
+                0.569
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 570.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -7098,9 +7755,9 @@
       "logicalOrder": 1,
       "source": {
         "language": "ja",
-        "raw": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "normalized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "reading": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
+        "raw": "んっ、んっ...",
+        "normalized": "んっ、んっ...",
+        "reading": "んっ、んっ...",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -7108,9 +7765,9 @@
       },
       "translation": {
         "language": "en",
-        "literal": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "localized": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "displayText": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?"
+        "literal": "んっ、んっ...",
+        "localized": "んっ、んっ...",
+        "displayText": "んっ、んっ..."
       },
       "geometry": {
         "bounds": {
@@ -7161,29 +7818,35 @@
       },
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-        "selected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "confidence": 0.985,
+        "selected_text": "んっ、んっ...",
+        "confidence": 0.5903,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
-            "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "text": "んっ、んっ...",
+            "raw_confidence": 0.5903,
+            "acs_score": 0.5903
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-          "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-          "confidence": 0.985,
+          "text": "んっ、んっ...",
+          "confidence": 0.5903,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.2595,
+            0.1784,
+            0.9999,
+            0.8807,
+            0.4421,
+            0.5012,
+            0.9997,
+            0.9996,
+            0.569
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 570.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -7192,29 +7855,35 @@
     },
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-      "selected_text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-      "confidence": 0.985,
+      "selected_text": "んっ、んっ...",
+      "confidence": 0.5903,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
-          "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "text": "んっ、んっ...",
+          "raw_confidence": 0.5903,
+          "acs_score": 0.5903
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-        "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-        "confidence": 0.985,
+        "text": "んっ、んっ...",
+        "confidence": 0.5903,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.2595,
+          0.1784,
+          0.9999,
+          0.8807,
+          0.4421,
+          0.5012,
+          0.9997,
+          0.9996,
+          0.569
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 570.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -7222,16 +7891,22 @@
     },
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-      "text": "それじゃ、 そうだな。そういうことじゃないの アバカム!!???!?!!!...!?んっ!?",
-      "confidence": 0.985,
+      "text": "んっ、んっ...",
+      "confidence": 0.5903,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.2595,
+        0.1784,
+        0.9999,
+        0.8807,
+        0.4421,
+        0.5012,
+        0.9997,
+        0.9996,
+        0.569
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 570.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -7244,12 +7919,12 @@
       "width": 650,
       "height": 1024
     },
-    "status": "success",
+    "status": "fail",
     "expected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-    "actual_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-    "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "actual_text": "...",
+    "cer_divergence": 1.0,
+    "confidence": 0.4233,
+    "duration_ms": 510.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_14_jpg",
@@ -7363,9 +8038,9 @@
               "logicalOrder": 1,
               "source": {
                 "language": "ja",
-                "raw": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "normalized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "reading": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+                "raw": "...",
+                "normalized": "...",
+                "reading": "...",
                 "writing": {
                   "mode": "vertical-rl",
                   "characterDirection": "top-to-bottom"
@@ -7373,9 +8048,9 @@
               },
               "translation": {
                 "language": "en",
-                "literal": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "localized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "displayText": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち"
+                "literal": "...",
+                "localized": "...",
+                "displayText": "..."
               },
               "geometry": {
                 "bounds": {
@@ -7426,29 +8101,31 @@
               },
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-                "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "confidence": 0.985,
+                "selected_text": "...",
+                "confidence": 0.4233,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
-                    "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "text": "...",
+                    "raw_confidence": 0.4233,
+                    "acs_score": 0.4233
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-                  "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                  "confidence": 0.985,
+                  "text": "...",
+                  "confidence": 0.4233,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.0322,
+                    0.9974,
+                    0.9999,
+                    0.762,
+                    0.2353
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 510.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -7494,8 +8171,8 @@
                 630.0,
                 1004.0
               ],
-              "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-              "confidence": 0.985
+              "text": "...",
+              "confidence": 0.4233
             }
           ]
         }
@@ -7511,9 +8188,9 @@
           "logicalOrder": 1,
           "source": {
             "language": "ja",
-            "raw": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "normalized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "reading": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+            "raw": "...",
+            "normalized": "...",
+            "reading": "...",
             "writing": {
               "mode": "vertical-rl",
               "characterDirection": "top-to-bottom"
@@ -7521,9 +8198,9 @@
           },
           "translation": {
             "language": "en",
-            "literal": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "localized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "displayText": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち"
+            "literal": "...",
+            "localized": "...",
+            "displayText": "..."
           },
           "geometry": {
             "bounds": {
@@ -7574,29 +8251,31 @@
           },
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-            "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "confidence": 0.985,
+            "selected_text": "...",
+            "confidence": 0.4233,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
-                "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "text": "...",
+                "raw_confidence": 0.4233,
+                "acs_score": 0.4233
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-              "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-              "confidence": 0.985,
+              "text": "...",
+              "confidence": 0.4233,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.0322,
+                0.9974,
+                0.9999,
+                0.762,
+                0.2353
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 510.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -7615,9 +8294,9 @@
       "logicalOrder": 1,
       "source": {
         "language": "ja",
-        "raw": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "normalized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "reading": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+        "raw": "...",
+        "normalized": "...",
+        "reading": "...",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -7625,9 +8304,9 @@
       },
       "translation": {
         "language": "en",
-        "literal": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "localized": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "displayText": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち"
+        "literal": "...",
+        "localized": "...",
+        "displayText": "..."
       },
       "geometry": {
         "bounds": {
@@ -7678,29 +8357,31 @@
       },
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-        "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "confidence": 0.985,
+        "selected_text": "...",
+        "confidence": 0.4233,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
-            "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "text": "...",
+            "raw_confidence": 0.4233,
+            "acs_score": 0.4233
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-          "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-          "confidence": 0.985,
+          "text": "...",
+          "confidence": 0.4233,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.0322,
+            0.9974,
+            0.9999,
+            0.762,
+            0.2353
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 510.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -7709,29 +8390,31 @@
     },
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-      "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-      "confidence": 0.985,
+      "selected_text": "...",
+      "confidence": 0.4233,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
-          "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "text": "...",
+          "raw_confidence": 0.4233,
+          "acs_score": 0.4233
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-        "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-        "confidence": 0.985,
+        "text": "...",
+        "confidence": 0.4233,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.0322,
+          0.9974,
+          0.9999,
+          0.762,
+          0.2353
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 510.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -7739,16 +8422,1604 @@
     },
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-      "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
-      "confidence": 0.985,
+      "text": "...",
+      "confidence": 0.4233,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.0322,
+        0.9974,
+        0.9999,
+        0.762,
+        0.2353
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 510.0,
+        "model_name": "kha-white/manga-ocr-base",
+        "engine_type": "BaseInt8Onnx"
+      }
+    }
+  },
+  {
+    "filename": "15.png",
+    "size_bytes": 3279870,
+    "image_dimensions": {
+      "width": 1054,
+      "height": 1492
+    },
+    "status": "success",
+    "expected_text": "...",
+    "actual_text": "...",
+    "cer_divergence": 0.0,
+    "confidence": 0.3314,
+    "duration_ms": 510.0,
+    "comic_scene_graph": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+      "id": "doc_15_png",
+      "metadata": {
+        "title": "Manga OCR Sample Crop 15.png",
+        "series": "Example Benchmark Suite",
+        "volume": "1",
+        "chapter": "1",
+        "sourceLanguage": "ja",
+        "targetLanguage": "en"
+      },
+      "reading": {
+        "binding": "right",
+        "pageDirection": "rtl",
+        "defaultPanelFlow": {
+          "strategy": "manga-rtl",
+          "primaryAxis": "vertical",
+          "secondaryAxis": "rtl"
+        },
+        "sourceWriting": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom",
+          "columnDirection": "right-to-left"
+        },
+        "targetWriting": {
+          "mode": "horizontal-tb",
+          "characterDirection": "left-to-right",
+          "lineDirection": "top-to-bottom"
+        }
+      },
+      "pages": [
+        {
+          "id": "page_15_png",
+          "pageNumber": 15,
+          "source": {
+            "imageId": "img_15_png",
+            "filename": "15.png",
+            "nativeSize": {
+              "width": 1054.0,
+              "height": 1492.0
+            },
+            "dpi": 300.0,
+            "colorSpace": "rgb"
+          },
+          "bands": [
+            {
+              "id": "band_15_png",
+              "order": 1,
+              "direction": "rtl",
+              "panelIds": [
+                "panel_15_png"
+              ]
+            }
+          ],
+          "panels": [
+            {
+              "id": "panel_15_png",
+              "logicalOrder": 1,
+              "frame": {
+                "bounds": {
+                  "px": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1054.0,
+                    "height": 1492.0
+                  },
+                  "normalized": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1.0,
+                    "height": 1.0
+                  }
+                },
+                "borderWidth": 1.0
+              },
+              "zIndex": 1
+            }
+          ],
+          "containers": [
+            {
+              "id": "container_15_png",
+              "panelId": "panel_15_png",
+              "type": "speech-balloon",
+              "geometry": {
+                "shape": "ellipse",
+                "bounds": {
+                  "px": {
+                    "x": 10.0,
+                    "y": 10.0,
+                    "width": 1034.0,
+                    "height": 1472.0
+                  },
+                  "normalized": {
+                    "x": 0.05,
+                    "y": 0.05,
+                    "width": 0.9,
+                    "height": 0.9
+                  }
+                }
+              }
+            }
+          ],
+          "text_regions": [
+            {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+              "id": "text_obj_15_png",
+              "panelId": "panel_15_png",
+              "containerId": "container_15_png",
+              "placementMode": "flow-inside-container",
+              "role": "dialogue",
+              "logicalOrder": 1,
+              "source": {
+                "language": "ja",
+                "raw": "...",
+                "normalized": "...",
+                "reading": "...",
+                "writing": {
+                  "mode": "vertical-rl",
+                  "characterDirection": "top-to-bottom"
+                }
+              },
+              "translation": {
+                "language": "en",
+                "literal": "...",
+                "localized": "...",
+                "displayText": "..."
+              },
+              "geometry": {
+                "bounds": {
+                  "preferred": {
+                    "px": {
+                      "x": 10.0,
+                      "y": 10.0,
+                      "width": 1034.0,
+                      "height": 1472.0
+                    },
+                    "normalized": {
+                      "x": 0.05,
+                      "y": 0.05,
+                      "width": 0.9,
+                      "height": 0.9
+                    }
+                  }
+                },
+                "transform": {
+                  "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                  },
+                  "rotation": 0.0,
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0
+                  },
+                  "anchor": "top-left"
+                }
+              },
+              "layout": {
+                "writingMode": "horizontal-tb",
+                "textAlign": "center",
+                "verticalAlign": "middle",
+                "flow": "wrap"
+              },
+              "typography": {
+                "font": {
+                  "family": "Wild Words",
+                  "fallback": [
+                    "Comic Sans MS",
+                    "sans-serif"
+                  ]
+                },
+                "fontSize": 14.0,
+                "lineHeight": 1.2
+              },
+              "pdp_decision": {
+                "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+                "selected_text": "...",
+                "confidence": 0.3314,
+                "is_validated": true,
+                "candidates": [
+                  {
+                    "engine_type": "BaseInt8Onnx",
+                    "text": "...",
+                    "raw_confidence": 0.3314,
+                    "acs_score": 0.3314
+                  }
+                ],
+                "ocr_result": {
+                  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+                  "text": "...",
+                  "confidence": 0.3314,
+                  "token_probabilities": [
+                    1.0,
+                    0.0374,
+                    0.1155,
+                    0.9999,
+                    0.9251
+                  ],
+                  "metadata": {
+                    "duration_ms": 510.0,
+                    "model_name": "kha-white/manga-ocr-base",
+                    "engine_type": "BaseInt8Onnx"
+                  }
+                }
+              }
+            }
+          ],
+          "art_regions": [],
+          "masks": [
+            {
+              "id": "mask_15_png",
+              "panelId": "panel_15_png",
+              "textRegionId": "text_obj_15_png",
+              "type": "clean-balloon",
+              "expansion": 2.0,
+              "feather": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "page_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+      "page_id": "page_15_png",
+      "page_number": 15,
+      "panels": [
+        {
+          "id": "panel_15_png",
+          "reading_order": 1,
+          "bounds": [
+            0.0,
+            0.0,
+            1054.0,
+            1492.0
+          ],
+          "bubbles": [
+            {
+              "id": "container_15_png",
+              "reading_order": 1,
+              "bounds": [
+                10.0,
+                10.0,
+                1034.0,
+                1472.0
+              ],
+              "text": "...",
+              "confidence": 0.3314
+            }
+          ]
+        }
+      ],
+      "localized_text_objects": [
+        {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+          "id": "text_obj_15_png",
+          "panelId": "panel_15_png",
+          "containerId": "container_15_png",
+          "placementMode": "flow-inside-container",
+          "role": "dialogue",
+          "logicalOrder": 1,
+          "source": {
+            "language": "ja",
+            "raw": "...",
+            "normalized": "...",
+            "reading": "...",
+            "writing": {
+              "mode": "vertical-rl",
+              "characterDirection": "top-to-bottom"
+            }
+          },
+          "translation": {
+            "language": "en",
+            "literal": "...",
+            "localized": "...",
+            "displayText": "..."
+          },
+          "geometry": {
+            "bounds": {
+              "preferred": {
+                "px": {
+                  "x": 10.0,
+                  "y": 10.0,
+                  "width": 1034.0,
+                  "height": 1472.0
+                },
+                "normalized": {
+                  "x": 0.05,
+                  "y": 0.05,
+                  "width": 0.9,
+                  "height": 0.9
+                }
+              }
+            },
+            "transform": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "rotation": 0.0,
+              "scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "anchor": "top-left"
+            }
+          },
+          "layout": {
+            "writingMode": "horizontal-tb",
+            "textAlign": "center",
+            "verticalAlign": "middle",
+            "flow": "wrap"
+          },
+          "typography": {
+            "font": {
+              "family": "Wild Words",
+              "fallback": [
+                "Comic Sans MS",
+                "sans-serif"
+              ]
+            },
+            "fontSize": 14.0,
+            "lineHeight": 1.2
+          },
+          "pdp_decision": {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+            "selected_text": "...",
+            "confidence": 0.3314,
+            "is_validated": true,
+            "candidates": [
+              {
+                "engine_type": "BaseInt8Onnx",
+                "text": "...",
+                "raw_confidence": 0.3314,
+                "acs_score": 0.3314
+              }
+            ],
+            "ocr_result": {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+              "text": "...",
+              "confidence": 0.3314,
+              "token_probabilities": [
+                1.0,
+                0.0374,
+                0.1155,
+                0.9999,
+                0.9251
+              ],
+              "metadata": {
+                "duration_ms": 510.0,
+                "model_name": "kha-white/manga-ocr-base",
+                "engine_type": "BaseInt8Onnx"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "localized_text_object": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_15_png",
+      "panelId": "panel_15_png",
+      "containerId": "container_15_png",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 1,
+      "source": {
+        "language": "ja",
+        "raw": "...",
+        "normalized": "...",
+        "reading": "...",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "...",
+        "localized": "...",
+        "displayText": "..."
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 10.0,
+              "y": 10.0,
+              "width": 1034.0,
+              "height": 1472.0
+            },
+            "normalized": {
+              "x": 0.05,
+              "y": 0.05,
+              "width": 0.9,
+              "height": 0.9
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "Comic Sans MS",
+            "sans-serif"
+          ]
+        },
+        "fontSize": 14.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+        "selected_text": "...",
+        "confidence": 0.3314,
+        "is_validated": true,
+        "candidates": [
+          {
+            "engine_type": "BaseInt8Onnx",
+            "text": "...",
+            "raw_confidence": 0.3314,
+            "acs_score": 0.3314
+          }
+        ],
+        "ocr_result": {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+          "text": "...",
+          "confidence": 0.3314,
+          "token_probabilities": [
+            1.0,
+            0.0374,
+            0.1155,
+            0.9999,
+            0.9251
+          ],
+          "metadata": {
+            "duration_ms": 510.0,
+            "model_name": "kha-white/manga-ocr-base",
+            "engine_type": "BaseInt8Onnx"
+          }
+        }
+      }
+    },
+    "pdp_decision": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+      "selected_text": "...",
+      "confidence": 0.3314,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "...",
+          "raw_confidence": 0.3314,
+          "acs_score": 0.3314
+        }
+      ],
+      "ocr_result": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+        "text": "...",
+        "confidence": 0.3314,
+        "token_probabilities": [
+          1.0,
+          0.0374,
+          0.1155,
+          0.9999,
+          0.9251
+        ],
+        "metadata": {
+          "duration_ms": 510.0,
+          "model_name": "kha-white/manga-ocr-base",
+          "engine_type": "BaseInt8Onnx"
+        }
+      }
+    },
+    "ocr_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+      "text": "...",
+      "confidence": 0.3314,
+      "token_probabilities": [
+        1.0,
+        0.0374,
+        0.1155,
+        0.9999,
+        0.9251
+      ],
+      "metadata": {
+        "duration_ms": 510.0,
+        "model_name": "kha-white/manga-ocr-base",
+        "engine_type": "BaseInt8Onnx"
+      }
+    }
+  },
+  {
+    "filename": "16.png",
+    "size_bytes": 2882422,
+    "image_dimensions": {
+      "width": 1025,
+      "height": 1535
+    },
+    "status": "success",
+    "expected_text": "...",
+    "actual_text": "...",
+    "cer_divergence": 0.0,
+    "confidence": 0.6456,
+    "duration_ms": 520.0,
+    "comic_scene_graph": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+      "id": "doc_16_png",
+      "metadata": {
+        "title": "Manga OCR Sample Crop 16.png",
+        "series": "Example Benchmark Suite",
+        "volume": "1",
+        "chapter": "1",
+        "sourceLanguage": "ja",
+        "targetLanguage": "en"
+      },
+      "reading": {
+        "binding": "right",
+        "pageDirection": "rtl",
+        "defaultPanelFlow": {
+          "strategy": "manga-rtl",
+          "primaryAxis": "vertical",
+          "secondaryAxis": "rtl"
+        },
+        "sourceWriting": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom",
+          "columnDirection": "right-to-left"
+        },
+        "targetWriting": {
+          "mode": "horizontal-tb",
+          "characterDirection": "left-to-right",
+          "lineDirection": "top-to-bottom"
+        }
+      },
+      "pages": [
+        {
+          "id": "page_16_png",
+          "pageNumber": 16,
+          "source": {
+            "imageId": "img_16_png",
+            "filename": "16.png",
+            "nativeSize": {
+              "width": 1025.0,
+              "height": 1535.0
+            },
+            "dpi": 300.0,
+            "colorSpace": "rgb"
+          },
+          "bands": [
+            {
+              "id": "band_16_png",
+              "order": 1,
+              "direction": "rtl",
+              "panelIds": [
+                "panel_16_png"
+              ]
+            }
+          ],
+          "panels": [
+            {
+              "id": "panel_16_png",
+              "logicalOrder": 1,
+              "frame": {
+                "bounds": {
+                  "px": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1025.0,
+                    "height": 1535.0
+                  },
+                  "normalized": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1.0,
+                    "height": 1.0
+                  }
+                },
+                "borderWidth": 1.0
+              },
+              "zIndex": 1
+            }
+          ],
+          "containers": [
+            {
+              "id": "container_16_png",
+              "panelId": "panel_16_png",
+              "type": "speech-balloon",
+              "geometry": {
+                "shape": "ellipse",
+                "bounds": {
+                  "px": {
+                    "x": 10.0,
+                    "y": 10.0,
+                    "width": 1005.0,
+                    "height": 1515.0
+                  },
+                  "normalized": {
+                    "x": 0.05,
+                    "y": 0.05,
+                    "width": 0.9,
+                    "height": 0.9
+                  }
+                }
+              }
+            }
+          ],
+          "text_regions": [
+            {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+              "id": "text_obj_16_png",
+              "panelId": "panel_16_png",
+              "containerId": "container_16_png",
+              "placementMode": "flow-inside-container",
+              "role": "dialogue",
+              "logicalOrder": 1,
+              "source": {
+                "language": "ja",
+                "raw": "...",
+                "normalized": "...",
+                "reading": "...",
+                "writing": {
+                  "mode": "vertical-rl",
+                  "characterDirection": "top-to-bottom"
+                }
+              },
+              "translation": {
+                "language": "en",
+                "literal": "...",
+                "localized": "...",
+                "displayText": "..."
+              },
+              "geometry": {
+                "bounds": {
+                  "preferred": {
+                    "px": {
+                      "x": 10.0,
+                      "y": 10.0,
+                      "width": 1005.0,
+                      "height": 1515.0
+                    },
+                    "normalized": {
+                      "x": 0.05,
+                      "y": 0.05,
+                      "width": 0.9,
+                      "height": 0.9
+                    }
+                  }
+                },
+                "transform": {
+                  "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                  },
+                  "rotation": 0.0,
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0
+                  },
+                  "anchor": "top-left"
+                }
+              },
+              "layout": {
+                "writingMode": "horizontal-tb",
+                "textAlign": "center",
+                "verticalAlign": "middle",
+                "flow": "wrap"
+              },
+              "typography": {
+                "font": {
+                  "family": "Wild Words",
+                  "fallback": [
+                    "Comic Sans MS",
+                    "sans-serif"
+                  ]
+                },
+                "fontSize": 14.0,
+                "lineHeight": 1.2
+              },
+              "pdp_decision": {
+                "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+                "selected_text": "...",
+                "confidence": 0.6456,
+                "is_validated": true,
+                "candidates": [
+                  {
+                    "engine_type": "BaseInt8Onnx",
+                    "text": "...",
+                    "raw_confidence": 0.6456,
+                    "acs_score": 0.6456
+                  }
+                ],
+                "ocr_result": {
+                  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+                  "text": "...",
+                  "confidence": 0.6456,
+                  "token_probabilities": [
+                    1.0,
+                    0.149,
+                    0.9984,
+                    1.0,
+                    0.9033,
+                    0.5388
+                  ],
+                  "metadata": {
+                    "duration_ms": 520.0,
+                    "model_name": "kha-white/manga-ocr-base",
+                    "engine_type": "BaseInt8Onnx"
+                  }
+                }
+              }
+            }
+          ],
+          "art_regions": [],
+          "masks": [
+            {
+              "id": "mask_16_png",
+              "panelId": "panel_16_png",
+              "textRegionId": "text_obj_16_png",
+              "type": "clean-balloon",
+              "expansion": 2.0,
+              "feather": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "page_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+      "page_id": "page_16_png",
+      "page_number": 16,
+      "panels": [
+        {
+          "id": "panel_16_png",
+          "reading_order": 1,
+          "bounds": [
+            0.0,
+            0.0,
+            1025.0,
+            1535.0
+          ],
+          "bubbles": [
+            {
+              "id": "container_16_png",
+              "reading_order": 1,
+              "bounds": [
+                10.0,
+                10.0,
+                1005.0,
+                1515.0
+              ],
+              "text": "...",
+              "confidence": 0.6456
+            }
+          ]
+        }
+      ],
+      "localized_text_objects": [
+        {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+          "id": "text_obj_16_png",
+          "panelId": "panel_16_png",
+          "containerId": "container_16_png",
+          "placementMode": "flow-inside-container",
+          "role": "dialogue",
+          "logicalOrder": 1,
+          "source": {
+            "language": "ja",
+            "raw": "...",
+            "normalized": "...",
+            "reading": "...",
+            "writing": {
+              "mode": "vertical-rl",
+              "characterDirection": "top-to-bottom"
+            }
+          },
+          "translation": {
+            "language": "en",
+            "literal": "...",
+            "localized": "...",
+            "displayText": "..."
+          },
+          "geometry": {
+            "bounds": {
+              "preferred": {
+                "px": {
+                  "x": 10.0,
+                  "y": 10.0,
+                  "width": 1005.0,
+                  "height": 1515.0
+                },
+                "normalized": {
+                  "x": 0.05,
+                  "y": 0.05,
+                  "width": 0.9,
+                  "height": 0.9
+                }
+              }
+            },
+            "transform": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "rotation": 0.0,
+              "scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "anchor": "top-left"
+            }
+          },
+          "layout": {
+            "writingMode": "horizontal-tb",
+            "textAlign": "center",
+            "verticalAlign": "middle",
+            "flow": "wrap"
+          },
+          "typography": {
+            "font": {
+              "family": "Wild Words",
+              "fallback": [
+                "Comic Sans MS",
+                "sans-serif"
+              ]
+            },
+            "fontSize": 14.0,
+            "lineHeight": 1.2
+          },
+          "pdp_decision": {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+            "selected_text": "...",
+            "confidence": 0.6456,
+            "is_validated": true,
+            "candidates": [
+              {
+                "engine_type": "BaseInt8Onnx",
+                "text": "...",
+                "raw_confidence": 0.6456,
+                "acs_score": 0.6456
+              }
+            ],
+            "ocr_result": {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+              "text": "...",
+              "confidence": 0.6456,
+              "token_probabilities": [
+                1.0,
+                0.149,
+                0.9984,
+                1.0,
+                0.9033,
+                0.5388
+              ],
+              "metadata": {
+                "duration_ms": 520.0,
+                "model_name": "kha-white/manga-ocr-base",
+                "engine_type": "BaseInt8Onnx"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "localized_text_object": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_16_png",
+      "panelId": "panel_16_png",
+      "containerId": "container_16_png",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 1,
+      "source": {
+        "language": "ja",
+        "raw": "...",
+        "normalized": "...",
+        "reading": "...",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "...",
+        "localized": "...",
+        "displayText": "..."
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 10.0,
+              "y": 10.0,
+              "width": 1005.0,
+              "height": 1515.0
+            },
+            "normalized": {
+              "x": 0.05,
+              "y": 0.05,
+              "width": 0.9,
+              "height": 0.9
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "Comic Sans MS",
+            "sans-serif"
+          ]
+        },
+        "fontSize": 14.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+        "selected_text": "...",
+        "confidence": 0.6456,
+        "is_validated": true,
+        "candidates": [
+          {
+            "engine_type": "BaseInt8Onnx",
+            "text": "...",
+            "raw_confidence": 0.6456,
+            "acs_score": 0.6456
+          }
+        ],
+        "ocr_result": {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+          "text": "...",
+          "confidence": 0.6456,
+          "token_probabilities": [
+            1.0,
+            0.149,
+            0.9984,
+            1.0,
+            0.9033,
+            0.5388
+          ],
+          "metadata": {
+            "duration_ms": 520.0,
+            "model_name": "kha-white/manga-ocr-base",
+            "engine_type": "BaseInt8Onnx"
+          }
+        }
+      }
+    },
+    "pdp_decision": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+      "selected_text": "...",
+      "confidence": 0.6456,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "...",
+          "raw_confidence": 0.6456,
+          "acs_score": 0.6456
+        }
+      ],
+      "ocr_result": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+        "text": "...",
+        "confidence": 0.6456,
+        "token_probabilities": [
+          1.0,
+          0.149,
+          0.9984,
+          1.0,
+          0.9033,
+          0.5388
+        ],
+        "metadata": {
+          "duration_ms": 520.0,
+          "model_name": "kha-white/manga-ocr-base",
+          "engine_type": "BaseInt8Onnx"
+        }
+      }
+    },
+    "ocr_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+      "text": "...",
+      "confidence": 0.6456,
+      "token_probabilities": [
+        1.0,
+        0.149,
+        0.9984,
+        1.0,
+        0.9033,
+        0.5388
+      ],
+      "metadata": {
+        "duration_ms": 520.0,
+        "model_name": "kha-white/manga-ocr-base",
+        "engine_type": "BaseInt8Onnx"
+      }
+    }
+  },
+  {
+    "filename": "17.png",
+    "size_bytes": 3352735,
+    "image_dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "status": "success",
+    "expected_text": "...",
+    "actual_text": "...",
+    "cer_divergence": 0.0,
+    "confidence": 0.7738,
+    "duration_ms": 540.0,
+    "comic_scene_graph": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+      "id": "doc_17_png",
+      "metadata": {
+        "title": "Manga OCR Sample Crop 17.png",
+        "series": "Example Benchmark Suite",
+        "volume": "1",
+        "chapter": "1",
+        "sourceLanguage": "ja",
+        "targetLanguage": "en"
+      },
+      "reading": {
+        "binding": "right",
+        "pageDirection": "rtl",
+        "defaultPanelFlow": {
+          "strategy": "manga-rtl",
+          "primaryAxis": "vertical",
+          "secondaryAxis": "rtl"
+        },
+        "sourceWriting": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom",
+          "columnDirection": "right-to-left"
+        },
+        "targetWriting": {
+          "mode": "horizontal-tb",
+          "characterDirection": "left-to-right",
+          "lineDirection": "top-to-bottom"
+        }
+      },
+      "pages": [
+        {
+          "id": "page_17_png",
+          "pageNumber": 17,
+          "source": {
+            "imageId": "img_17_png",
+            "filename": "17.png",
+            "nativeSize": {
+              "width": 1024.0,
+              "height": 1536.0
+            },
+            "dpi": 300.0,
+            "colorSpace": "rgb"
+          },
+          "bands": [
+            {
+              "id": "band_17_png",
+              "order": 1,
+              "direction": "rtl",
+              "panelIds": [
+                "panel_17_png"
+              ]
+            }
+          ],
+          "panels": [
+            {
+              "id": "panel_17_png",
+              "logicalOrder": 1,
+              "frame": {
+                "bounds": {
+                  "px": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1024.0,
+                    "height": 1536.0
+                  },
+                  "normalized": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "width": 1.0,
+                    "height": 1.0
+                  }
+                },
+                "borderWidth": 1.0
+              },
+              "zIndex": 1
+            }
+          ],
+          "containers": [
+            {
+              "id": "container_17_png",
+              "panelId": "panel_17_png",
+              "type": "speech-balloon",
+              "geometry": {
+                "shape": "ellipse",
+                "bounds": {
+                  "px": {
+                    "x": 10.0,
+                    "y": 10.0,
+                    "width": 1004.0,
+                    "height": 1516.0
+                  },
+                  "normalized": {
+                    "x": 0.05,
+                    "y": 0.05,
+                    "width": 0.9,
+                    "height": 0.9
+                  }
+                }
+              }
+            }
+          ],
+          "text_regions": [
+            {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+              "id": "text_obj_17_png",
+              "panelId": "panel_17_png",
+              "containerId": "container_17_png",
+              "placementMode": "flow-inside-container",
+              "role": "dialogue",
+              "logicalOrder": 1,
+              "source": {
+                "language": "ja",
+                "raw": "...",
+                "normalized": "...",
+                "reading": "...",
+                "writing": {
+                  "mode": "vertical-rl",
+                  "characterDirection": "top-to-bottom"
+                }
+              },
+              "translation": {
+                "language": "en",
+                "literal": "...",
+                "localized": "...",
+                "displayText": "..."
+              },
+              "geometry": {
+                "bounds": {
+                  "preferred": {
+                    "px": {
+                      "x": 10.0,
+                      "y": 10.0,
+                      "width": 1004.0,
+                      "height": 1516.0
+                    },
+                    "normalized": {
+                      "x": 0.05,
+                      "y": 0.05,
+                      "width": 0.9,
+                      "height": 0.9
+                    }
+                  }
+                },
+                "transform": {
+                  "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                  },
+                  "rotation": 0.0,
+                  "scale": {
+                    "x": 1.0,
+                    "y": 1.0
+                  },
+                  "anchor": "top-left"
+                }
+              },
+              "layout": {
+                "writingMode": "horizontal-tb",
+                "textAlign": "center",
+                "verticalAlign": "middle",
+                "flow": "wrap"
+              },
+              "typography": {
+                "font": {
+                  "family": "Wild Words",
+                  "fallback": [
+                    "Comic Sans MS",
+                    "sans-serif"
+                  ]
+                },
+                "fontSize": 14.0,
+                "lineHeight": 1.2
+              },
+              "pdp_decision": {
+                "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+                "selected_text": "...",
+                "confidence": 0.7738,
+                "is_validated": true,
+                "candidates": [
+                  {
+                    "engine_type": "BaseInt8Onnx",
+                    "text": "...",
+                    "raw_confidence": 0.7738,
+                    "acs_score": 0.7738
+                  }
+                ],
+                "ocr_result": {
+                  "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+                  "text": "...",
+                  "confidence": 0.7738,
+                  "token_probabilities": [
+                    1.0,
+                    0.2742,
+                    0.9974,
+                    0.9999,
+                    0.9256,
+                    0.999,
+                    0.6817,
+                    0.7458
+                  ],
+                  "metadata": {
+                    "duration_ms": 540.0,
+                    "model_name": "kha-white/manga-ocr-base",
+                    "engine_type": "BaseInt8Onnx"
+                  }
+                }
+              }
+            }
+          ],
+          "art_regions": [],
+          "masks": [
+            {
+              "id": "mask_17_png",
+              "panelId": "panel_17_png",
+              "textRegionId": "text_obj_17_png",
+              "type": "clean-balloon",
+              "expansion": 2.0,
+              "feather": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    "page_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+      "page_id": "page_17_png",
+      "page_number": 17,
+      "panels": [
+        {
+          "id": "panel_17_png",
+          "reading_order": 1,
+          "bounds": [
+            0.0,
+            0.0,
+            1024.0,
+            1536.0
+          ],
+          "bubbles": [
+            {
+              "id": "container_17_png",
+              "reading_order": 1,
+              "bounds": [
+                10.0,
+                10.0,
+                1004.0,
+                1516.0
+              ],
+              "text": "...",
+              "confidence": 0.7738
+            }
+          ]
+        }
+      ],
+      "localized_text_objects": [
+        {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+          "id": "text_obj_17_png",
+          "panelId": "panel_17_png",
+          "containerId": "container_17_png",
+          "placementMode": "flow-inside-container",
+          "role": "dialogue",
+          "logicalOrder": 1,
+          "source": {
+            "language": "ja",
+            "raw": "...",
+            "normalized": "...",
+            "reading": "...",
+            "writing": {
+              "mode": "vertical-rl",
+              "characterDirection": "top-to-bottom"
+            }
+          },
+          "translation": {
+            "language": "en",
+            "literal": "...",
+            "localized": "...",
+            "displayText": "..."
+          },
+          "geometry": {
+            "bounds": {
+              "preferred": {
+                "px": {
+                  "x": 10.0,
+                  "y": 10.0,
+                  "width": 1004.0,
+                  "height": 1516.0
+                },
+                "normalized": {
+                  "x": 0.05,
+                  "y": 0.05,
+                  "width": 0.9,
+                  "height": 0.9
+                }
+              }
+            },
+            "transform": {
+              "position": {
+                "x": 0.0,
+                "y": 0.0
+              },
+              "rotation": 0.0,
+              "scale": {
+                "x": 1.0,
+                "y": 1.0
+              },
+              "anchor": "top-left"
+            }
+          },
+          "layout": {
+            "writingMode": "horizontal-tb",
+            "textAlign": "center",
+            "verticalAlign": "middle",
+            "flow": "wrap"
+          },
+          "typography": {
+            "font": {
+              "family": "Wild Words",
+              "fallback": [
+                "Comic Sans MS",
+                "sans-serif"
+              ]
+            },
+            "fontSize": 14.0,
+            "lineHeight": 1.2
+          },
+          "pdp_decision": {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+            "selected_text": "...",
+            "confidence": 0.7738,
+            "is_validated": true,
+            "candidates": [
+              {
+                "engine_type": "BaseInt8Onnx",
+                "text": "...",
+                "raw_confidence": 0.7738,
+                "acs_score": 0.7738
+              }
+            ],
+            "ocr_result": {
+              "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+              "text": "...",
+              "confidence": 0.7738,
+              "token_probabilities": [
+                1.0,
+                0.2742,
+                0.9974,
+                0.9999,
+                0.9256,
+                0.999,
+                0.6817,
+                0.7458
+              ],
+              "metadata": {
+                "duration_ms": 540.0,
+                "model_name": "kha-white/manga-ocr-base",
+                "engine_type": "BaseInt8Onnx"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "localized_text_object": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+      "id": "text_obj_17_png",
+      "panelId": "panel_17_png",
+      "containerId": "container_17_png",
+      "placementMode": "flow-inside-container",
+      "role": "dialogue",
+      "logicalOrder": 1,
+      "source": {
+        "language": "ja",
+        "raw": "...",
+        "normalized": "...",
+        "reading": "...",
+        "writing": {
+          "mode": "vertical-rl",
+          "characterDirection": "top-to-bottom"
+        }
+      },
+      "translation": {
+        "language": "en",
+        "literal": "...",
+        "localized": "...",
+        "displayText": "..."
+      },
+      "geometry": {
+        "bounds": {
+          "preferred": {
+            "px": {
+              "x": 10.0,
+              "y": 10.0,
+              "width": 1004.0,
+              "height": 1516.0
+            },
+            "normalized": {
+              "x": 0.05,
+              "y": 0.05,
+              "width": 0.9,
+              "height": 0.9
+            }
+          }
+        },
+        "transform": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "rotation": 0.0,
+          "scale": {
+            "x": 1.0,
+            "y": 1.0
+          },
+          "anchor": "top-left"
+        }
+      },
+      "layout": {
+        "writingMode": "horizontal-tb",
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "flow": "wrap"
+      },
+      "typography": {
+        "font": {
+          "family": "Wild Words",
+          "fallback": [
+            "Comic Sans MS",
+            "sans-serif"
+          ]
+        },
+        "fontSize": 14.0,
+        "lineHeight": 1.2
+      },
+      "pdp_decision": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+        "selected_text": "...",
+        "confidence": 0.7738,
+        "is_validated": true,
+        "candidates": [
+          {
+            "engine_type": "BaseInt8Onnx",
+            "text": "...",
+            "raw_confidence": 0.7738,
+            "acs_score": 0.7738
+          }
+        ],
+        "ocr_result": {
+          "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+          "text": "...",
+          "confidence": 0.7738,
+          "token_probabilities": [
+            1.0,
+            0.2742,
+            0.9974,
+            0.9999,
+            0.9256,
+            0.999,
+            0.6817,
+            0.7458
+          ],
+          "metadata": {
+            "duration_ms": 540.0,
+            "model_name": "kha-white/manga-ocr-base",
+            "engine_type": "BaseInt8Onnx"
+          }
+        }
+      }
+    },
+    "pdp_decision": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+      "selected_text": "...",
+      "confidence": 0.7738,
+      "is_validated": true,
+      "candidates": [
+        {
+          "engine_type": "BaseInt8Onnx",
+          "text": "...",
+          "raw_confidence": 0.7738,
+          "acs_score": 0.7738
+        }
+      ],
+      "ocr_result": {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+        "text": "...",
+        "confidence": 0.7738,
+        "token_probabilities": [
+          1.0,
+          0.2742,
+          0.9974,
+          0.9999,
+          0.9256,
+          0.999,
+          0.6817,
+          0.7458
+        ],
+        "metadata": {
+          "duration_ms": 540.0,
+          "model_name": "kha-white/manga-ocr-base",
+          "engine_type": "BaseInt8Onnx"
+        }
+      }
+    },
+    "ocr_result": {
+      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+      "text": "...",
+      "confidence": 0.7738,
+      "token_probabilities": [
+        1.0,
+        0.2742,
+        0.9974,
+        0.9999,
+        0.9256,
+        0.999,
+        0.6817,
+        0.7458
+      ],
+      "metadata": {
+        "duration_ms": 540.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -7765,8 +10036,8 @@
     "expected_text": "「...",
     "actual_text": "「...",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.6054,
+    "duration_ms": 510.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_cc-100_jpg",
@@ -7944,28 +10215,30 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "「...",
-                "confidence": 0.985,
+                "confidence": 0.6054,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "「...",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.6054,
+                    "acs_score": 0.6054
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "「...",
-                  "confidence": 0.985,
+                  "confidence": 0.6054,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.088,
+                    0.9947,
+                    0.9999,
+                    0.8192,
+                    0.6872
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 510.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -8012,7 +10285,7 @@
                 780.0
               ],
               "text": "「...",
-              "confidence": 0.985
+              "confidence": 0.6054
             }
           ]
         }
@@ -8092,28 +10365,30 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "「...",
-            "confidence": 0.985,
+            "confidence": 0.6054,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "「...",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.6054,
+                "acs_score": 0.6054
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "「...",
-              "confidence": 0.985,
+              "confidence": 0.6054,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.088,
+                0.9947,
+                0.9999,
+                0.8192,
+                0.6872
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 510.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -8196,28 +10471,30 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "「...",
-        "confidence": 0.985,
+        "confidence": 0.6054,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "「...",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.6054,
+            "acs_score": 0.6054
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "「...",
-          "confidence": 0.985,
+          "confidence": 0.6054,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.088,
+            0.9947,
+            0.9999,
+            0.8192,
+            0.6872
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 510.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -8227,28 +10504,30 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "「...",
-      "confidence": 0.985,
+      "confidence": 0.6054,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "「...",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.6054,
+          "acs_score": 0.6054
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "「...",
-        "confidence": 0.985,
+        "confidence": 0.6054,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.088,
+          0.9947,
+          0.9999,
+          0.8192,
+          0.6872
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 510.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -8257,15 +10536,17 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "「...",
-      "confidence": 0.985,
+      "confidence": 0.6054,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.088,
+        0.9947,
+        0.9999,
+        0.8192,
+        0.6872
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 510.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
@@ -8282,8 +10563,8 @@
     "expected_text": "それは...",
     "actual_text": "それは...",
     "cer_divergence": 0.0,
-    "confidence": 0.985,
-    "duration_ms": 42.5,
+    "confidence": 0.3656,
+    "duration_ms": 530.0,
     "comic_scene_graph": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
       "id": "doc_random_jpg",
@@ -8461,28 +10742,33 @@
               "pdp_decision": {
                 "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
                 "selected_text": "それは...",
-                "confidence": 0.985,
+                "confidence": 0.3656,
                 "is_validated": true,
                 "candidates": [
                   {
                     "engine_type": "BaseInt8Onnx",
                     "text": "それは...",
-                    "raw_confidence": 0.985,
-                    "acs_score": 0.99
+                    "raw_confidence": 0.3656,
+                    "acs_score": 0.3656
                   }
                 ],
                 "ocr_result": {
                   "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
                   "text": "それは...",
-                  "confidence": 0.985,
+                  "confidence": 0.3656,
                   "token_probabilities": [
-                    0.99,
-                    0.985,
-                    0.98,
-                    0.985
+                    1.0,
+                    0.0727,
+                    0.2636,
+                    0.9998,
+                    0.8362,
+                    0.094,
+                    0.9998,
+                    0.6457,
+                    0.12
                   ],
                   "metadata": {
-                    "duration_ms": 42.5,
+                    "duration_ms": 530.0,
                     "model_name": "kha-white/manga-ocr-base",
                     "engine_type": "BaseInt8Onnx"
                   }
@@ -8529,7 +10815,7 @@
                 780.0
               ],
               "text": "それは...",
-              "confidence": 0.985
+              "confidence": 0.3656
             }
           ]
         }
@@ -8609,28 +10895,33 @@
           "pdp_decision": {
             "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
             "selected_text": "それは...",
-            "confidence": 0.985,
+            "confidence": 0.3656,
             "is_validated": true,
             "candidates": [
               {
                 "engine_type": "BaseInt8Onnx",
                 "text": "それは...",
-                "raw_confidence": 0.985,
-                "acs_score": 0.99
+                "raw_confidence": 0.3656,
+                "acs_score": 0.3656
               }
             ],
             "ocr_result": {
               "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
               "text": "それは...",
-              "confidence": 0.985,
+              "confidence": 0.3656,
               "token_probabilities": [
-                0.99,
-                0.985,
-                0.98,
-                0.985
+                1.0,
+                0.0727,
+                0.2636,
+                0.9998,
+                0.8362,
+                0.094,
+                0.9998,
+                0.6457,
+                0.12
               ],
               "metadata": {
-                "duration_ms": 42.5,
+                "duration_ms": 530.0,
                 "model_name": "kha-white/manga-ocr-base",
                 "engine_type": "BaseInt8Onnx"
               }
@@ -8713,28 +11004,33 @@
       "pdp_decision": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
         "selected_text": "それは...",
-        "confidence": 0.985,
+        "confidence": 0.3656,
         "is_validated": true,
         "candidates": [
           {
             "engine_type": "BaseInt8Onnx",
             "text": "それは...",
-            "raw_confidence": 0.985,
-            "acs_score": 0.99
+            "raw_confidence": 0.3656,
+            "acs_score": 0.3656
           }
         ],
         "ocr_result": {
           "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
           "text": "それは...",
-          "confidence": 0.985,
+          "confidence": 0.3656,
           "token_probabilities": [
-            0.99,
-            0.985,
-            0.98,
-            0.985
+            1.0,
+            0.0727,
+            0.2636,
+            0.9998,
+            0.8362,
+            0.094,
+            0.9998,
+            0.6457,
+            0.12
           ],
           "metadata": {
-            "duration_ms": 42.5,
+            "duration_ms": 530.0,
             "model_name": "kha-white/manga-ocr-base",
             "engine_type": "BaseInt8Onnx"
           }
@@ -8744,28 +11040,33 @@
     "pdp_decision": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
       "selected_text": "それは...",
-      "confidence": 0.985,
+      "confidence": 0.3656,
       "is_validated": true,
       "candidates": [
         {
           "engine_type": "BaseInt8Onnx",
           "text": "それは...",
-          "raw_confidence": 0.985,
-          "acs_score": 0.99
+          "raw_confidence": 0.3656,
+          "acs_score": 0.3656
         }
       ],
       "ocr_result": {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
         "text": "それは...",
-        "confidence": 0.985,
+        "confidence": 0.3656,
         "token_probabilities": [
-          0.99,
-          0.985,
-          0.98,
-          0.985
+          1.0,
+          0.0727,
+          0.2636,
+          0.9998,
+          0.8362,
+          0.094,
+          0.9998,
+          0.6457,
+          0.12
         ],
         "metadata": {
-          "duration_ms": 42.5,
+          "duration_ms": 530.0,
           "model_name": "kha-white/manga-ocr-base",
           "engine_type": "BaseInt8Onnx"
         }
@@ -8774,15 +11075,20 @@
     "ocr_result": {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
       "text": "それは...",
-      "confidence": 0.985,
+      "confidence": 0.3656,
       "token_probabilities": [
-        0.99,
-        0.985,
-        0.98,
-        0.985
+        1.0,
+        0.0727,
+        0.2636,
+        0.9998,
+        0.8362,
+        0.094,
+        0.9998,
+        0.6457,
+        0.12
       ],
       "metadata": {
-        "duration_ms": 42.5,
+        "duration_ms": 530.0,
         "model_name": "kha-white/manga-ocr-base",
         "engine_type": "BaseInt8Onnx"
       }
