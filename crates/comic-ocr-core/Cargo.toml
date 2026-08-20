@@ -11,3 +11,6 @@ serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 image.workspace = true
+
+[dev-dependencies]
+comic-ocr-ort = { path = "../comic-ocr-ort" }

@@ -403,6 +403,7 @@ dependencies = [
 name = "comic-ocr-core"
 version = "0.2.0"
 dependencies = [
+ "comic-ocr-ort",
  "image",
  "serde",
  "serde_json",

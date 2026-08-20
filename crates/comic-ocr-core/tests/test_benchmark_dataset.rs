@@ -1,3 +1,5 @@
+use comic_ocr_core::OcrEngine;
+use comic_ocr_ort::OrtEngine;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
@@ -118,21 +120,40 @@ fn test_benchmark_model_inference_evaluation() {
     let records: Vec<BenchmarkRecord> =
         serde_json::from_str(&json_str).expect("Failed to deserialize benchmark_results.json");
 
+    let images_dir = Path::new("tests/data/images");
+    let images_dir_fallback = Path::new("../../tests/data/images");
+    let target_dir = if images_dir.exists() {
+        images_dir
+    } else {
+        images_dir_fallback
+    };
+
+    let engine = OrtEngine::new("kha-white/manga-ocr-base");
+
     println!("\n==========================================================");
     println!(" RUNNING DYNAMIC INFERENCE BENCHMARK EVALUATION (17 IMAGES)");
     println!("==========================================================");
 
     let mut total_cer = 0.0f64;
     for (idx, record) in records.iter().enumerate() {
-        let cer = compute_cer(&record.expected_text, &record.actual_text);
+        let img_path = target_dir.join(&record.filename);
+        let img = image::open(&img_path)
+            .unwrap_or_else(|_| panic!("Failed to open image {}", img_path.display()));
+
+        let ocr_result = engine
+            .predict(&img)
+            .unwrap_or_else(|e| panic!("OCR prediction failed for {}: {}", record.filename, e));
+
+        let cer = compute_cer(&record.expected_text, &ocr_result.text);
         total_cer += cer;
 
         println!(
-            " [{:02}/{:02}] {:<12} | Expected: \"{}\" | Computed CER: {:.2}%",
+            " [{:02}/{:02}] {:<12} | Expected: \"{}\" | Predicted: \"{}\" | CER: {:.2}%",
             idx + 1,
             records.len(),
             record.filename,
             record.expected_text,
+            ocr_result.text,
             cer * 100.0
         );
 
