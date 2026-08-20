@@ -1,0 +1,138 @@
+[
+  {
+    "filename": "00.jpg",
+    "size_bytes": 9433,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "01.jpg",
+    "size_bytes": 34710,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "02.jpg",
+    "size_bytes": 2877,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "03.jpg",
+    "size_bytes": 18441,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "04.jpg",
+    "size_bytes": 90936,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "05.jpg",
+    "size_bytes": 3845,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "06.jpg",
+    "size_bytes": 9449,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "07.jpg",
+    "size_bytes": 15559,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "08.jpg",
+    "size_bytes": 7115,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "09.jpg",
+    "size_bytes": 6301,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "10.jpg",
+    "size_bytes": 3435,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "11.jpg",
+    "size_bytes": 14985,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "12.jpg",
+    "size_bytes": 201986,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "13.jpg",
+    "size_bytes": 247191,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "14.jpg",
+    "size_bytes": 227449,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "cc-100.jpg",
+    "size_bytes": 310740,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  },
+  {
+    "filename": "random.jpg",
+    "size_bytes": 414700,
+    "status": "success",
+    "recognized_text": "．．．",
+    "confidence": 0.985,
+    "duration_ms": 4.2
+  }
+]
