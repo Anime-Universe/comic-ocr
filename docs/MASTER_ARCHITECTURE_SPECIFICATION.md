@@ -437,7 +437,77 @@ flowchart TD
 
 ---
 
-## 4. Master Systems Comparison Matrix
+## 6. 4-Layer Scene Graph & Localization Solver Architecture
+
+A manga/comic page is structured as a small, hierarchical scene graph rather than a flat string inside a bounding box.
+
+```mermaid
+flowchart TD
+    DOC[MangaDocument / ComicDocument] --> VOL[Volume / Chapter Metadata]
+    VOL --> PAGE[MangaPage]
+    PAGE --> LAYER1[Layer 1: Page & Panel Topology]
+    PAGE --> LAYER2[Layer 2: Semantic Text Content]
+    PAGE --> LAYER3[Layer 3: Spatial & Typographic Presentation]
+    PAGE --> LAYER4[Layer 4: Rendering & Cleanup Metadata]
+    
+    LAYER1 --> BANDS[PanelBands & Panel Frames]
+    LAYER1 --> CONT[TextContainers & SafeAreas]
+    
+    LAYER2 --> SRC_TXT[Source Text & Tategaki Columns]
+    LAYER2 --> TRANS[Literal, Localized & DisplayText]
+    
+    LAYER3 --> DUAL_RECT[DualRect: px & Normalized Coordinates]
+    LAYER3 --> ENVELOPE[LayoutEnvelope: min / preferred / max / hard]
+    LAYER3 --> ART_PROT[ArtRegion: Protected Faces & Eyes]
+    
+    LAYER4 --> MASKS[MaskRegion: Solid Fill & Inpaint Masks]
+    LAYER4 --> LOCKS[ObjectLocks & Art Direction Overrides]
+```
+
+### 6.1 Four-Layer Separation of Concerns
+
+1. **Layer 1: Page Structure**: Defines `DocumentReadingModel` (`binding`, `pageDirection`), `PanelBand` horizontal tiers, `Panel` frames (`contentBounds`, `safeBounds`, `bleedBounds`), visible `TextContainer` geometry, safe usable text areas, and optical centers.
+2. **Layer 2: Semantic Text Content**: Preserves Japanese `vertical-rl` tategaki source columns independently from localized target lines (`horizontal-tb`). Separates literal translation, editorial localization, and final `displayText`.
+3. **Layer 3: Spatial & Typographic Presentation**: Dual coordinate representation (`px` source pixels + `normalized` $[0.0, 1.0]$ page coordinates). Specifies `LayoutEnvelope` numeric ranges (`min`, `preferred`, `max`, `hard`), `SpatialConstraints`, `ArtRegion` protected art avoidance (`character`, `face`, `eyes`), line layouts, and `TypographyEnvelope` bounds.
+4. **Layer 4: Rendering & Cleanup Metadata**: `MaskRegion` background cleanup modes (`solid-fill`, `texture-repair`, `inpaint`, `redraw`), layer z-indexes, manual art-direction `LayoutOverrides`, `ObjectLocks`, and validation issue tracking (`ValidationIssue`).
+
+---
+
+### 6.2 Dual Coordinate System
+
+Geometry is stored in both exact source pixels (`px`) and portable normalized page coordinates (`normalized` $[0.0, 1.0]$):
+
+$$X_{\text{norm}} = \frac{X_{\text{px}}}{\text{Width}_{\text{page}}}, \quad Y_{\text{norm}} = \frac{Y_{\text{px}}}{\text{Height}_{\text{page}}}$$
+
+This guarantees portability across different resolution scans, archival editions, web renderers, and mobile viewport viewports.
+
+---
+
+### 6.3 Spatial Bounds & Layout Envelope
+
+Text layout solvers evaluate placement against 4 spatial boundary levels:
+- **`preferred`**: Art-directed ideal placement.
+- **`min`**: Smallest usable region.
+- **`max`**: Largest region the text object may occupy without visual degradation.
+- **`hard`**: Absolute spatial boundary that must never be crossed.
+
+---
+
+### 6.4 Scene Compilation Pipeline
+
+```mermaid
+flowchart LR
+    AUTH[MangaDocument Authoring Graph] --> SOLVE[Layout & Collision Solver]
+    SOLVE --> VALID[Page Validation & Issue Flagging]
+    VALID --> COMP[Compiler Engine]
+    COMP --> RUNTIME[Compact LocalizedTextObject Payload]
+```
+
+The authoring scene graph (`MangaDocument`) is compiled into compact `LocalizedTextObject` payloads for high-throughput runtime renderers and interactive web readers without losing source evidence or art-direction locks.
+
+---
+
+## 7. Master Systems Comparison Matrix
 
 | Performance / Engineering Dimension | Legacy PyTorch (`comic-ocr`) | Intermediate Python ONNX | Production Master (`comic-ocr-rust`) |
 | :--- | :--- | :--- | :--- |

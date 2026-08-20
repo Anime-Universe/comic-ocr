@@ -1,76 +1,55 @@
-# Comic OCR Rust: Implementation & Governance TODO Master
+# Comic OCR Rust: Implementation & Audit Master TODO
 
-**Branch:** `rust-migration`  
-**Last Updated:** `2026-08-19`  
-**Status Legend:**  
-
-- [x] **Completed & Verified** (Passing tests / committed)  
-- [ ] **Pending Next Phase** (Planned per Master Architecture Specification)  
+> Master implementation roadmap and completed audit checklist for **Comic OCR Rust**.
 
 ---
 
-## Phase 1: Legacy Code Audit, Python Refactoring & Hardening
-
-- [x] **Comprehensive Codebase Review**: Completed architecture audit (`docs/code_review.md`).
-- [x] **Linux Wayland Clipboard Setter Fix**: Resolved `pyperclip` crash on Wayland sessions.
-- [x] **Thread-Safety Hardening**: Removed `global OUT_DIR` state mutations in synthetic generator.
-- [x] **Environment Variable Overrides**: Enabled `MANGA_OCR_DIR` environment overrides.
-- [x] **Type Annotations**: Added static type hints and `from __future__ import annotations`.
-- [x] **Hugging Face `evaluate` CER Metric Migration**: Migrated metric loader to `evaluate.load("cer")`.
-- [x] **Repository Hardening**: Updated `.gitignore` to exclude ML logs, model weights, and OS files.
-- [x] **Dependencies & Version Constraints**: Added `torchvision` to `pyproject.toml` and bound Python to `<3.13`.
-- [x] **Image Crop Ingestion & Inference Testing**: Added `assets/examples/12.jpg`, `13.jpg`, `14.jpg` and ran inference over all 15 images.
+## Phase 1: Python Monolith Refactoring & Foundation (Completed)
+- [x] **Wayland & Threading Fixes**: Resolved Python thread lock issues during image load.
+- [x] **Confidence Score Calculation**: Implemented geometric mean logit softmax confidence scoring.
+- [x] **FastAPI & ONNX Engine**: Built FastAPI server wrapper and ONNX Runtime inference pipeline.
 
 ---
 
-## Phase 2: Feature Upgrades & Microservice Foundations
-
-- [x] **Sequence Confidence Score Calculation**: Implemented $S = \exp(\frac{1}{N}\sum \ln P_i)$ geometric mean confidence scoring.
-- [x] **Batch Inference API (`predict_batch`)**: Added matrix batch prediction for processing list of crops.
-- [x] **Lightweight ONNX Runtime Backend**: Implemented `MangaOcrOnnx` and `export_to_onnx()` helper.
-- [x] **Event-Driven File Watcher**: Added native `watchdog` observer with polling loop fallback.
-- [x] **FastAPI REST API Microservice**: Built `/health`, `/ocr`, and `/ocr/batch` API server endpoints.
-- [x] **Docker Containerization**: Created multi-stage `Dockerfile`.
-- [x] **Full Page Processing Pipeline**: Implemented `MangaPagePipeline` with bounding-box cropping and reading-order sorting.
+## Phase 2: Architectural Research & Specifications (Completed)
+- [x] **Master Architecture & Systems Specification**: Created canonical technical specification (`docs/MASTER_ARCHITECTURE_SPECIFICATION.md`).
+- [x] **API & Schema Reference**: Documented Rust traits, JSON schemas, endpoints (`docs/api.md`).
+- [x] **Reflective Rust & Titan Runtime**: Documented zero-copy PyO3 RSP FFI and Tokio/Axum microservice architecture.
 
 ---
 
-## Phase 3: Architecture & Governance Research Synthesis
-
-- [x] **Framework & Doctrine Synthesis**: Unified Reflective Rust (RRSA), PDP, IEPE, Draft Smarter, and Titan blueprints (`docs/architecture_and_doctrine.md`).
-- [x] **Reflective Rust Integration & Gains**: Documented RSP zero-copy PyO3 FFI and CSG static shape validation (`docs/reflective_rust_integration.md`).
-- [x] **Polymorphic Decision Protocol (PDP)**: Documented 4-phase panel evaluation, ACS discounting, and Brier calibration (`docs/pdp_integration.md`).
-- [x] **Intent & Evidence Project Engine (IEPE)**: Documented qualification trace, ticket-first discipline, and assertion-checked gates (`docs/iepe_integration.md`).
-- [x] **Agent, Skill & Script Methods**: Documented agent orchestration, `.agents/skills` taxonomy, and `scripts/gen-llms.py` (`docs/agent_and_skill_methods.md`).
-- [x] **Reference ComicOCR Benchmark Analysis**: Analyzed PaddleOCR/TrOCR reference project and 8MB model target (`docs/reference_mangaocr_learnings.md`).
-- [x] **Master Architecture & Systems Specification**: Compiled canonical master technical specification incorporating all domain solutions (Furigana, Tate-chū-yoko, Sound Effects, aspect-ratio resampling, loop truncation, panel hierarchy, dual 8MB/430MB PDP escalation) (`docs/MASTER_ARCHITECTURE_SPECIFICATION.md`).
+## Phase 3: Pure Rust Cargo Workspace Migration (Completed)
+- [x] **100% Python Legacy Stripping**: Removed all Python legacy files and caches (`find . -name "*.py"` returns 0 runtime code).
+- [x] **Multi-Crate Workspace Setup**: Created `comic-ocr-core`, `comic-ocr-pdp`, `comic-ocr-ort`, `comic-ocr-cli`, `comic-ocr-runtime`.
 
 ---
 
-## Phase 4: Pure Rust Workspace Setup & Python Cleanup
-
-- [x] **Branch Creation & Remote Push**: Created `rust-migration` branch and pushed to GitHub.
-- [x] **Complete Python Codebase Removal**: Stripped 100% of legacy `.py` files (`comic_ocr`, `comic_ocr_dev`, `tests/*.py`, `.venv`).
-- [x] **Cargo Workspace Manifest**: Created root `Cargo.toml` & `Cargo.lock` with Edition 2024 and MSRV 1.88.
-- [x] **`crates/comic-ocr-core`**: Implemented `OcrEngine` trait, `OcrResult` struct, `EngineType` enum, and Japanese full-width `post_process()`.
-- [x] **`crates/comic-ocr-pdp`**: Implemented `PanelEvaluator`, ACS discounting, and pre-committed invalidation triggers.
-- [x] **`crates/comic-ocr-ort`**: Implemented `OrtEngine` C-bindings stub.
-- [x] **`crates/comic-ocr-cli`**: Implemented high-performance CLI binary (`comic-ocr`).
-- [x] **`crates/comic-ocr-runtime`**: Restructured service into Titan-style Reflective Runtime with Tokio, Axum, CORS, metrics, and graceful shutdown.
-- [x] **Pure Rust Multi-Stage Dockerfile**: Created multi-stage Rust release build `Dockerfile`.
-- [x] **Pure Rust GitHub Actions CI**: Updated `.github/workflows/main.yml` to run `cargo fmt`, `cargo clippy`, and `cargo test`.
-- [x] **Workspace Testing**: Executed `cargo check` and `cargo test` (**3 passed in 2.37s**).
+## Phase 4: Core Domain Features & Multi-Language Support (Completed)
+- [x] **Furigana Bracket Parser FSM (`comic-ocr-core`)**: Implemented 4-state FSM emitting `漢[かん]字[じ]`.
+- [x] **Aspect-Ratio Preserving Multi-Tile Resampling (`comic-ocr-core`)**: Implemented sliding window slicing ($\delta = 0.20$ overlap) for aspect ratio $> 3:1$.
+- [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$).
+- [x] **Japanese Reading Order Bubble Sorting (`comic-ocr-core`)**: Implemented Right-to-Left, Top-to-Bottom bubble sorting.
+- [x] **Multi-Language Package Support (`comic-ocr-core`)**: Implemented `Japanese` (full-width h2z) and `English` (ASCII quote standardization, spacing cleanup) language profiles.
+- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` and `.agents/llms-full.txt` (128KB).
+- [x] **Authoritative JSON Schema Suite (`schemas/`)**: Created `ocr_result.json`, `page_result.json`, `pdp_decision.json`, `comic_scene_graph.json`, and `localized_text_object.json`.
 
 ---
 
-## Phase 5: Deep Crate Implementation & Model Integration
+## Phase 5: 4-Layer Comic Scene Graph & Localization Engine (In Progress)
 
-- [x] **ONNX C-API Engine Loading (`comic-ocr-ort`)**: Implemented `OrtEngine` with ONNX session management contracts and model selection flags.
-- [x] **Dual Model Footprint Profile (`comic-ocr-nano`)**: Integrated `EngineType::NanoMobileNet` (~8MB footprint) and `EngineType::BaseInt8Onnx` profiles.
-- [x] **Furigana Bracket Parser FSM (`comic-ocr-core`)**: Implemented 4-state FSM emitting `漢[かん]字[じ]` when `extract_furigana=true`.
-- [x] **Aspect-Ratio Preserving Multi-Tile Resampling (`comic-ocr-core`)**: Implemented `resample_tiles` sliding window slicing ($\delta = 0.20$ overlap) for crops with aspect ratio $> 3:1$.
-- [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$) to terminate degenerate loops.
-- [x] **2-Level Topological Panel Graph (`comic-ocr-core`)**: Implemented `sort_bubble_reading_order` for Right-to-Left, Top-to-Bottom speech bubble sorting.
-- [ ] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module for compiling Rust engine to Python wheel.
-- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` manifest and `.agents/llms-full.txt` (123KB single-file context corpus).
-- [ ] **IEPE Parity Verification Gate**: Execute automated parity test comparing Rust ONNX outputs against PyTorch baseline images (0% CER divergence).
+- [x] **Scene Graph Data Substrate (`comic-ocr-core`)**: Defined `MangaDocument`, `MangaPage`, `PanelBand`, `Panel`, `TextContainer`, `TextRegion`, `DualRect`, `LayoutEnvelope`, `ArtRegion`, `MaskRegion`.
+- [ ] **Scene Graph Parser & Dual Coordinate Converter (`comic-ocr-core`)**: Implement JSON import/export parser and bi-directional pixel <-> normalized coordinate scaling (`px` $\leftrightarrow$ `normalized`).
+- [ ] **Topological Panel Graph Extractor (`comic-ocr-core`)**: Extract panel bands, content bounds, safe bounds, bleed bounds, and explicit reading order sequence from page artwork.
+- [ ] **Protected Art Region Avoidance Solver (`comic-ocr-core`)**: Segment character faces, eyes, and important artwork to evaluate `AvoidConstraint` penalty maps during layout placement.
+- [ ] **Layout Envelope & Auto-Lettering Solver (`comic-ocr-core`)**: Fit localized text within `SpatialBounds` (`min`, `preferred`, `max`, `hard`) and `TypographyEnvelope` limits without overlapping protected art.
+- [ ] **Background Cleanup Mask Generator (`comic-ocr-core`)**: Generate solid-fill balloon masks and inpaint texture masks for sound effect removal.
+- [ ] **Reflective Runtime Scene Graph REST API (`comic-ocr-runtime`)**:
+  - `POST /v1/scene/compile`: Compile full `MangaDocument` authoring scene graph into compact `LocalizedTextObject` runtime payloads.
+  - `POST /v1/scene/validate`: Validate scene graphs against collision, overflow, face-obstruction, and reading order rules (`ValidationIssue`).
+  - `POST /v1/scene/layout`: Solve auto-lettering text placement within container envelopes.
+
+---
+
+## Phase 6: Edge Deployment & Python Wheels (Next Steps)
+- [ ] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module compiling Rust engine to Python wheel.
+- [ ] **IEPE Parity Verification Gate**: Execute automated parity test comparing Rust ONNX outputs against PyTorch baselines.

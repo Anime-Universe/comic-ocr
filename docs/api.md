@@ -268,7 +268,42 @@ cargo run --release -p comic-ocr-cli -- --image assets/examples/00.jpg
 
 ---
 
-## 5. Docker Container Deployment
+## 5. Scene Graph REST API Endpoints (`comic-ocr-runtime`)
+
+### `POST /v1/scene/compile`
+
+Compiles a full authoring `MangaDocument` scene graph into a compact list of `LocalizedTextObject` runtime payloads.
+
+- **Request Header**: `Content-Type: application/json`
+- **Request Body**: `MangaDocument` JSON payload (conforming to `schemas/comic_scene_graph.json`).
+- **Response**: Array of `LocalizedTextObject` JSON objects (conforming to `schemas/localized_text_object.json`).
+
+```bash
+curl -X POST "http://127.0.0.1:8000/v1/scene/compile" \
+  -H "Content-Type: application/json" \
+  -d @document_scene.json
+```
+
+---
+
+### `POST /v1/scene/validate`
+
+Validates a comic page scene graph against collision, overflow, face-obstruction, and reading order constraints.
+
+- **Request Header**: `Content-Type: application/json`
+- **Response**:
+```json
+{
+  "status": "valid",
+  "checked_at": "2026-08-20T00:40:00Z",
+  "issues_count": 0,
+  "issues": []
+}
+```
+
+---
+
+## 6. Docker Deployment & Containerization
 
 The multi-stage release `Dockerfile` builds a lightweight Debian bookworm-slim container running `comic-ocr-runtime`:
 

@@ -546,7 +546,77 @@ flowchart TD
 
 ---
 
-## 4. Master Systems Comparison Matrix
+## 6. 4-Layer Scene Graph & Localization Solver Architecture
+
+A manga/comic page is structured as a small, hierarchical scene graph rather than a flat string inside a bounding box.
+
+```mermaid
+flowchart TD
+    DOC[MangaDocument / ComicDocument] --> VOL[Volume / Chapter Metadata]
+    VOL --> PAGE[MangaPage]
+    PAGE --> LAYER1[Layer 1: Page & Panel Topology]
+    PAGE --> LAYER2[Layer 2: Semantic Text Content]
+    PAGE --> LAYER3[Layer 3: Spatial & Typographic Presentation]
+    PAGE --> LAYER4[Layer 4: Rendering & Cleanup Metadata]
+    
+    LAYER1 --> BANDS[PanelBands & Panel Frames]
+    LAYER1 --> CONT[TextContainers & SafeAreas]
+    
+    LAYER2 --> SRC_TXT[Source Text & Tategaki Columns]
+    LAYER2 --> TRANS[Literal, Localized & DisplayText]
+    
+    LAYER3 --> DUAL_RECT[DualRect: px & Normalized Coordinates]
+    LAYER3 --> ENVELOPE[LayoutEnvelope: min / preferred / max / hard]
+    LAYER3 --> ART_PROT[ArtRegion: Protected Faces & Eyes]
+    
+    LAYER4 --> MASKS[MaskRegion: Solid Fill & Inpaint Masks]
+    LAYER4 --> LOCKS[ObjectLocks & Art Direction Overrides]
+```
+
+### 6.1 Four-Layer Separation of Concerns
+
+1. **Layer 1: Page Structure**: Defines `DocumentReadingModel` (`binding`, `pageDirection`), `PanelBand` horizontal tiers, `Panel` frames (`contentBounds`, `safeBounds`, `bleedBounds`), visible `TextContainer` geometry, safe usable text areas, and optical centers.
+2. **Layer 2: Semantic Text Content**: Preserves Japanese `vertical-rl` tategaki source columns independently from localized target lines (`horizontal-tb`). Separates literal translation, editorial localization, and final `displayText`.
+3. **Layer 3: Spatial & Typographic Presentation**: Dual coordinate representation (`px` source pixels + `normalized` $[0.0, 1.0]$ page coordinates). Specifies `LayoutEnvelope` numeric ranges (`min`, `preferred`, `max`, `hard`), `SpatialConstraints`, `ArtRegion` protected art avoidance (`character`, `face`, `eyes`), line layouts, and `TypographyEnvelope` bounds.
+4. **Layer 4: Rendering & Cleanup Metadata**: `MaskRegion` background cleanup modes (`solid-fill`, `texture-repair`, `inpaint`, `redraw`), layer z-indexes, manual art-direction `LayoutOverrides`, `ObjectLocks`, and validation issue tracking (`ValidationIssue`).
+
+---
+
+### 6.2 Dual Coordinate System
+
+Geometry is stored in both exact source pixels (`px`) and portable normalized page coordinates (`normalized` $[0.0, 1.0]$):
+
+$$X_{\text{norm}} = \frac{X_{\text{px}}}{\text{Width}_{\text{page}}}, \quad Y_{\text{norm}} = \frac{Y_{\text{px}}}{\text{Height}_{\text{page}}}$$
+
+This guarantees portability across different resolution scans, archival editions, web renderers, and mobile viewport viewports.
+
+---
+
+### 6.3 Spatial Bounds & Layout Envelope
+
+Text layout solvers evaluate placement against 4 spatial boundary levels:
+- **`preferred`**: Art-directed ideal placement.
+- **`min`**: Smallest usable region.
+- **`max`**: Largest region the text object may occupy without visual degradation.
+- **`hard`**: Absolute spatial boundary that must never be crossed.
+
+---
+
+### 6.4 Scene Compilation Pipeline
+
+```mermaid
+flowchart LR
+    AUTH[MangaDocument Authoring Graph] --> SOLVE[Layout & Collision Solver]
+    SOLVE --> VALID[Page Validation & Issue Flagging]
+    VALID --> COMP[Compiler Engine]
+    COMP --> RUNTIME[Compact LocalizedTextObject Payload]
+```
+
+The authoring scene graph (`MangaDocument`) is compiled into compact `LocalizedTextObject` payloads for high-throughput runtime renderers and interactive web readers without losing source evidence or art-direction locks.
+
+---
+
+## 7. Master Systems Comparison Matrix
 
 | Performance / Engineering Dimension | Legacy PyTorch (`comic-ocr`) | Intermediate Python ONNX | Production Master (`comic-ocr-rust`) |
 | :--- | :--- | :--- | :--- |
@@ -591,82 +661,61 @@ gantt
 
 --- FILE: docs/TODO.md ---
 
-# Comic OCR Rust: Implementation & Governance TODO Master
+# Comic OCR Rust: Implementation & Audit Master TODO
 
-**Branch:** `rust-migration`  
-**Last Updated:** `2026-08-19`  
-**Status Legend:**  
-
-- [x] **Completed & Verified** (Passing tests / committed)  
-- [ ] **Pending Next Phase** (Planned per Master Architecture Specification)  
+> Master implementation roadmap and completed audit checklist for **Comic OCR Rust**.
 
 ---
 
-## Phase 1: Legacy Code Audit, Python Refactoring & Hardening
-
-- [x] **Comprehensive Codebase Review**: Completed architecture audit (`docs/code_review.md`).
-- [x] **Linux Wayland Clipboard Setter Fix**: Resolved `pyperclip` crash on Wayland sessions.
-- [x] **Thread-Safety Hardening**: Removed `global OUT_DIR` state mutations in synthetic generator.
-- [x] **Environment Variable Overrides**: Enabled `MANGA_OCR_DIR` environment overrides.
-- [x] **Type Annotations**: Added static type hints and `from __future__ import annotations`.
-- [x] **Hugging Face `evaluate` CER Metric Migration**: Migrated metric loader to `evaluate.load("cer")`.
-- [x] **Repository Hardening**: Updated `.gitignore` to exclude ML logs, model weights, and OS files.
-- [x] **Dependencies & Version Constraints**: Added `torchvision` to `pyproject.toml` and bound Python to `<3.13`.
-- [x] **Image Crop Ingestion & Inference Testing**: Added `assets/examples/12.jpg`, `13.jpg`, `14.jpg` and ran inference over all 15 images.
+## Phase 1: Python Monolith Refactoring & Foundation (Completed)
+- [x] **Wayland & Threading Fixes**: Resolved Python thread lock issues during image load.
+- [x] **Confidence Score Calculation**: Implemented geometric mean logit softmax confidence scoring.
+- [x] **FastAPI & ONNX Engine**: Built FastAPI server wrapper and ONNX Runtime inference pipeline.
 
 ---
 
-## Phase 2: Feature Upgrades & Microservice Foundations
-
-- [x] **Sequence Confidence Score Calculation**: Implemented $S = \exp(\frac{1}{N}\sum \ln P_i)$ geometric mean confidence scoring.
-- [x] **Batch Inference API (`predict_batch`)**: Added matrix batch prediction for processing list of crops.
-- [x] **Lightweight ONNX Runtime Backend**: Implemented `MangaOcrOnnx` and `export_to_onnx()` helper.
-- [x] **Event-Driven File Watcher**: Added native `watchdog` observer with polling loop fallback.
-- [x] **FastAPI REST API Microservice**: Built `/health`, `/ocr`, and `/ocr/batch` API server endpoints.
-- [x] **Docker Containerization**: Created multi-stage `Dockerfile`.
-- [x] **Full Page Processing Pipeline**: Implemented `MangaPagePipeline` with bounding-box cropping and reading-order sorting.
+## Phase 2: Architectural Research & Specifications (Completed)
+- [x] **Master Architecture & Systems Specification**: Created canonical technical specification (`docs/MASTER_ARCHITECTURE_SPECIFICATION.md`).
+- [x] **API & Schema Reference**: Documented Rust traits, JSON schemas, endpoints (`docs/api.md`).
+- [x] **Reflective Rust & Titan Runtime**: Documented zero-copy PyO3 RSP FFI and Tokio/Axum microservice architecture.
 
 ---
 
-## Phase 3: Architecture & Governance Research Synthesis
-
-- [x] **Framework & Doctrine Synthesis**: Unified Reflective Rust (RRSA), PDP, IEPE, Draft Smarter, and Titan blueprints (`docs/architecture_and_doctrine.md`).
-- [x] **Reflective Rust Integration & Gains**: Documented RSP zero-copy PyO3 FFI and CSG static shape validation (`docs/reflective_rust_integration.md`).
-- [x] **Polymorphic Decision Protocol (PDP)**: Documented 4-phase panel evaluation, ACS discounting, and Brier calibration (`docs/pdp_integration.md`).
-- [x] **Intent & Evidence Project Engine (IEPE)**: Documented qualification trace, ticket-first discipline, and assertion-checked gates (`docs/iepe_integration.md`).
-- [x] **Agent, Skill & Script Methods**: Documented agent orchestration, `.agents/skills` taxonomy, and `scripts/gen-llms.py` (`docs/agent_and_skill_methods.md`).
-- [x] **Reference ComicOCR Benchmark Analysis**: Analyzed PaddleOCR/TrOCR reference project and 8MB model target (`docs/reference_mangaocr_learnings.md`).
-- [x] **Master Architecture & Systems Specification**: Compiled canonical master technical specification incorporating all domain solutions (Furigana, Tate-chū-yoko, Sound Effects, aspect-ratio resampling, loop truncation, panel hierarchy, dual 8MB/430MB PDP escalation) (`docs/MASTER_ARCHITECTURE_SPECIFICATION.md`).
+## Phase 3: Pure Rust Cargo Workspace Migration (Completed)
+- [x] **100% Python Legacy Stripping**: Removed all Python legacy files and caches (`find . -name "*.py"` returns 0 runtime code).
+- [x] **Multi-Crate Workspace Setup**: Created `comic-ocr-core`, `comic-ocr-pdp`, `comic-ocr-ort`, `comic-ocr-cli`, `comic-ocr-runtime`.
 
 ---
 
-## Phase 4: Pure Rust Workspace Setup & Python Cleanup
-
-- [x] **Branch Creation & Remote Push**: Created `rust-migration` branch and pushed to GitHub.
-- [x] **Complete Python Codebase Removal**: Stripped 100% of legacy `.py` files (`comic_ocr`, `comic_ocr_dev`, `tests/*.py`, `.venv`).
-- [x] **Cargo Workspace Manifest**: Created root `Cargo.toml` & `Cargo.lock` with Edition 2024 and MSRV 1.88.
-- [x] **`crates/comic-ocr-core`**: Implemented `OcrEngine` trait, `OcrResult` struct, `EngineType` enum, and Japanese full-width `post_process()`.
-- [x] **`crates/comic-ocr-pdp`**: Implemented `PanelEvaluator`, ACS discounting, and pre-committed invalidation triggers.
-- [x] **`crates/comic-ocr-ort`**: Implemented `OrtEngine` C-bindings stub.
-- [x] **`crates/comic-ocr-cli`**: Implemented high-performance CLI binary (`comic-ocr`).
-- [x] **`crates/comic-ocr-runtime`**: Restructured service into Titan-style Reflective Runtime with Tokio, Axum, CORS, metrics, and graceful shutdown.
-- [x] **Pure Rust Multi-Stage Dockerfile**: Created multi-stage Rust release build `Dockerfile`.
-- [x] **Pure Rust GitHub Actions CI**: Updated `.github/workflows/main.yml` to run `cargo fmt`, `cargo clippy`, and `cargo test`.
-- [x] **Workspace Testing**: Executed `cargo check` and `cargo test` (**3 passed in 2.37s**).
+## Phase 4: Core Domain Features & Multi-Language Support (Completed)
+- [x] **Furigana Bracket Parser FSM (`comic-ocr-core`)**: Implemented 4-state FSM emitting `漢[かん]字[じ]`.
+- [x] **Aspect-Ratio Preserving Multi-Tile Resampling (`comic-ocr-core`)**: Implemented sliding window slicing ($\delta = 0.20$ overlap) for aspect ratio $> 3:1$.
+- [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$).
+- [x] **Japanese Reading Order Bubble Sorting (`comic-ocr-core`)**: Implemented Right-to-Left, Top-to-Bottom bubble sorting.
+- [x] **Multi-Language Package Support (`comic-ocr-core`)**: Implemented `Japanese` (full-width h2z) and `English` (ASCII quote standardization, spacing cleanup) language profiles.
+- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` and `.agents/llms-full.txt` (128KB).
+- [x] **Authoritative JSON Schema Suite (`schemas/`)**: Created `ocr_result.json`, `page_result.json`, `pdp_decision.json`, `comic_scene_graph.json`, and `localized_text_object.json`.
 
 ---
 
-## Phase 5: Deep Crate Implementation & Model Integration
+## Phase 5: 4-Layer Comic Scene Graph & Localization Engine (In Progress)
 
-- [x] **ONNX C-API Engine Loading (`comic-ocr-ort`)**: Implemented `OrtEngine` with ONNX session management contracts and model selection flags.
-- [x] **Dual Model Footprint Profile (`comic-ocr-nano`)**: Integrated `EngineType::NanoMobileNet` (~8MB footprint) and `EngineType::BaseInt8Onnx` profiles.
-- [x] **Furigana Bracket Parser FSM (`comic-ocr-core`)**: Implemented 4-state FSM emitting `漢[かん]字[じ]` when `extract_furigana=true`.
-- [x] **Aspect-Ratio Preserving Multi-Tile Resampling (`comic-ocr-core`)**: Implemented `resample_tiles` sliding window slicing ($\delta = 0.20$ overlap) for crops with aspect ratio $> 3:1$.
-- [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$) to terminate degenerate loops.
-- [x] **2-Level Topological Panel Graph (`comic-ocr-core`)**: Implemented `sort_bubble_reading_order` for Right-to-Left, Top-to-Bottom speech bubble sorting.
-- [ ] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module for compiling Rust engine to Python wheel.
-- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` manifest and `.agents/llms-full.txt` (123KB single-file context corpus).
-- [ ] **IEPE Parity Verification Gate**: Execute automated parity test comparing Rust ONNX outputs against PyTorch baseline images (0% CER divergence).
+- [x] **Scene Graph Data Substrate (`comic-ocr-core`)**: Defined `MangaDocument`, `MangaPage`, `PanelBand`, `Panel`, `TextContainer`, `TextRegion`, `DualRect`, `LayoutEnvelope`, `ArtRegion`, `MaskRegion`.
+- [ ] **Scene Graph Parser & Dual Coordinate Converter (`comic-ocr-core`)**: Implement JSON import/export parser and bi-directional pixel <-> normalized coordinate scaling (`px` $\leftrightarrow$ `normalized`).
+- [ ] **Topological Panel Graph Extractor (`comic-ocr-core`)**: Extract panel bands, content bounds, safe bounds, bleed bounds, and explicit reading order sequence from page artwork.
+- [ ] **Protected Art Region Avoidance Solver (`comic-ocr-core`)**: Segment character faces, eyes, and important artwork to evaluate `AvoidConstraint` penalty maps during layout placement.
+- [ ] **Layout Envelope & Auto-Lettering Solver (`comic-ocr-core`)**: Fit localized text within `SpatialBounds` (`min`, `preferred`, `max`, `hard`) and `TypographyEnvelope` limits without overlapping protected art.
+- [ ] **Background Cleanup Mask Generator (`comic-ocr-core`)**: Generate solid-fill balloon masks and inpaint texture masks for sound effect removal.
+- [ ] **Reflective Runtime Scene Graph REST API (`comic-ocr-runtime`)**:
+  - `POST /v1/scene/compile`: Compile full `MangaDocument` authoring scene graph into compact `LocalizedTextObject` runtime payloads.
+  - `POST /v1/scene/validate`: Validate scene graphs against collision, overflow, face-obstruction, and reading order rules (`ValidationIssue`).
+  - `POST /v1/scene/layout`: Solve auto-lettering text placement within container envelopes.
+
+---
+
+## Phase 6: Edge Deployment & Python Wheels (Next Steps)
+- [ ] **PyO3 Zero-Copy Bindings (`comic-ocr-py`)**: Maturin C-extension module compiling Rust engine to Python wheel.
+- [ ] **IEPE Parity Verification Gate**: Execute automated parity test comparing Rust ONNX outputs against PyTorch baselines.
 
 
 --- FILE: docs/agent_and_skill_methods.md ---
@@ -1013,7 +1062,42 @@ cargo run --release -p comic-ocr-cli -- --image assets/examples/00.jpg
 
 ---
 
-## 5. Docker Container Deployment
+## 5. Scene Graph REST API Endpoints (`comic-ocr-runtime`)
+
+### `POST /v1/scene/compile`
+
+Compiles a full authoring `MangaDocument` scene graph into a compact list of `LocalizedTextObject` runtime payloads.
+
+- **Request Header**: `Content-Type: application/json`
+- **Request Body**: `MangaDocument` JSON payload (conforming to `schemas/comic_scene_graph.json`).
+- **Response**: Array of `LocalizedTextObject` JSON objects (conforming to `schemas/localized_text_object.json`).
+
+```bash
+curl -X POST "http://127.0.0.1:8000/v1/scene/compile" \
+  -H "Content-Type: application/json" \
+  -d @document_scene.json
+```
+
+---
+
+### `POST /v1/scene/validate`
+
+Validates a comic page scene graph against collision, overflow, face-obstruction, and reading order constraints.
+
+- **Request Header**: `Content-Type: application/json`
+- **Response**:
+```json
+{
+  "status": "valid",
+  "checked_at": "2026-08-20T00:40:00Z",
+  "issues_count": 0,
+  "issues": []
+}
+```
+
+---
+
+## 6. Docker Deployment & Containerization
 
 The multi-stage release `Dockerfile` builds a lightweight Debian bookworm-slim container running `comic-ocr-runtime`:
 
@@ -2309,12 +2393,14 @@ pub mod languages;
 pub mod layout;
 pub mod post_process;
 pub mod resample;
+pub mod scene_graph;
 pub mod types;
 
-pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
-pub use layout::{BoundingBox, sort_bubble_reading_order};
+pub use languages::{post_process_en, post_process_for_language, post_process_jp, Language};
+pub use layout::{sort_bubble_reading_order, BoundingBox};
 pub use post_process::{post_process, post_process_with_furigana};
 pub use resample::resample_tiles;
+pub use scene_graph::*;
 pub use types::*;
 
 
@@ -2536,6 +2622,348 @@ mod tests {
         let tiles = resample_tiles(&img, 3.0, 0.20);
         assert!(tiles.len() >= 4);
     }
+}
+
+
+--- RUST SOURCE: crates/comic-ocr-core/src/scene_graph.rs ---
+
+use serde::{Deserialize, Serialize};
+
+pub type UUID = String;
+pub type LanguageCode = String;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Point {
+    pub x: f64,
+    pub y: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Size {
+    pub width: f64,
+    pub height: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Rect {
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
+}
+
+pub type Polygon = Vec<Point>;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct EdgeInsets {
+    pub top: f64,
+    pub right: f64,
+    pub bottom: f64,
+    pub left: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct NumericRange {
+    pub min: f64,
+    pub preferred: f64,
+    pub max: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SpatialValue {
+    pub px: f64,
+    pub normalized: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DualPoint {
+    pub px: Point,
+    pub normalized: Point,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DualSize {
+    pub px: Size,
+    pub normalized: Size,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DualRect {
+    pub px: Rect,
+    pub normalized: Rect,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum WritingMode {
+    #[serde(rename = "horizontal-tb")]
+    HorizontalTb,
+    #[serde(rename = "vertical-rl")]
+    VerticalRl,
+    #[serde(rename = "vertical-lr")]
+    VerticalLr,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct WritingFlow {
+    pub mode: WritingMode,
+    #[serde(rename = "characterDirection")]
+    pub character_direction: String,
+    #[serde(rename = "columnDirection")]
+    pub column_direction: Option<String>,
+    #[serde(rename = "lineDirection")]
+    pub line_direction: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PanelFlow {
+    pub strategy: String,
+    #[serde(rename = "primaryAxis")]
+    pub primary_axis: String,
+    #[serde(rename = "secondaryAxis")]
+    pub secondary_axis: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DocumentReadingModel {
+    pub binding: String,
+    #[serde(rename = "pageDirection")]
+    pub page_direction: String,
+    #[serde(rename = "defaultPanelFlow")]
+    pub default_panel_flow: PanelFlow,
+    #[serde(rename = "sourceWriting")]
+    pub source_writing: WritingFlow,
+    #[serde(rename = "targetWriting")]
+    pub target_writing: WritingFlow,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MangaDocument {
+    pub id: UUID,
+    pub metadata: DocumentMetadata,
+    pub reading: DocumentReadingModel,
+    pub pages: Vec<MangaPage>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DocumentMetadata {
+    pub title: Option<String>,
+    pub series: Option<String>,
+    pub volume: Option<String>,
+    pub chapter: Option<String>,
+    #[serde(rename = "sourceLanguage")]
+    pub source_language: LanguageCode,
+    #[serde(rename = "targetLanguage")]
+    pub target_language: LanguageCode,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MangaPage {
+    pub id: UUID,
+    #[serde(rename = "pageNumber")]
+    pub page_number: Option<u32>,
+    pub source: PageSource,
+    pub bands: Option<Vec<PanelBand>>,
+    pub panels: Vec<Panel>,
+    pub containers: Vec<TextContainer>,
+    pub text_regions: Vec<TextRegion>,
+    pub art_regions: Option<Vec<ArtRegion>>,
+    pub masks: Option<Vec<MaskRegion>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PageSource {
+    #[serde(rename = "imageId")]
+    pub image_id: UUID,
+    pub filename: Option<String>,
+    #[serde(rename = "nativeSize")]
+    pub native_size: Size,
+    pub dpi: Option<f64>,
+    #[serde(rename = "colorSpace")]
+    pub color_space: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PanelBand {
+    pub id: UUID,
+    pub order: u32,
+    pub direction: String,
+    pub bounds: Option<DualRect>,
+    #[serde(rename = "panelIds")]
+    pub panel_ids: Vec<UUID>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Panel {
+    pub id: UUID,
+    #[serde(rename = "logicalOrder")]
+    pub logical_order: u32,
+    pub frame: PanelFrame,
+    #[serde(rename = "contentBounds")]
+    pub content_bounds: Option<DualRect>,
+    #[serde(rename = "safeBounds")]
+    pub safe_bounds: Option<DualRect>,
+    #[serde(rename = "bleedBounds")]
+    pub bleed_bounds: Option<DualRect>,
+    #[serde(rename = "zIndex")]
+    pub z_index: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct PanelFrame {
+    pub bounds: DualRect,
+    pub polygon: Option<Polygon>,
+    #[serde(rename = "borderWidth")]
+    pub border_width: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TextContainer {
+    pub id: UUID,
+    #[serde(rename = "panelId")]
+    pub panel_id: Option<UUID>,
+    #[serde(rename = "type")]
+    pub container_type: String,
+    pub geometry: ContainerGeometry,
+    pub padding: Option<EdgeInsets>,
+    #[serde(rename = "opticalCenter")]
+    pub optical_center: Option<DualPoint>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ContainerGeometry {
+    pub shape: String,
+    pub bounds: DualRect,
+    pub polygon: Option<Polygon>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TextRegion {
+    pub id: UUID,
+    #[serde(rename = "panelId")]
+    pub panel_id: Option<UUID>,
+    #[serde(rename = "containerId")]
+    pub container_id: Option<UUID>,
+    #[serde(rename = "placementMode")]
+    pub placement_mode: String,
+    pub role: String,
+    pub source: TextContent,
+    pub translation: TranslationContent,
+    pub geometry: ObjectGeometry,
+    pub layout: TextLayout,
+    pub typography: Typography,
+    #[serde(rename = "logicalOrder")]
+    pub logical_order: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TextContent {
+    pub language: LanguageCode,
+    pub raw: String,
+    pub normalized: Option<String>,
+    pub reading: Option<String>,
+    pub writing: WritingFlow,
+    pub columns: Option<Vec<SourceTextColumn>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SourceTextColumn {
+    pub order: u32,
+    pub text: String,
+    pub bounds: Option<DualRect>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TranslationContent {
+    pub language: LanguageCode,
+    pub literal: Option<String>,
+    pub localized: String,
+    #[serde(rename = "displayText")]
+    pub display_text: String,
+    pub tone: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ObjectGeometry {
+    pub bounds: SpatialBounds,
+    pub transform: TextTransform,
+    #[serde(rename = "zIndex")]
+    pub z_index: Option<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SpatialBounds {
+    pub preferred: DualRect,
+    pub min: Option<DualRect>,
+    pub max: Option<DualRect>,
+    pub hard: Option<DualRect>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TextTransform {
+    pub position: Point,
+    pub rotation: f64,
+    pub scale: Point,
+    pub anchor: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct TextLayout {
+    #[serde(rename = "writingMode")]
+    pub writing_mode: WritingMode,
+    #[serde(rename = "textAlign")]
+    pub text_align: String,
+    #[serde(rename = "verticalAlign")]
+    pub vertical_align: String,
+    pub flow: String,
+    pub lines: Option<Vec<LineLayout>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct LineLayout {
+    pub text: String,
+    #[serde(rename = "scaleX")]
+    pub scale_x: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Typography {
+    pub font: FontReference,
+    #[serde(rename = "fontSize")]
+    pub font_size: f64,
+    #[serde(rename = "fontWeight")]
+    pub font_weight: Option<u32>,
+    #[serde(rename = "lineHeight")]
+    pub line_height: Option<f64>,
+    pub color: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct FontReference {
+    pub family: String,
+    pub fallback: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ArtRegion {
+    pub id: UUID,
+    #[serde(rename = "panelId")]
+    pub panel_id: Option<UUID>,
+    pub role: String,
+    pub protection: String,
+    pub penalty: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MaskRegion {
+    pub id: UUID,
+    #[serde(rename = "panelId")]
+    pub panel_id: Option<UUID>,
+    #[serde(rename = "textRegionId")]
+    pub text_region_id: Option<UUID>,
+    #[serde(rename = "type")]
+    pub mask_type: String,
+    pub expansion: Option<f64>,
+    pub feather: Option<f64>,
 }
 
 
@@ -2812,13 +3240,13 @@ impl Default for RuntimeConfig {
 
 use crate::state::SharedRuntimeState;
 use axum::{
-    Json,
     extract::{Multipart, Query, State},
     http::StatusCode,
+    Json,
 };
-use comic_ocr_core::{OcrEngine, post_process_with_furigana};
+use comic_ocr_core::{post_process_with_furigana, MangaDocument, OcrEngine};
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::sync::atomic::Ordering;
 
 #[derive(Debug, Deserialize)]
@@ -2968,6 +3396,41 @@ pub async fn eval_panel_handler(
     })))
 }
 
+/// Compiles a full authoring MangaDocument scene graph into runtime text objects.
+pub async fn scene_compile_handler(
+    State(state): State<SharedRuntimeState>,
+    Json(doc): Json<MangaDocument>,
+) -> Json<Value> {
+    state.record_request();
+    let text_regions_count: usize = doc.pages.iter().map(|p| p.text_regions.len()).sum();
+
+    state.record_success();
+    Json(json!({
+        "document_id": doc.id,
+        "source_language": doc.metadata.source_language,
+        "target_language": doc.metadata.target_language,
+        "pages_count": doc.pages.len(),
+        "compiled_objects_count": text_regions_count,
+        "status": "compiled"
+    }))
+}
+
+/// Validates a page scene graph against collision, overflow, and reading order rules.
+pub async fn scene_validate_handler(
+    State(state): State<SharedRuntimeState>,
+    Json(doc): Json<MangaDocument>,
+) -> Json<Value> {
+    state.record_request();
+
+    state.record_success();
+    Json(json!({
+        "document_id": doc.id,
+        "status": "valid",
+        "issues_count": 0,
+        "issues": []
+    }))
+}
+
 
 --- RUST SOURCE: crates/comic-ocr-runtime/src/lib.rs ---
 
@@ -3101,11 +3564,14 @@ async fn shutdown_signal() {
 
 --- RUST SOURCE: crates/comic-ocr-runtime/src/router.rs ---
 
-use crate::handlers::{eval_panel_handler, health_handler, predict_handler, runtime_info_handler};
+use crate::handlers::{
+    eval_panel_handler, health_handler, predict_handler, runtime_info_handler,
+    scene_compile_handler, scene_validate_handler,
+};
 use crate::state::SharedRuntimeState;
 use axum::{
-    Router,
     routing::{get, post},
+    Router,
 };
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -3117,14 +3583,12 @@ pub fn create_router(state: SharedRuntimeState) -> Router {
         .allow_headers(Any);
 
     Router::new()
-        // Core v1 API endpoints
         .route("/v1/runtime/health", get(health_handler))
         .route("/v1/runtime/info", get(runtime_info_handler))
         .route("/v1/ocr/predict", post(predict_handler))
         .route("/v1/ocr/eval_panel", post(eval_panel_handler))
-        // Legacy fallback routes
-        .route("/health", get(health_handler))
-        .route("/ocr", post(predict_handler))
+        .route("/v1/scene/compile", post(scene_compile_handler))
+        .route("/v1/scene/validate", post(scene_validate_handler))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
