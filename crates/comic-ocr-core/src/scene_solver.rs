@@ -64,7 +64,7 @@ impl DualRect {
 
 /// Evaluates collision penalty between a proposed text DualRect and protected ArtRegions on a page.
 pub fn evaluate_art_protection_penalty(
-    _text_bounds: &DualRect,
+    text_bounds: &DualRect,
     art_regions: &[ArtRegion],
     panel_id: Option<&str>,
 ) -> (f64, bool) {
@@ -72,20 +72,26 @@ pub fn evaluate_art_protection_penalty(
     let mut hard_violation = false;
 
     for art in art_regions {
-        if let Some(p_id) = panel_id {
-            if let Some(ref art_panel) = art.panel_id {
-                if art_panel != p_id {
-                    continue;
-                }
+        if let (Some(p_id), Some(art_panel)) = (panel_id, &art.panel_id) {
+            if art_panel != p_id {
+                continue;
             }
         }
 
-        if art.protection == "hard" {
-            hard_violation = true;
-            total_penalty += 1000.0;
-        } else if art.protection == "soft" {
-            let weight = art.penalty.unwrap_or(1.0);
-            total_penalty += weight * 100.0;
+        let overlap = if let Some(ref art_bounds) = art.bounds {
+            text_bounds.intersection_area_px(art_bounds)
+        } else {
+            1.0 // fallback constant penalty if bounds omitted
+        };
+
+        if overlap > 0.0 {
+            if art.protection == "hard" {
+                hard_violation = true;
+                total_penalty += overlap * 1000.0;
+            } else if art.protection == "soft" {
+                let weight = art.penalty.unwrap_or(1.0);
+                total_penalty += overlap * weight * 100.0;
+            }
         }
     }
 

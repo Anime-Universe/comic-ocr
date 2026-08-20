@@ -322,6 +322,7 @@ pub struct ArtRegion {
     pub role: String,
     pub protection: String,
     pub penalty: Option<f64>,
+    pub bounds: Option<DualRect>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

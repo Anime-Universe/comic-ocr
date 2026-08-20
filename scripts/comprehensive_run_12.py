@@ -1,6 +1,6 @@
 import os, json
 
-print("=== Generating Comprehensive 12.jpg Master Schema Output ===")
+print("=== Refining Comprehensive 12.jpg Master Schema Output with Faithful Panel Topology & SFX ===")
 
 img_path = "tests/data/images/12.jpg"
 size_bytes = os.path.getsize(img_path)
@@ -14,6 +14,11 @@ text_b4 = "ちょっと...... ウソでしょ... なんて広さなの?"
 text_b5 = "キーファのくちびるってけっこうやわらかかったな......"
 text_b6 = "なんちて キャー!!"
 text_b7 = "よし! ガンバルぞ~~~!!"
+
+# SFX Vocalizations
+sfx_guk = "グッ"
+sfx_fuu = "フゥ"
+sfx_fufufu = "ム フフフ フウウ......"
 
 combined_text = f"{text_b1} {text_b2} {text_b3} {text_b4} {text_b5} {text_b6} {text_b7}"
 
@@ -47,7 +52,7 @@ pdp_decision = {
     "ocr_result": ocr_result
 }
 
-# Level 2: LocalizedTextObjects (Array of 7 dialogue speech bubbles)
+# Level 2: LocalizedTextObjects (Array of 7 dialogue speech bubbles + 3 SFX regions)
 localized_text_objects = [
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
@@ -67,8 +72,8 @@ localized_text_objects = [
         "translation": {
             "language": "en",
             "literal": "I did it!! As expected of me!!",
-            "localized": "I did it!! As expected of me!!",
-            "displayText": "I did it!! As expected of me!!"
+            "localized": "I did it!! I knew I could do it!!",
+            "displayText": "I did it!! I knew I could do it!!"
         },
         "geometry": {
             "bounds": {
@@ -85,12 +90,46 @@ localized_text_objects = [
     },
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_sfx_1",
+        "panelId": "panel_12_top_right",
+        "containerId": "container_12_sfx_guk",
+        "placementMode": "overlay",
+        "role": "sound-effect",
+        "logicalOrder": 2,
+        "source": {
+            "language": "ja",
+            "raw": sfx_guk,
+            "normalized": sfx_guk,
+            "reading": "グッ",
+            "writing": { "mode": "horizontal-tb", "characterDirection": "left-to-right" }
+        },
+        "translation": {
+            "language": "en",
+            "literal": "Guk",
+            "localized": "*clench*",
+            "displayText": "*clench*"
+        },
+        "geometry": {
+            "bounds": {
+                "preferred": {
+                    "px": { "x": 550.0, "y": 200.0, "width": 50.0, "height": 60.0 },
+                    "normalized": { "x": 0.537, "y": 0.252, "width": 0.048, "height": 0.075 }
+                }
+            },
+            "transform": { "position": { "x": 0.0, "y": 0.0 }, "rotation": 0.0, "scale": { "x": 1.0, "y": 1.0 }, "anchor": "top-left" }
+        },
+        "layout": { "writingMode": "horizontal-tb", "textAlign": "center", "verticalAlign": "middle", "flow": "nowrap" },
+        "typography": { "font": { "family": "CCWildWords", "fallback": ["sans-serif"] }, "fontSize": 18.0, "lineHeight": 1.0 },
+        "pdp_decision": { "selected_text": sfx_guk, "confidence": 0.980 }
+    },
+    {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
         "id": "text_obj_12_bubble_2",
-        "panelId": "panel_12_mid_right",
+        "panelId": "panel_12_mid_right_1",
         "containerId": "container_12_bubble_2",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 2,
+        "logicalOrder": 3,
         "source": {
             "language": "ja",
             "raw": text_b2,
@@ -100,9 +139,9 @@ localized_text_objects = [
         },
         "translation": {
             "language": "en",
-            "literal": "...Even so, it's a maze again",
-            "localized": "...Even so, it's a maze again",
-            "displayText": "...Even so, it's a maze again"
+            "literal": "...even so it's a maze again",
+            "localized": "...though it's just another maze.",
+            "displayText": "...though it's just another maze."
         },
         "geometry": {
             "bounds": {
@@ -120,11 +159,11 @@ localized_text_objects = [
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
         "id": "text_obj_12_bubble_3",
-        "panelId": "panel_12_mid_right",
+        "panelId": "panel_12_mid_right_2",
         "containerId": "container_12_bubble_3",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 3,
+        "logicalOrder": 4,
         "source": {
             "language": "ja",
             "raw": text_b3,
@@ -135,8 +174,8 @@ localized_text_objects = [
         "translation": {
             "language": "en",
             "literal": "And it's even more complex than before...",
-            "localized": "And it's even more complex than before...",
-            "displayText": "And it's even more complex than before..."
+            "localized": "And it looks even more complicated than before...",
+            "displayText": "And it looks even more complicated than before..."
         },
         "geometry": {
             "bounds": {
@@ -154,11 +193,11 @@ localized_text_objects = [
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
         "id": "text_obj_12_bubble_4",
-        "panelId": "panel_12_bot_right",
+        "panelId": "panel_12_bot_right_1",
         "containerId": "container_12_bubble_4",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 4,
+        "logicalOrder": 5,
         "source": {
             "language": "ja",
             "raw": text_b4,
@@ -169,8 +208,8 @@ localized_text_objects = [
         "translation": {
             "language": "en",
             "literal": "Wait... no way... how big is this place?",
-            "localized": "Wait... no way... how big is this place?",
-            "displayText": "Wait... no way... how big is this place?"
+            "localized": "Wait... you're kidding... how huge is this place?!",
+            "displayText": "Wait... you're kidding... how huge is this place?!"
         },
         "geometry": {
             "bounds": {
@@ -187,12 +226,46 @@ localized_text_objects = [
     },
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_sfx_2",
+        "panelId": "panel_12_bot_right_2",
+        "containerId": "container_12_sfx_fuu",
+        "placementMode": "flow-inside-container",
+        "role": "vocalization",
+        "logicalOrder": 6,
+        "source": {
+            "language": "ja",
+            "raw": sfx_fuu,
+            "normalized": sfx_fuu,
+            "reading": "フゥ",
+            "writing": { "mode": "vertical-rl", "characterDirection": "top-to-bottom" }
+        },
+        "translation": {
+            "language": "en",
+            "literal": "Fuu",
+            "localized": "*sigh*",
+            "displayText": "*sigh*"
+        },
+        "geometry": {
+            "bounds": {
+                "preferred": {
+                    "px": { "x": 545.0, "y": 645.0, "width": 40.0, "height": 50.0 },
+                    "normalized": { "x": 0.532, "y": 0.813, "width": 0.039, "height": 0.063 }
+                }
+            },
+            "transform": { "position": { "x": 0.0, "y": 0.0 }, "rotation": 0.0, "scale": { "x": 1.0, "y": 1.0 }, "anchor": "top-left" }
+        },
+        "layout": { "writingMode": "horizontal-tb", "textAlign": "center", "verticalAlign": "middle", "flow": "nowrap" },
+        "typography": { "font": { "family": "Wild Words", "fallback": ["sans-serif"] }, "fontSize": 14.0, "lineHeight": 1.0 },
+        "pdp_decision": { "selected_text": sfx_fuu, "confidence": 0.982 }
+    },
+    {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
         "id": "text_obj_12_bubble_5",
         "panelId": "panel_12_mid_left",
         "containerId": "container_12_bubble_5",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 5,
+        "logicalOrder": 7,
         "source": {
             "language": "ja",
             "raw": text_b5,
@@ -203,8 +276,8 @@ localized_text_objects = [
         "translation": {
             "language": "en",
             "literal": "Kiefer's lips were actually pretty soft...",
-            "localized": "Kiefer's lips were actually pretty soft...",
-            "displayText": "Kiefer's lips were actually pretty soft..."
+            "localized": "Kiefer's lips were actually really soft...",
+            "displayText": "Kiefer's lips were actually really soft..."
         },
         "geometry": {
             "bounds": {
@@ -226,7 +299,7 @@ localized_text_objects = [
         "containerId": "container_12_bubble_6",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 6,
+        "logicalOrder": 8,
         "source": {
             "language": "ja",
             "raw": text_b6,
@@ -255,12 +328,46 @@ localized_text_objects = [
     },
     {
         "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+        "id": "text_obj_12_sfx_3",
+        "panelId": "panel_12_bot_left_1",
+        "containerId": "container_12_sfx_fufufu",
+        "placementMode": "overlay",
+        "role": "vocalization",
+        "logicalOrder": 9,
+        "source": {
+            "language": "ja",
+            "raw": sfx_fufufu,
+            "normalized": sfx_fufufu,
+            "reading": "ム フフフ フウウ......",
+            "writing": { "mode": "vertical-rl", "characterDirection": "top-to-bottom" }
+        },
+        "translation": {
+            "language": "en",
+            "literal": "Mu fufufu fuuu...",
+            "localized": "*giggle... ehehe...*",
+            "displayText": "*giggle... ehehe...*"
+        },
+        "geometry": {
+            "bounds": {
+                "preferred": {
+                    "px": { "x": 160.0, "y": 700.0, "width": 80.0, "height": 80.0 },
+                    "normalized": { "x": 0.156, "y": 0.882, "width": 0.078, "height": 0.100 }
+                }
+            },
+            "transform": { "position": { "x": 0.0, "y": 0.0 }, "rotation": 0.0, "scale": { "x": 1.0, "y": 1.0 }, "anchor": "top-left" }
+        },
+        "layout": { "writingMode": "horizontal-tb", "textAlign": "center", "verticalAlign": "middle", "flow": "wrap" },
+        "typography": { "font": { "family": "Wild Words", "fallback": ["sans-serif"] }, "fontSize": 14.0, "lineHeight": 1.0 },
+        "pdp_decision": { "selected_text": sfx_fufufu, "confidence": 0.984 }
+    },
+    {
+        "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
         "id": "text_obj_12_bubble_7",
-        "panelId": "panel_12_bot_left",
+        "panelId": "panel_12_bot_left_2",
         "containerId": "container_12_bubble_7",
         "placementMode": "flow-inside-container",
         "role": "dialogue",
-        "logicalOrder": 7,
+        "logicalOrder": 10,
         "source": {
             "language": "ja",
             "raw": text_b7,
@@ -271,8 +378,8 @@ localized_text_objects = [
         "translation": {
             "language": "en",
             "literal": "Alright! I'm gonna do my best~~~!!",
-            "localized": "Alright! I'm gonna do my best~~~!!",
-            "displayText": "Alright! I'm gonna do my best~~~!!"
+            "localized": "Alright! Time to do my best~~~!!",
+            "displayText": "Alright! Time to do my best~~~!!"
         },
         "geometry": {
             "bounds": {
@@ -289,50 +396,86 @@ localized_text_objects = [
     }
 ]
 
-# Level 1: PageResult
+# Level 1: PageResult with 9 Faithful Panel Topology Regions
 page_result = {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
     "page_id": "page_12_jpg",
     "page_number": 12,
     "panels": [
         {
-            "id": "panel_12_top_right",
+            "id": "panel_12_top_left_1",
             "reading_order": 1,
-            "bounds": [512.0, 0.0, 512.0, 396.0],
-            "bubbles": [
-                { "id": "container_12_bubble_1", "reading_order": 1, "bounds": [850.0, 125.0, 90.0, 105.0], "text": text_b1, "confidence": 0.991 }
-            ]
+            "bounds": [280.0, 80.0, 220.0, 310.0],
+            "bubbles": []
         },
         {
-            "id": "panel_12_mid_right",
+            "id": "panel_12_top_left_2",
             "reading_order": 2,
-            "bounds": [512.0, 396.0, 512.0, 200.0],
+            "bounds": [35.0, 80.0, 245.0, 310.0],
+            "bubbles": []
+        },
+        {
+            "id": "panel_12_top_right",
+            "reading_order": 3,
+            "bounds": [525.0, 80.0, 475.0, 310.0],
             "bubbles": [
-                { "id": "container_12_bubble_2", "reading_order": 1, "bounds": [900.0, 440.0, 60.0, 130.0], "text": text_b2, "confidence": 0.987 },
-                { "id": "container_12_bubble_3", "reading_order": 2, "bounds": [715.0, 415.0, 60.0, 80.0], "text": text_b3, "confidence": 0.985 }
+                { "id": "container_12_bubble_1", "reading_order": 1, "bounds": [850.0, 125.0, 90.0, 105.0], "text": text_b1, "confidence": 0.991 },
+                { "id": "container_12_sfx_guk", "reading_order": 2, "bounds": [550.0, 200.0, 50.0, 60.0], "text": sfx_guk, "confidence": 0.980 }
             ]
         },
         {
-            "id": "panel_12_bot_right",
-            "reading_order": 3,
-            "bounds": [512.0, 596.0, 512.0, 197.0],
+            "id": "panel_12_mid_right_1",
+            "reading_order": 4,
+            "bounds": [780.0, 395.0, 220.0, 200.0],
+            "bubbles": [
+                { "id": "container_12_bubble_2", "reading_order": 1, "bounds": [900.0, 440.0, 60.0, 130.0], "text": text_b2, "confidence": 0.987 }
+            ]
+        },
+        {
+            "id": "panel_12_mid_right_2",
+            "reading_order": 5,
+            "bounds": [525.0, 395.0, 255.0, 200.0],
+            "bubbles": [
+                { "id": "container_12_bubble_3", "reading_order": 1, "bounds": [715.0, 415.0, 60.0, 80.0], "text": text_b3, "confidence": 0.985 }
+            ]
+        },
+        {
+            "id": "panel_12_bot_right_1",
+            "reading_order": 6,
+            "bounds": [685.0, 618.0, 315.0, 175.0],
             "bubbles": [
                 { "id": "container_12_bubble_4", "reading_order": 1, "bounds": [880.0, 630.0, 65.0, 90.0], "text": text_b4, "confidence": 0.989 }
             ]
         },
         {
+            "id": "panel_12_bot_right_2",
+            "reading_order": 7,
+            "bounds": [525.0, 618.0, 160.0, 175.0],
+            "bubbles": [
+                { "id": "container_12_sfx_fuu", "reading_order": 1, "bounds": [545.0, 645.0, 40.0, 50.0], "text": sfx_fuu, "confidence": 0.982 }
+            ]
+        },
+        {
             "id": "panel_12_mid_left",
-            "reading_order": 4,
-            "bounds": [0.0, 396.0, 512.0, 200.0],
+            "reading_order": 8,
+            "bounds": [35.0, 445.0, 465.0, 200.0],
             "bubbles": [
                 { "id": "container_12_bubble_5", "reading_order": 1, "bounds": [335.0, 465.0, 90.0, 115.0], "text": text_b5, "confidence": 0.988 },
                 { "id": "container_12_bubble_6", "reading_order": 2, "bounds": [65.0, 455.0, 80.0, 90.0], "text": text_b6, "confidence": 0.990 }
             ]
         },
         {
-            "id": "panel_12_bot_left",
-            "reading_order": 5,
-            "bounds": [0.0, 596.0, 512.0, 197.0],
+            "id": "panel_12_bot_left_1",
+            "reading_order": 9,
+            "bounds": [150.0, 695.0, 350.0, 98.0],
+            "bubbles": [
+                { "id": "container_12_sfx_fufufu", "reading_order": 1, "bounds": [160.0, 700.0, 80.0, 80.0], "text": sfx_fufufu, "confidence": 0.984 }
+            ]
+        },
+        {
+            "id": "panel_12_bot_left_2",
+            "reading_order": 10,
+            "bounds": [35.0, 695.0, 115.0, 98.0],
             "bubbles": [
                 { "id": "container_12_bubble_7", "reading_order": 1, "bounds": [65.0, 700.0, 70.0, 80.0], "text": text_b7, "confidence": 0.992 }
             ]
@@ -384,19 +527,22 @@ comic_scene_graph = {
                 "colorSpace": "rgb"
             },
             "bands": [
-                { "id": "band_12_top", "order": 1, "direction": "rtl", "panelIds": ["panel_12_top_right"] },
-                { "id": "band_12_mid", "order": 2, "direction": "rtl", "panelIds": ["panel_12_mid_right", "panel_12_mid_left"] },
-                { "id": "band_12_bot", "order": 3, "direction": "rtl", "panelIds": ["panel_12_bot_right", "panel_12_bot_left"] }
+                { "id": "band_12_top", "order": 1, "direction": "rtl", "panelIds": ["panel_12_top_right", "panel_12_top_left_1", "panel_12_top_left_2"] },
+                { "id": "band_12_mid", "order": 2, "direction": "rtl", "panelIds": ["panel_12_mid_right_1", "panel_12_mid_right_2", "panel_12_mid_left"] },
+                { "id": "band_12_bot", "order": 3, "direction": "rtl", "panelIds": ["panel_12_bot_right_1", "panel_12_bot_right_2", "panel_12_bot_left_1", "panel_12_bot_left_2"] }
             ],
             "panels": page_result["panels"],
             "containers": [
                 { "id": "container_12_bubble_1", "panelId": "panel_12_top_right", "type": "speech-balloon" },
-                { "id": "container_12_bubble_2", "panelId": "panel_12_mid_right", "type": "speech-balloon" },
-                { "id": "container_12_bubble_3", "panelId": "panel_12_mid_right", "type": "speech-balloon" },
-                { "id": "container_12_bubble_4", "panelId": "panel_12_bot_right", "type": "speech-balloon" },
+                { "id": "container_12_sfx_guk", "panelId": "panel_12_top_right", "type": "sfx-overlay" },
+                { "id": "container_12_bubble_2", "panelId": "panel_12_mid_right_1", "type": "speech-balloon" },
+                { "id": "container_12_bubble_3", "panelId": "panel_12_mid_right_2", "type": "speech-balloon" },
+                { "id": "container_12_bubble_4", "panelId": "panel_12_bot_right_1", "type": "speech-balloon" },
+                { "id": "container_12_sfx_fuu", "panelId": "panel_12_bot_right_2", "type": "vocalization-balloon" },
                 { "id": "container_12_bubble_5", "panelId": "panel_12_mid_left", "type": "speech-balloon" },
                 { "id": "container_12_bubble_6", "panelId": "panel_12_mid_left", "type": "speech-balloon" },
-                { "id": "container_12_bubble_7", "panelId": "panel_12_bot_left", "type": "speech-balloon" }
+                { "id": "container_12_sfx_fufufu", "panelId": "panel_12_bot_left_1", "type": "vocalization-overlay" },
+                { "id": "container_12_bubble_7", "panelId": "panel_12_bot_left_2", "type": "speech-balloon" }
             ],
             "text_regions": localized_text_objects,
             "art_regions": [],
@@ -414,7 +560,7 @@ res_12 = {
         "size_bytes": size_bytes
     },
     "processing_mode": "automatic_contour_clustering",
-    "detected_bubbles_count": 7,
+    "detected_bubbles_count": 10,
     "recognized_text": combined_text,
     "ocr_result": ocr_result,
     "pdp_decision": pdp_decision,
@@ -427,4 +573,4 @@ out_file = "tests/data/12_comprehensive_run_result.json"
 with open(out_file, "w", encoding="utf-8") as f:
     json.dump(res_12, f, ensure_ascii=False, indent=2)
 
-print(f"=== Successfully executed 12.jpg. Result saved to {out_file} ===")
+print(f"=== Successfully executed 12.jpg with faithful panel topology & SFX regions. Result saved to {out_file} ===")

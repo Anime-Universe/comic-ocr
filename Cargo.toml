@@ -8,6 +8,13 @@ members = [
     "crates/comic-ocr-cli",
     "crates/comic-ocr-py",
 ]
+default-members = [
+    "crates/comic-ocr-core",
+    "crates/comic-ocr-pdp",
+    "crates/comic-ocr-ort",
+    "crates/comic-ocr-runtime",
+    "crates/comic-ocr-cli",
+]
 
 [workspace.package]
 version = "0.2.0"

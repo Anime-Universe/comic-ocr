@@ -20,18 +20,42 @@ impl BoundingBox {
 }
 
 /// Sorts a slice of manga speech bubble bounding boxes in Japanese Reading Order:
-/// Primary Axis: Right-to-Left (x descending)
-/// Secondary Axis: Top-to-Bottom (y ascending)
+/// Primary Axis: Top-to-Bottom (Row Bucket Clustering)
+/// Secondary Axis: Right-to-Left (x descending within row)
 pub fn sort_bubble_reading_order(bubbles: &mut [BoundingBox]) {
-    bubbles.sort_by(|a, b| {
-        // Right-to-Left priority if vertical columns differ significantly
-        let y_diff = (a.y as i32 - b.y as i32).abs();
-        if y_diff > 40 {
-            a.y.cmp(&b.y)
-        } else {
-            b.x.cmp(&a.x)
+    if bubbles.len() <= 1 {
+        return;
+    }
+
+    // Sort by y ascending first to establish candidate vertical sequence
+    bubbles.sort_by_key(|b| b.y);
+
+    // Group into transitive row buckets where adjacent items overlap within average height / 40px
+    let mut rows: Vec<Vec<BoundingBox>> = Vec::new();
+
+    for box_item in bubbles.iter() {
+        if let Some(current_row) = rows.last_mut() {
+            let row_y_avg = current_row.iter().map(|b| b.y as f64).sum::<f64>() / current_row.len() as f64;
+            let threshold = current_row.iter().map(|b| b.height as f64).sum::<f64>() / current_row.len() as f64;
+            let max_delta = (threshold * 0.75).max(40.0);
+
+            if (box_item.y as f64 - row_y_avg).abs() <= max_delta {
+                current_row.push(box_item.clone());
+                continue;
+            }
         }
-    });
+        rows.push(vec![box_item.clone()]);
+    }
+
+    // Sort within each row bucket: Right-to-Left (x descending)
+    let mut idx = 0;
+    for mut row in rows {
+        row.sort_by(|a, b| b.x.cmp(&a.x));
+        for item in row {
+            bubbles[idx] = item;
+            idx += 1;
+        }
+    }
 }
 
 #[cfg(test)]
