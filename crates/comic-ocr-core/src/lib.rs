@@ -1,3 +1,4 @@
+pub mod ambiguity;
 pub mod detector;
 pub mod languages;
 pub mod layout;
@@ -8,6 +9,7 @@ pub mod scene_solver;
 pub mod types;
 pub mod validation;
 
+pub use ambiguity::*;
 pub use detector::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
 pub use layout::{BoundingBox, sort_bubble_reading_order};
