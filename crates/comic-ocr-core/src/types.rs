@@ -21,6 +21,58 @@ pub enum OcrError {
     /// ends up in a corpus.
     #[error("Not implemented: {0}")]
     NotImplemented(String),
+    #[error("Configuration error: {0}")]
+    ConfigError(String),
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum AssertionState {
+    #[default]
+    Candidate,
+    Accepted,
+    Verified,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum RegionKind {
+    #[default]
+    Text,
+    SpeechBubble,
+    Panel,
+    Badge,
+    SoundEffect,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProvenanceRecord {
+    pub source: String,
+    pub engine: String,
+    pub model: String,
+    pub engine_version: String,
+    pub created_at: String,
+    pub fields: std::collections::HashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RegionReading {
+    pub region_id: String,
+    pub text: String,
+    pub confidence: Option<f32>,
+    pub normalized_bounds: [f32; 4],
+    pub kind: RegionKind,
+    pub state: AssertionState,
+    pub provenance: Option<ProvenanceRecord>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TextLayer {
+    pub id: String,
+    pub language: String,
+    pub kind: String,
+    pub regions: Vec<RegionReading>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -50,6 +102,8 @@ pub trait OcrEngine: Send + Sync {
     fn predict_batch(
         &self,
         images: &[image::DynamicImage],
-        batch_size: usize,
-    ) -> Result<Vec<OcrResult>, OcrError>;
+        _batch_size: usize,
+    ) -> Result<Vec<OcrResult>, OcrError> {
+        images.iter().map(|img| self.predict(img)).collect()
+    }
 }

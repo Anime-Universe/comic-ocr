@@ -34,6 +34,11 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 thiserror = "1.0"
 anyhow = "1.0"
-ort = { version = "2.0.0-rc.4", features = ["load-dynamic"] }
+# download-binaries (a DEFAULT feature) makes the build fetch an ONNX Runtime
+# matching what this ort expects. `load-dynamic` opted out of that and required
+# a system library instead — and the one on this machine is older than ort wants,
+# so the native path could never load. That is plausibly why nobody noticed the
+# generation loop had no caller: it was not runnable to notice.
+ort = { version = "2.0.0-rc.4" }
 image = "0.25"
 clap = { version = "4.5", features = ["derive", "env"] }

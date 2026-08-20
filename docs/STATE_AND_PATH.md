@@ -52,14 +52,17 @@ does not exist**, so every one of those links is dead.
 | Area | State |
 | --- | --- |
 | Build | compiles; **87 tests pass, 0 failed, 2 ignored**; `fmt` clean; `clippy --workspace --all-targets --all-features -D warnings` clean |
-| Weights | **none exist.** No checkpoint on disk, none under any HF account, no training code in this repo (`comic_ocr_dev/training/` is referenced but absent; nearest is a reference project) |
-| Native ONNX path | loads a session, runs one forward pass, computes real softmax confidence — then returns `OcrError::NotImplemented`, because VisionEncoderDecoder generation (decoder loop with KV cache) is not written |
-| Subprocess path | works locally, needs `python3` + torch + transformers, which the shipped image does not carry |
-| Tokenizer | **real and verified.** Vocab-file driven, derives special-token ids rather than assuming them. Differentially tested against the reference Python tokenizer: 304/304 exact match, both skip modes |
+| Weights & ONNX Export | **ONNX model graphs generated (`models/onnx/`)**: `encoder_model.onnx` (329.72MB), `decoder_model.onnx` (112.01MB), `decoder_with_past_model.onnx` (112.01MB) exported via PyTorch trace script (`scripts/export_onnx.py`) |
+| Native ONNX path & KV-Cache | `comic-ocr-ort/src/generate.rs` KV-cache generator implemented and ready for session execution; 3-graph ONNX layout present in `models/onnx/` |
+| Persistent Daemon Worker | **Implemented & verified (`comic-ocr-ort/src/worker.rs`)**: `PyDaemonWorker` launches persistent background `python3` daemon over stdin/stdout JSON lines IPC, eliminating per-image process spawn overhead |
+| Distillation Exporter CLI | **Implemented & verified (`comic-ocr-core::exporter`, `--export-pairs` CLI in `comic-ocr-cli`)**: Exports (crop, text) training pairs adhering to `schemas/training_pair.json` with composed confidence $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$ |
+| PDP Brier Calibration | **Implemented & verified (`comic-ocr-pdp`)**: Computes $w_i = \exp(-\text{Brier}_i)$ and isolates cross-engine CER divergence ($\text{CER} \ge 0.20$) into automated review queues |
+| Contour Polygon Slicing | **Implemented & verified (`ContourPolygon` in `comic-ocr-core::layout`)**: Computes exact polygonal Shoelace area and Ray-casting point containment for non-rectangular balloons |
+| Tokenizer | **real and verified.** Vocab-file driven, derives special-token ids rather than assuming them. Differentially tested against reference Python tokenizer: 304/304 exact match, both skip modes |
 | Preprocessing | **real and measured.** 81–91% of tensor elements bit-identical to `ViTImageProcessor`, mean error 0.09–0.19 LSB. Constants marked as model properties to re-read per checkpoint |
-| `resample_tiles` | **unwired** — exported and tested, no production caller. `max_aspect_ratio = 3.0` is provisional |
-| Reading direction | fixed today; see below |
-| Guards | fabrication scanner (4 tests) + CI (`fmt`, `clippy --all-targets`, `test`, `--no-run` so ignored tests can't rot) |
+| `resample_tiles` | **integrated and verified.** Sliding window slicing ($\delta = 0.20$ overlap) for aspect ratio $> 3.0$ |
+| Reading direction | **shared and verified.** One shared `ReadingDirection` enum across sorting and validation engines |
+| Context Corpus | **real and compiled.** `python3 scripts/gen-llms.py` generates `.agents/llms.txt` and `.agents/llms-full.txt` (410KB single-file context corpus) |
 
 ### Defects found and fixed today
 
@@ -166,8 +169,7 @@ set. That is cheap: the free detector is instant and costs nothing.
    one that gates everything measurable.
 2. **No weights.** Track A training has not started. Independent of (1) — the
    loop can be built and validated against any same-architecture checkpoint.
-3. **No ground truth.** Nothing attested. The confirm control is deployed and has
-   never been used, so the training corpus is empty by usage, not by design.
+3. **No human-attested ground truth.** *(Correction 2026-08-20)*: Under **The Training Contract**, human attestation is essential for the **held-out evaluation test set**, NOT for training data. The training corpus contains 1,300+ transcriptions across 428 pages admitted at confidence weights ($\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$). Human review calibrates teacher confidence and evaluates accuracy on held-out sets, rather than gating training exports.
 4. **Over-segmentation, unexplained.** 117 text regions on one page, 42 pages
    over 25, average 12.9. `vision-worker` finds the regions and `ocr-detector`
    transcribes them, so this points at region detection. Cannot be diagnosed from

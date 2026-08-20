@@ -554,7 +554,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "01.jpg",
@@ -1151,7 +1152,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "02.jpg",
@@ -1703,7 +1705,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "03.jpg",
@@ -2320,7 +2323,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "04.jpg",
@@ -2917,7 +2921,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "05.jpg",
@@ -3439,7 +3444,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "06.jpg",
@@ -3981,7 +3987,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "07.jpg",
@@ -4618,7 +4625,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "08.jpg",
@@ -5160,7 +5168,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "09.jpg",
@@ -5707,7 +5716,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "10.jpg",
@@ -6254,7 +6264,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "11.jpg",
@@ -6841,7 +6852,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   },
   {
     "filename": "12.jpg",
@@ -7363,7 +7375,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "page"
   },
   {
     "filename": "13.jpg",
@@ -7910,7 +7923,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "page"
   },
   {
     "filename": "14.jpg",
@@ -8437,7 +8451,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "page"
   },
   {
     "filename": "15.png",
@@ -8959,7 +8974,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "degenerate"
   },
   {
     "filename": "16.png",
@@ -9486,7 +9502,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "degenerate"
   },
   {
     "filename": "17.png",
@@ -10023,7 +10040,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "degenerate"
   },
   {
     "filename": "cc-100.jpg",
@@ -10550,7 +10568,8 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "degenerate"
   },
   {
     "filename": "random.jpg",
@@ -11092,6 +11111,7 @@
         "model_name": "reference-checkpoint",
         "engine_type": "BaseInt8Onnx"
       }
-    }
+    },
+    "label_kind": "crop"
   }
 ]

@@ -1,6 +1,7 @@
 pub mod ambiguity;
 pub mod decode;
 pub mod detector;
+pub mod exporter;
 pub mod languages;
 pub mod layout;
 pub mod post_process;
@@ -11,9 +12,11 @@ pub mod scene_solver;
 pub mod tokenizer;
 pub mod types;
 pub mod validation;
+pub mod vocab_build;
 
 pub use ambiguity::*;
 pub use detector::*;
+pub use exporter::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
 pub use layout::{BoundingBox, ReadingDirection, sort_bubble_reading_order};
 pub use post_process::{post_process, post_process_with_furigana};
