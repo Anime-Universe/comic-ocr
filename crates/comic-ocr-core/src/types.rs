@@ -11,6 +11,16 @@ pub enum OcrError {
     TokenizerError(String),
     #[error("Invalid input parameter: {0}")]
     InvalidInput(String),
+    /// A capability this engine advertises but has not implemented.
+    ///
+    /// Distinct from `EngineError` on purpose. An engine error says something
+    /// went wrong at runtime and a retry might help; this says the code path
+    /// does not exist, so no retry ever will. Returning a plausible-looking
+    /// value here instead — a placeholder string, a default confidence — is how
+    /// an unimplemented path gets mistaken for a working one and its output
+    /// ends up in a corpus.
+    #[error("Not implemented: {0}")]
+    NotImplemented(String),
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

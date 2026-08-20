@@ -139,8 +139,9 @@ pub fn validate_semantic_roles(
 ) -> Vec<SemanticConflict> {
     let mut conflicts = Vec::new();
 
+    #[allow(clippy::collapsible_if)]
     if let (Some(ch), Some(badge)) = (chapter_number, badge_number) {
-        if ch == badge && continuation_chapter.map_or(false, |next_ch| next_ch < ch) {
+        if ch == badge && continuation_chapter.is_some_and(|next_ch| next_ch < ch) {
             conflicts.push(SemanticConflict {
                 conflict_type: "number-role-conflict".to_string(),
                 severity: "error".to_string(),
@@ -173,7 +174,10 @@ mod tests {
         let validation = validate_panel_reading_order(&panels, "right_to_left");
         assert_eq!(validation.status, "contradiction");
         assert_eq!(validation.violations.len(), 1);
-        assert_eq!(validation.violations[0].reason, ReadingOrderViolationReason::HorizontalOrder);
+        assert_eq!(
+            validation.violations[0].reason,
+            ReadingOrderViolationReason::HorizontalOrder
+        );
     }
 
     #[test]

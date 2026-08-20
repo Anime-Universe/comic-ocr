@@ -170,58 +170,32 @@ impl OcrEngine for OrtEngine {
                 .run(ort::inputs!["pixel_values" => tensor_value])
                 .map_err(|e| OcrError::EngineError(format!("ONNX inference run failed: {}", e)))?;
 
-            let duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
-            let raw_text = "ONNX_NATIVE_PREDICTION";
-            let text = post_process_with_furigana(raw_text, self.extract_furigana);
-
-            // Compute real softmax probabilities & geometric mean confidence from outputs tensor
-            let (confidence, token_probabilities) = if let Some(logits) = outputs.get("logits") {
-                if let Ok((shape, data)) = logits.try_extract_tensor::<f32>() {
-                    let shape_vec = shape.to_vec();
-                    if shape_vec.len() >= 2 {
-                        let vocab_size = *shape_vec.last().unwrap() as usize;
-                        let seq_len = data.len() / vocab_size;
-                        let mut step_max_probs = Vec::with_capacity(seq_len);
-
-                        for step in 0..seq_len {
-                            let start_idx = step * vocab_size;
-                            let end_idx = (step + 1) * vocab_size;
-                            if end_idx <= data.len() {
-                                let step_logits = &data[start_idx..end_idx];
-                                let step_probs = Self::softmax(step_logits);
-                                let max_p = step_probs.iter().copied().fold(0.0f32, f32::max);
-                                step_max_probs.push(max_p);
-                            }
-                        }
-
-                        let geom_mean = if !step_max_probs.is_empty() {
-                            let log_sum: f32 =
-                                step_max_probs.iter().map(|&p| p.max(1e-7).ln()).sum();
-                            (log_sum / step_max_probs.len() as f32).exp()
-                        } else {
-                            0.0
-                        };
-                        (geom_mean, step_max_probs)
-                    } else {
-                        (0.0, Vec::new())
-                    }
-                } else {
-                    (0.0, Vec::new())
-                }
-            } else {
-                (0.0, Vec::new())
-            };
-
-            return Ok(OcrResult {
-                text,
-                confidence,
-                token_probabilities,
-                metadata: OcrMetadata {
-                    duration_ms,
-                    model_name: self.model_name.clone(),
-                    engine_type: self.engine_type,
-                },
-            });
+            let _duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
+            // The session runs, and its logits are real — the confidence below is
+            // computed from them. What does not exist yet is TEXT.
+            //
+            // `manga-ocr-base` is a VisionEncoderDecoder: `optimum` exports it as
+            // encoder + decoder + decoder-with-past, and the autoregressive
+            // generation loop stays in the caller. One forward pass yields a
+            // single decode step, not a transcription. Until that loop exists —
+            // encoder run, decoder loop with KV cache, token selection,
+            // detokenise — this path cannot produce a reading.
+            //
+            // It previously returned the literal "ONNX_NATIVE_PREDICTION" with a
+            // genuine confidence attached, which is the most dangerous shape
+            // available: a caller sees Ok, a plausible score, and a string that
+            // never came from the model. `should_truncate_loop` and
+            // `calculate_token_entropy` are already written for the loop that
+            // will replace this.
+            let _ = &outputs;
+            let _ = start_time.elapsed();
+            return Err(OcrError::NotImplemented(
+                "the native ONNX path loads a session and runs one forward pass, but \
+                 VisionEncoderDecoder generation (decoder loop with KV cache) is not \
+                 implemented, so it cannot produce text. Set COMIC_OCR_ONNX_PATH only \
+                 once that lands; until then the subprocess path is the working one."
+                    .to_string(),
+            ));
         }
 
         // 2. Subprocess inference path with strict status honesty & real softmax extraction
