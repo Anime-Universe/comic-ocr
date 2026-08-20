@@ -11,6 +11,7 @@ Ensures all generated context output is sanitized and free of absolute local fil
 
 import os
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.resolve()
@@ -20,25 +21,96 @@ CRATES_DIR = ROOT / "crates"
 
 AGENTS_DIR.mkdir(parents=True, exist_ok=True)
 
-MANIFEST_HEADER = """# Comic OCR Rust Context Manifest (llms.txt)
+# The manifest is DERIVED, never hand-written.
+#
+# It used to be a string constant listing five crates (there are six) and
+# describing `comic-ocr-ort` as "token entropy loop truncation" with no mention
+# of the generation loop — which is the head commit. An index that cannot drift
+# toward the truth only drifts away from it, and the cost is real: on 2026-08-20
+# a reader concluded from this file that the decoder loop did not exist while it
+# sat, complete and tested, in `comic-ocr-ort/src/generate.rs`.
+#
+# So the index now answers "does X already exist?" from the tree itself. That is
+# the question it is actually asked.
 
-> High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of Japanese and English manga/comics.
 
-## Workspace Architecture & System Modules
+def _crate_doc(crate_dir: Path) -> str:
+    """The crate's own one-line description, from its lib.rs //! header."""
+    for candidate in ("src/lib.rs", "src/main.rs"):
+        f = crate_dir / candidate
+        if not f.exists():
+            continue
+        for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if line.startswith("//!") and line[3:].strip():
+                return line[3:].strip()
+            if line and not line.startswith("//"):
+                break
+    return ""
 
-- [Master Architecture Specification](docs/MASTER_ARCHITECTURE_SPECIFICATION.md): Canonical technical specification.
-- [API & Schema Reference](docs/api.md): Rust traits, JSON schemas, REST endpoints, CLI parameters.
-- [Architecture & Doctrine Synthesis](docs/architecture_and_doctrine.md): PDP, IEPE, Reflective Rust, Titan blueprints.
-- [Master TODO Ledger](docs/TODO.md): Implementation checklist & audit tracking.
 
-## Core Crates Summary
+def _public_symbols(crate_dir: Path):
+    """Public API per module — what an agent greps when asking 'is this built?'"""
+    out = {}
+    src = crate_dir / "src"
+    if not src.exists():
+        return out
+    sym = re.compile(r"^\s*pub (?:async )?(fn|struct|enum|trait|const) ([A-Za-z_][A-Za-z0-9_]*)")
+    for f in sorted(src.rglob("*.rs")):
+        names = []
+        for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
+            m = sym.match(line)
+            if m:
+                names.append(f"{m.group(2)}")
+        if names:
+            out[str(f.relative_to(crate_dir))] = names
+    return out
 
-- `comic-ocr-core`: Domain primitives, OcrEngine trait, multi-language post-processing (Japanese, English), Furigana FSM.
-- `comic-ocr-pdp`: Polymorphic Decision Protocol panel evaluator & ACS discounting.
-- `comic-ocr-ort`: ONNX Runtime (ort) C-bindings engine & token entropy loop truncation.
-- `comic-ocr-cli`: Fast command-line binary (comic-ocr).
-- `comic-ocr-runtime`: Titan-style Reflective Runtime microservice (Tokio + Axum).
-"""
+
+def build_manifest() -> str:
+    root = Path(ROOT_DIR) if "ROOT_DIR" in globals() else Path(__file__).resolve().parent.parent
+    parts = ["# Comic OCR Rust Context Manifest (llms.txt)", ""]
+    try:
+        head = subprocess.check_output(["git", "log", "-1", "--format=%h %s"], cwd=root,
+                                       stderr=subprocess.DEVNULL, text=True).strip()
+        dirty = subprocess.check_output(["git", "status", "--porcelain"], cwd=root,
+                                        stderr=subprocess.DEVNULL, text=True).strip()
+        parts.append(f"> HEAD: {head}{'  [WORKING TREE DIRTY — this corpus is not any committed state]' if dirty else ''}")
+    except Exception:
+        parts.append("> HEAD: unknown (not a git checkout)")
+    parts += ["> Generated from the tree. Do not hand-edit; edit the generator.", ""]
+
+    docs = sorted((root / "docs").glob("*.md")) if (root / "docs").exists() else []
+    if docs:
+        parts.append(f"## Documents ({len(docs)})")
+        for d in docs:
+            first = ""
+            for line in d.read_text(encoding="utf-8", errors="replace").splitlines():
+                if line.strip() and not line.startswith("#"):
+                    first = line.strip()[:110]
+                    break
+            parts.append(f"- [{d.name}](docs/{d.name}){': ' + first if first else ''}")
+        parts.append("")
+
+    crates_dir = root / "crates"
+    crates = sorted([c for c in crates_dir.iterdir() if c.is_dir()]) if crates_dir.exists() else []
+    parts.append(f"## Crates ({len(crates)})")
+    parts.append("")
+    for c in crates:
+        doc = _crate_doc(c)
+        parts.append(f"### `{c.name}`{' — ' + doc if doc else ''}")
+        syms = _public_symbols(c)
+        if not syms:
+            parts.append("  (no public symbols found)")
+        for mod, names in syms.items():
+            shown = ", ".join(names[:14])
+            more = f" (+{len(names) - 14} more)" if len(names) > 14 else ""
+            parts.append(f"- `{mod}`: {shown}{more}")
+        parts.append("")
+    return "\n".join(parts) + "\n"
+
+
+MANIFEST_HEADER = None  # replaced by build_manifest(); kept so old references fail loudly
 
 
 def sanitize_content(text: str) -> str:
@@ -58,7 +130,7 @@ def compile_full_corpus():
     full_text_path = AGENTS_DIR / "llms-full.txt"
     manifest_path = AGENTS_DIR / "llms.txt"
 
-    manifest_path.write_text(sanitize_content(MANIFEST_HEADER), encoding="utf-8")
+    manifest_path.write_text(sanitize_content(build_manifest()), encoding="utf-8")
 
     doc_files = sorted(list(DOCS_DIR.glob("*.md")))
     doc_files.insert(0, ROOT / "README.md")
