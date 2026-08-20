@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os, sys, argparse, json, time, glob, math
+from PIL import Image
 
 def run_gate(benchmark_file="tests/data/benchmark_results.json"):
     print("\n==========================================================================================")
