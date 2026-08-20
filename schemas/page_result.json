@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+  "title": "ComicPageOcrResult",
+  "description": "Authoritative JSON Schema for a full comic/manga page OCR result with 2-Level topological panel reading order graphs.",
+  "type": "object",
+  "required": [
+    "page_index",
+    "dimensions",
+    "panels"
+  ],
+  "properties": {
+    "page_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Zero-indexed page number within the chapter."
+    },
+    "dimensions": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["panel_index", "bounding_box", "bubbles"],
+        "properties": {
+          "panel_index": { "type": "integer", "minimum": 0 },
+          "bounding_box": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": { "type": "integer", "minimum": 0 },
+              "y": { "type": "integer", "minimum": 0 },
+              "width": { "type": "integer", "minimum": 1 },
+              "height": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "bubbles": {
+            "type": "array",
+            "items": {
+              "$ref": "ocr_result.json"
+            },
+            "description": "Speech bubbles sorted in Japanese Reading Order (Right-to-Left, Top-to-Bottom) or Western Reading Order."
+          }
+        }
+      }
+    },
+    "onomatopoeia_crops": {
+      "type": "array",
+      "items": {
+        "$ref": "ocr_result.json"
+      },
+      "description": "Stylized background sound effect crops processed under Grammar Prior Bypass Mode (lambda_LM -> 0)."
+    }
+  }
+}

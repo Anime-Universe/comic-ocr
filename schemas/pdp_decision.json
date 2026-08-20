@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+  "title": "PdpDecisionResult",
+  "description": "Authoritative JSON Schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation & ACS discounting.",
+  "type": "object",
+  "required": [
+    "selected_text",
+    "confidence",
+    "is_validated",
+    "candidates"
+  ],
+  "properties": {
+    "selected_text": {
+      "type": "string",
+      "description": "Winning prediction text selected by PDP ACS consensus discounting."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Brier score calibrated consensus confidence."
+    },
+    "is_validated": {
+      "type": "boolean",
+      "description": "Whether confidence satisfies the PDP invalidation threshold (e.g. S >= 0.70)."
+    },
+    "brier_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Empirical calibration error metric."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["engine_name", "predicted_text", "raw_confidence", "discounted_weight"],
+        "properties": {
+          "engine_name": { "type": "string" },
+          "predicted_text": { "type": "string" },
+          "raw_confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "discounted_weight": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+        }
+      }
+    }
+  }
+}

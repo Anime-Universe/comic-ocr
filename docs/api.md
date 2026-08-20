@@ -4,6 +4,16 @@ This document provides the canonical specification for the library traits, data 
 
 ---
 
+## 0. JSON Schemas
+
+Formal JSON Schema Draft-07 contracts are maintained in [`schemas/`](schemas/):
+
+- [`schemas/ocr_result.json`](schemas/ocr_result.json): Authoritative payload schema for single text crop OCR predictions.
+- [`schemas/page_result.json`](schemas/page_result.json): Authoritative payload schema for full-page OCR with 2-Level topological reading order panel graphs.
+- [`schemas/pdp_decision.json`](schemas/pdp_decision.json): Authoritative payload schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation.
+
+---
+
 ## 1. Rust Core Library API (`comic-ocr-core`)
 
 Located in [`crates/comic-ocr-core`](crates/comic-ocr-core).

@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+  "title": "ComicOcrResult",
+  "description": "Authoritative JSON Schema for a single speech bubble / text region OCR output in Comic OCR Rust.",
+  "type": "object",
+  "required": [
+    "text",
+    "confidence",
+    "token_probabilities",
+    "metadata"
+  ],
+  "properties": {
+    "text": {
+      "type": "string",
+      "description": "Recognized text string, normalized with full-width conversion (Japanese) or standardized ASCII (English). Includes Furigana bracket annotations if extract_furigana=true."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Geometric mean softmax confidence probability of generated tokens S in [0.0, 1.0]."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["Japanese", "English"],
+      "default": "Japanese",
+      "description": "Target OCR language processing profile."
+    },
+    "token_probabilities": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "description": "Per-step logit softmax probabilities for generated tokens."
+    },
+    "bounding_box": {
+      "type": "object",
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      },
+      "description": "Bounding box coordinates of the speech bubble / text crop."
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["duration_ms", "model_name", "engine_type"],
+      "properties": {
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Inference duration in milliseconds."
+        },
+        "model_name": {
+          "type": "string",
+          "description": "Model identifier."
+        },
+        "engine_type": {
+          "type": "string",
+          "enum": ["BaseInt8Onnx", "NanoMobileNet", "FallbackEngine"],
+          "description": "Engine footprint execution profile."
+        },
+        "reading_direction": {
+          "type": "string",
+          "enum": ["RightToLeftTopToBottom", "LeftToRightTopToBottom", "VerticalRightToLeft"],
+          "description": "Detected or configured reading order direction."
+        }
+      }
+    }
+  }
+}
