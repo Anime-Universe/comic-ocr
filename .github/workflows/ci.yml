@@ -1,0 +1,63 @@
+name: CI
+
+# Every gate in this workspace has, until now, run only when someone remembered
+# to run it. Three fabricated-output defects shipped and were found by reading
+# rather than by any check. This makes the repository refuse them instead.
+
+on:
+  push:
+    branches: [main, rust-migration]
+  pull_request:
+    branches: [main, rust-migration]
+
+env:
+  CARGO_TERM_COLOR: always
+  # Fail on warnings everywhere, not only where a local invocation remembered to.
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  gates:
+    name: fmt · clippy · test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      # `--all-targets` matters and is the whole point of this step. Without it
+      # clippy skips test targets, so newly added test code is unlinted by
+      # construction — which is exactly how two `needless_range_loop` errors sat
+      # in a benchmark test while the stated gate reported clean.
+      - name: cargo clippy --all-targets
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --all-features
+
+      # The ignored tests are the ones that need model weights. They must still
+      # COMPILE on every commit, or they rot silently behind `#[ignore]` and are
+      # discovered to be broken only when someone finally has a model.
+      - name: ignored tests still compile
+        run: cargo test --workspace --all-features --no-run
+
+  audit:
+    name: no fabricated output
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      # Called out as its own job so the reason is legible in the checks list.
+      # A placeholder transcription or a hardcoded confidence is not a style
+      # problem — it is output the caller cannot distinguish from a real reading,
+      # and it ends up in a corpus that is meant to be ground truth.
+      - name: engine returns nothing it did not compute
+        run: cargo test -p comic-ocr-ort --test test_no_fabricated_output

@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0.0",
+  "page_metadata": {
+    "image_filename": "13.jpg",
+    "page_number": 11,
+    "dimensions": {
+      "width": 700,
+      "height": 1030
+    },
+    "page_type": "manga_action_page",
+    "layout_type": "multi_koma_grid",
+    "language": "ja",
+    "reading_direction": "right_to_left",
+    "total_panels": 7
+  },
+  "series_info": {
+    "title_ja": "ドラゴンクエスト エデンの戦士たち",
+    "title_en": "Dragon Quest: Warriors of Eden",
+    "volume_number": 11
+  },
+  "header_layout": {
+    "header_series_logo": {
+      "id": "header-logo-13",
+      "bounds": [28, 25, 250, 30],
+      "furigana_subtitle_raw": "ドラゴンクエスト",
+      "main_title_raw": "エデンの戦士たち",
+      "volume_badge_value": 11
+    }
+  },
+  "validation_report": {
+    "reading_order_validation": {
+      "declared_direction": "right_to_left",
+      "inferred_direction": "right_to_left",
+      "status": "consistent",
+      "violations": []
+    },
+    "semantic_conflicts": []
+  },
+  "panels": [
+    {
+      "panel_id": "panel-1",
+      "reading_order": 1,
+      "bounds": [365, 62, 305, 290],
+      "description": "Maribel swept away in a raging torrent of water bursting through open stone doors.",
+      "text_regions": [
+        {
+          "id": "co-text-1-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [465, 88, 90, 75],
+          "raw_text": "キャアッ",
+          "formatted_text": "キャアッ",
+          "translation_en": "Kyaa!",
+          "reading_order": 1,
+          "confidence": 0.9950,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9950, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-1-2",
+          "type": "sfx",
+          "orientation": "vertical",
+          "bounds": [380, 75, 120, 240],
+          "raw_text": "ドォオ",
+          "formatted_text": "ドォオ",
+          "translation_en": "DOOO (Rushing water roar)",
+          "reading_order": 2,
+          "confidence": 0.9820,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9820, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-2",
+      "reading_order": 2,
+      "bounds": [30, 62, 320, 290],
+      "description": "Swirling vortex of water carrying character down a dark flooded stone tunnel.",
+      "text_regions": [
+        {
+          "id": "co-text-2-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [105, 75, 155, 125],
+          "raw_text": "アアアア",
+          "formatted_text": "アアアア",
+          "translation_en": "AAAA!",
+          "reading_order": 1,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-3",
+      "reading_order": 3,
+      "bounds": [435, 385, 235, 260],
+      "description": "Character submerged in water looking up in despair at a massive stone door closing ahead in the flooded corridor.",
+      "text_regions": [
+        {
+          "id": "co-text-3-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [580, 410, 80, 130],
+          "raw_text": "ヒッ\nま...また\n扉......",
+          "formatted_text": "ヒッ\nま...また\n{扉|とびら}......",
+          "translation_en": "Hic... A... another door...",
+          "reading_order": 1,
+          "confidence": 0.9880,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9880, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-4",
+      "reading_order": 4,
+      "bounds": [310, 385, 115, 260],
+      "description": "Dramatic close-up of character shouting the unlock spell 'Abakam'.",
+      "text_regions": [
+        {
+          "id": "co-text-4-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [325, 395, 80, 140],
+          "raw_text": "アバカム!!!",
+          "formatted_text": "アバカム!!!",
+          "translation_en": "ABAKAM!!! (Unlock spell)",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-5",
+      "reading_order": 5,
+      "bounds": [30, 385, 270, 260],
+      "description": "Water bursting out of archway, throwing character head-first in torrent.",
+      "text_regions": [
+        {
+          "id": "co-text-5-1",
+          "type": "sfx",
+          "orientation": "vertical",
+          "bounds": [45, 395, 100, 80],
+          "raw_text": "バシャン",
+          "formatted_text": "バシャン",
+          "translation_en": "BASHAN (Splash)",
+          "reading_order": 1,
+          "confidence": 0.9850,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9850, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-5-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [235, 520, 50, 45],
+          "raw_text": "ワッ",
+          "formatted_text": "ワッ",
+          "translation_en": "Wah!",
+          "reading_order": 2,
+          "confidence": 0.9920,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9920, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-6",
+      "reading_order": 6,
+      "bounds": [410, 670, 260, 300],
+      "description": "Perspective view looking down flooded ancient corridor towards distant arches as spell reverberates.",
+      "text_regions": [
+        {
+          "id": "co-text-6-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [585, 685, 80, 160],
+          "raw_text": "アバカム!!!",
+          "formatted_text": "アバカム!!!",
+          "translation_en": "ABAKAM!!!",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-6-2",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [485, 715, 75, 95],
+          "raw_text": "アバカム!!",
+          "formatted_text": "アバカム!!",
+          "translation_en": "ABAKAM!!",
+          "reading_order": 2,
+          "confidence": 0.9940,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9940, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-6-3",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [520, 825, 50, 45],
+          "raw_text": "バシャ",
+          "formatted_text": "バシャ",
+          "translation_en": "BASHA (Water splash)",
+          "reading_order": 3,
+          "confidence": 0.9830,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9830, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-7",
+      "reading_order": 7,
+      "bounds": [30, 670, 370, 300],
+      "description": "Close-up of character gagging and drowning in water, reaching out a desperate hand.",
+      "text_regions": [
+        {
+          "id": "co-text-7-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [235, 685, 65, 80],
+          "raw_text": "ガブッ",
+          "formatted_text": "ガブッ",
+          "translation_en": "Gabu! (Gulping water)",
+          "reading_order": 1,
+          "confidence": 0.9910,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9910, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-7-2",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [375, 790, 60, 70],
+          "raw_text": "アバッ",
+          "formatted_text": "アバッ",
+          "translation_en": "Aba!",
+          "reading_order": 2,
+          "confidence": 0.9890,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9890, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-7-3",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [60, 730, 80, 110],
+          "raw_text": "アボガボ",
+          "formatted_text": "アボガボ",
+          "translation_en": "Abo-gabo! (Drowning gurgle)",
+          "reading_order": 3,
+          "confidence": 0.9920,
+          "ocr_confidence": 0.9130,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9920, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.9130, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    }
+  ]
+}
