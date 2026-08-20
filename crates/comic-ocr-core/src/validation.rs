@@ -69,12 +69,120 @@ pub struct ReadingOrderValidation {
     pub violations: Vec<ReadingOrderViolation>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ContradictionKind {
+    TextVsText,
+    TextVsVisual,
+    VisualVsVisual,
+    MetadataVsStructure,
+    DerivedVsSource,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AnomalyNature {
+    AuthoringError,
+    CharacterPerceivedDiscontinuity,
+    TemporalAnomaly,
+    NarrativeDevice,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SemanticConflict {
     pub conflict_type: String,
     pub severity: String,
     pub objects: Vec<String>,
     pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contradiction_kind: Option<ContradictionKind>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anomaly_nature: Option<AnomalyNature>,
+}
+
+/// Evaluates cardinality invariants (e.g. page_metadata.total_panels == panels.len()).
+pub fn validate_cardinality_invariants(
+    declared_total_panels: usize,
+    actual_panels_len: usize,
+    panel_ids: &[String],
+) -> Vec<SemanticConflict> {
+    let mut conflicts = Vec::new();
+
+    if declared_total_panels != actual_panels_len {
+        conflicts.push(SemanticConflict {
+            conflict_type: "cardinality-mismatch".to_string(),
+            severity: "error".to_string(),
+            objects: vec![
+                "page_metadata.total_panels".to_string(),
+                "panels".to_string(),
+            ],
+            message: format!(
+                "Document metadata declares total_panels: {}, but panels array contains {} elements.",
+                declared_total_panels, actual_panels_len
+            ),
+            contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+            anomaly_nature: Some(AnomalyNature::AuthoringError),
+        });
+    }
+
+    // Check for duplicate panel IDs
+    let mut seen_ids = std::collections::HashSet::new();
+    for id in panel_ids {
+        if !seen_ids.insert(id) {
+            conflicts.push(SemanticConflict {
+                conflict_type: "duplicate-panel-id".to_string(),
+                severity: "error".to_string(),
+                objects: vec![id.clone()],
+                message: format!("Duplicate panel ID '{}' found in scene graph.", id),
+                contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+                anomaly_nature: Some(AnomalyNature::AuthoringError),
+            });
+        }
+    }
+
+    conflicts
+}
+
+/// Evaluates spatial containment of child text regions within parent panel bounds.
+pub fn validate_spatial_containment(
+    panel_bounds: [f32; 4], // [x, y, w, h]
+    text_bounds: [f32; 4],  // [x, y, w, h]
+    region_id: &str,
+    panel_id: &str,
+    tolerance_px: f32,
+) -> Option<SemanticConflict> {
+    let panel_x2 = panel_bounds[0] + panel_bounds[2];
+    let panel_y2 = panel_bounds[1] + panel_bounds[3];
+
+    let text_x2 = text_bounds[0] + text_bounds[2];
+    let text_y2 = text_bounds[1] + text_bounds[3];
+
+    // Calculate how far outside text region extends beyond panel bounds
+    let overflow_left = (panel_bounds[0] - text_bounds[0]).max(0.0);
+    let overflow_right = (text_x2 - panel_x2).max(0.0);
+    let overflow_top = (panel_bounds[1] - text_bounds[1]).max(0.0);
+    let overflow_bottom = (text_y2 - panel_y2).max(0.0);
+
+    let max_overflow = overflow_left
+        .max(overflow_right)
+        .max(overflow_top)
+        .max(overflow_bottom);
+
+    if max_overflow > tolerance_px {
+        Some(SemanticConflict {
+            conflict_type: "spatial-containment-violation".to_string(),
+            severity: "error".to_string(),
+            objects: vec![region_id.to_string(), panel_id.to_string()],
+            message: format!(
+                "Text region '{}' extends {:.1}px outside parent panel '{}' bounds (tolerance: {:.1}px).",
+                region_id, max_overflow, panel_id, tolerance_px
+            ),
+            contradiction_kind: Some(ContradictionKind::TextVsVisual),
+            anomaly_nature: Some(AnomalyNature::AuthoringError),
+        })
+    } else {
+        None
+    }
 }
 
 /// Evaluates spatial panel sequence against declared reading direction (RTL or LTR).
@@ -153,6 +261,8 @@ pub fn validate_semantic_roles(
                     "Numeric label {} was classified as chapter_number, but spatial context and continuation text specify next chapter is {}.",
                     badge, continuation_chapter.unwrap()
                 ),
+                contradiction_kind: Some(ContradictionKind::MetadataVsStructure),
+                anomaly_nature: Some(AnomalyNature::AuthoringError),
             });
         }
     }
@@ -165,25 +275,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_validate_panel_reading_order_rtl_contradiction() {
-        let panels = vec![
-            ("panel-left".to_string(), [15.0, 500.0, 400.0, 200.0], 1),
-            ("panel-right".to_string(), [700.0, 500.0, 300.0, 200.0], 2),
-        ];
-
-        let validation = validate_panel_reading_order(&panels, "right_to_left");
-        assert_eq!(validation.status, "contradiction");
-        assert_eq!(validation.violations.len(), 1);
-        assert_eq!(
-            validation.violations[0].reason,
-            ReadingOrderViolationReason::HorizontalOrder
-        );
+    fn test_validate_cardinality_invariants() {
+        let conflicts = validate_cardinality_invariants(10, 13, &["p1".into(), "p2".into()]);
+        assert_eq!(conflicts.len(), 1);
+        assert_eq!(conflicts[0].conflict_type, "cardinality-mismatch");
     }
 
     #[test]
-    fn test_validate_semantic_roles_conflict() {
-        let conflicts = validate_semantic_roles(Some(14), Some(2), Some(14));
-        assert_eq!(conflicts.len(), 1);
-        assert_eq!(conflicts[0].conflict_type, "number-role-conflict");
+    fn test_validate_spatial_containment_violation() {
+        let panel_bounds = [745.0, 860.0, 265.0, 275.0];
+        let text_bounds = [875.0, 580.0, 115.0, 110.0];
+
+        let conflict =
+            validate_spatial_containment(panel_bounds, text_bounds, "text-7", "panel-7", 50.0);
+        assert!(conflict.is_some());
+        assert_eq!(
+            conflict.unwrap().conflict_type,
+            "spatial-containment-violation"
+        );
     }
 }

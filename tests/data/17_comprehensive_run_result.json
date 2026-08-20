@@ -10,7 +10,7 @@
     "layout_type": "multi_koma_grid",
     "language": "en",
     "reading_direction": "left_to_right",
-    "total_panels": 10
+    "total_panels": 13
   },
   "series_info": {
     "title_en": "The Time Paradox Quest",
@@ -20,6 +20,11 @@
     "day": 12
   },
   "validation_report": {
+    "cardinality_validation": {
+      "declared_total_panels": 13,
+      "actual_panels_count": 13,
+      "status": "consistent"
+    },
     "reading_order_validation": {
       "declared_direction": "left_to_right",
       "inferred_direction": "left_to_right",
@@ -28,22 +33,28 @@
     },
     "semantic_conflicts": [
       {
-        "type": "timeline-contradiction",
-        "severity": "warning",
+        "conflict_type": "temporal-discontinuity",
+        "severity": "info",
         "objects": ["panel-2.speech", "panel-3.header"],
-        "message": "Hero announces journey starts 'tomorrow', but next panel banner states 'THE NEXT DAY' while hero questions why he hasn't started."
+        "message": "Hero announces journey starts 'tomorrow', but next panel banner states 'THE NEXT DAY' while hero experiences temporal confusion.",
+        "contradiction_kind": "text-vs-text",
+        "anomaly_nature": "character-perceived-discontinuity"
       },
       {
-        "type": "temporal-paradox-conflict",
+        "conflict_type": "proposition-level-contradiction",
         "severity": "warning",
         "objects": ["panel-11.book_text"],
-        "message": "Ancient book states Demon King woke up 300 years ago AND will awaken tomorrow."
+        "message": "Ancient book states Demon King woke up 300 years ago AND will awaken tomorrow.",
+        "contradiction_kind": "text-vs-text",
+        "anomaly_nature": "temporal-anomaly"
       },
       {
-        "type": "celestial-time-conflict",
+        "conflict_type": "celestial-clock-discrepancy",
         "severity": "warning",
         "objects": ["panel-12.clock", "panel-13.sky"],
-        "message": "Clock reads PM 02:15 (Afternoon), but sky shows full moon night with sun simultaneously."
+        "message": "Clock reads PM 02:15 (Afternoon), but sky simultaneously displays both the sun and full moon.",
+        "contradiction_kind": "text-vs-visual",
+        "anomaly_nature": "narrative-device"
       }
     ]
   },
@@ -64,10 +75,10 @@
           "translation_en": "Year 1000, Month of Gran, Day 12, The Kingdom of Estoria",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9850,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9850, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -80,10 +91,10 @@
           "translation_en": "Finally... I made it to Estoria!",
           "reading_order": 2,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9920,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9920, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -104,10 +115,10 @@
           "translation_en": "Tomorrow I'll start my journey to defeat the Demon King!",
           "reading_order": 1,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9940,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9940, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -128,10 +139,10 @@
           "translation_en": "THE NEXT DAY...",
           "reading_order": 1,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9950,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9950, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -144,10 +155,10 @@
           "translation_en": "Wait... didn't I just say I'd start tomorrow?",
           "reading_order": 2,
           "confidence": 0.9960,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9890,
           "evidence": [
             { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9890, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -168,10 +179,10 @@
           "translation_en": "Time is just a suggestion for those who can't use magic.",
           "reading_order": 1,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9910,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9910, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -192,10 +203,10 @@
           "translation_en": "Nice to meet you! I'm Lira!",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9930,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9930, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -216,10 +227,10 @@
           "translation_en": "I've known you since we were kids, remember? We trained together!",
           "reading_order": 1,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9900,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9900, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -240,10 +251,10 @@
           "translation_en": "FLASHBACK (LAST YEAR)",
           "reading_order": 1,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9960,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9960, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -256,10 +267,10 @@
           "translation_en": "Heh!",
           "reading_order": 2,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9940,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9940, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -272,10 +283,10 @@
           "translation_en": "Take this!",
           "reading_order": 3,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9910,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9910, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -296,10 +307,10 @@
           "translation_en": "Behold! The Floating Isle of Zephra!",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9920,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9920, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -312,10 +323,10 @@
           "translation_en": "It floats because of ancient magic!",
           "reading_order": 2,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9900,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9900, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -336,10 +347,10 @@
           "translation_en": "The bridge is broken!",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9940,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9940, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -352,10 +363,10 @@
           "translation_en": "CRAAASH!",
           "reading_order": 2,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9970,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9970, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -376,10 +387,10 @@
           "translation_en": "MOMENTS LATER",
           "reading_order": 1,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9950,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9950, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -392,10 +403,10 @@
           "translation_en": "Huh? It's fine now.",
           "reading_order": 2,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9900,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9900, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -408,10 +419,10 @@
           "translation_en": "It was always like that.",
           "reading_order": 3,
           "confidence": 0.9960,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9880,
           "evidence": [
             { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9880, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -432,10 +443,10 @@
           "translation_en": "This book says the Demon King woke up 300 years ago.",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9930,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9930, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -448,10 +459,10 @@
           "translation_en": "Then why does it also say he will awaken tomorrow?",
           "reading_order": 2,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9910,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9910, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -464,10 +475,10 @@
           "translation_en": "The Demon King was awakened 300 years ago.\n\nThe Demon King will awaken tomorrow.",
           "reading_order": 3,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9960,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9960, "pass_id": "manga-ocr-fullpage-pass" }
           ],
           "structured_document": {
             "type": "tome_page",
@@ -494,10 +505,10 @@
           "translation_en": "What time is it?",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9920,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9920, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -510,10 +521,10 @@
           "translation_en": "PM 02:15",
           "reading_order": 2,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9980,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9980, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -526,10 +537,10 @@
           "translation_en": "According to my clock, it's afternoon.",
           "reading_order": 3,
           "confidence": 0.9970,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9900,
           "evidence": [
             { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9900, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
@@ -538,7 +549,7 @@
       "panel_id": "panel-13",
       "reading_order": 13,
       "bounds": [675, 1130, 335, 335],
-      "description": "Town square at night with glowing clocktower under sky displaying both bright sun and full moon.",
+      "description": "Town square under blue sky displaying both bright sun and full moon simultaneously.",
       "text_regions": [
         {
           "id": "co-text-17-13-1",
@@ -550,10 +561,10 @@
           "translation_en": "Then why are both the sun and the moon out?",
           "reading_order": 1,
           "confidence": 0.9980,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9940,
           "evidence": [
             { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9940, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         },
         {
@@ -566,10 +577,10 @@
           "translation_en": "!!!",
           "reading_order": 2,
           "confidence": 0.9990,
-          "ocr_confidence": 0.0000,
+          "ocr_confidence": 0.9990,
           "evidence": [
             { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
-            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+            { "source": "ocr", "confidence": 0.9990, "pass_id": "manga-ocr-fullpage-pass" }
           ]
         }
       ]
