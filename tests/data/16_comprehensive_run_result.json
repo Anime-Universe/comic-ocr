@@ -1,0 +1,477 @@
+{
+  "schema_version": "1.0.0",
+  "page_metadata": {
+    "image_filename": "16.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "page_type": "manga_cyberpunk_page",
+    "layout_type": "multi_koma_grid",
+    "language": "ja",
+    "reading_direction": "right_to_left",
+    "total_panels": 11
+  },
+  "series_info": {
+    "title_ja": "プロジェクト・エデン",
+    "title_en": "Project: Eden",
+    "protagonist_codename": "Lei (Subject 07)",
+    "district": "Kaminarimon District (雷門区)"
+  },
+  "validation_report": {
+    "reading_order_validation": {
+      "declared_direction": "right_to_left",
+      "inferred_direction": "right_to_left",
+      "status": "consistent",
+      "violations": []
+    },
+    "semantic_conflicts": []
+  },
+  "panels": [
+    {
+      "panel_id": "panel-1",
+      "reading_order": 1,
+      "bounds": [615, 12, 395, 300],
+      "description": "Close-up portrait of Lei with purple-streaked hair and bandage on cheek looking back anxiously in the rain.",
+      "text_regions": [
+        {
+          "id": "co-text-1-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [865, 30, 125, 170],
+          "raw_text": "......やっぱり\n嫌な予感が\nする。",
+          "formatted_text": "......やっぱり\n{嫌|いや}な{予感|よかん}が\nする。",
+          "translation_en": "...As expected, I have a bad feeling about this.",
+          "reading_order": 1,
+          "confidence": 0.9960,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-2",
+      "reading_order": 2,
+      "bounds": [15, 12, 585, 300],
+      "description": "Wide shot of Lei standing in a dark rainy cyberpunk alley in Kaminarimon District surrounded by neon signs.",
+      "text_regions": [
+        {
+          "id": "co-text-2-1",
+          "type": "narration_box",
+          "orientation": "horizontal",
+          "bounds": [390, 20, 185, 160],
+          "raw_text": "ネオン街《雷門区》――\nこの街の裏には、\nもうひとつの顔が\nあるという。",
+          "formatted_text": "ネオン{街|がい}《{雷門区|かみなりもんく}》――\nこの{街|まち}の{裏|うら}には、\nもうひとつの{顔|かお}が\nあるという。",
+          "translation_en": "Neon District 'Kaminarimon District'―― Behind this city lies another face.",
+          "reading_order": 1,
+          "confidence": 0.9920,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9920, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-2-2",
+          "type": "narration_box",
+          "orientation": "horizontal",
+          "bounds": [25, 100, 170, 240],
+          "raw_text": "それを暴くため、\n私はここに来た。\n\nコードネーム:レイ。\n元・情報局の調査官。\n\n今はただの\nフリーランサーだ。",
+          "formatted_text": "それを{暴|あば}くため、\n{私|わたし}はここに来た。\n\nコードネーム:レイ。\n{元|もと}・{情報局|じょうほうきょく}の{調査官|ちょうさかん}。\n\n{今|いま}はただの\nフリーランサーだ。",
+          "translation_en": "To uncover it, I came here. Code name: Lei. Former Intelligence Bureau investigator. Now just a freelancer.",
+          "reading_order": 2,
+          "confidence": 0.9940,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9940, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-3",
+      "reading_order": 3,
+      "bounds": [615, 320, 395, 220],
+      "description": "Black cybernetic cat Nyao with glowing yellow eyes staring intently in alert mode.",
+      "text_regions": [
+        {
+          "id": "co-text-3-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [635, 340, 115, 110],
+          "raw_text": "ニャオ。\n(警戒モード\n起動。)",
+          "formatted_text": "ニャオ。\n({警戒|けいかい}モード\n{起動|きどう}。)",
+          "translation_en": "Nyao. (Alert mode activated.)",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-3-2",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [905, 385, 80, 50],
+          "raw_text": "ピッ",
+          "formatted_text": "ピッ",
+          "translation_en": "Beep!",
+          "reading_order": 2,
+          "confidence": 0.9890,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9890, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-4",
+      "reading_order": 4,
+      "bounds": [585, 555, 425, 290],
+      "description": "Close-up of male character with tinted purple glasses smirking in the rain.",
+      "text_regions": [
+        {
+          "id": "co-text-4-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [595, 570, 115, 110],
+          "raw_text": "相変わらず\n遅いねぇ。",
+          "formatted_text": "{相変|あいか}わらず\n{遅|おそ}いねぇ。",
+          "translation_en": "Late as usual.",
+          "reading_order": 1,
+          "confidence": 0.9950,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9950, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-4-2",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [850, 680, 130, 100],
+          "raw_text": "“あの記録”が\n欲しいんだろ?",
+          "formatted_text": "“あの{記録|きろく}”が\n{欲|ほ}しいんだろ?",
+          "translation_en": "You want 'that record', don't you?",
+          "reading_order": 2,
+          "confidence": 0.9930,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9930, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-5",
+      "reading_order": 5,
+      "bounds": [325, 555, 245, 290],
+      "description": "Figure in coat and fedora standing in the dark archway shadow.",
+      "text_regions": [
+        {
+          "id": "co-text-5-1",
+          "type": "sfx",
+          "orientation": "vertical",
+          "bounds": [335, 565, 75, 80],
+          "raw_text": "ザッ...",
+          "formatted_text": "ザッ...",
+          "translation_en": "Footstep...",
+          "reading_order": 1,
+          "confidence": 0.9860,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9860, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-5-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [445, 580, 115, 80],
+          "raw_text": "待ってたよ、\nレイ。",
+          "formatted_text": "{待|ま}ってたよ、\nレイ。",
+          "translation_en": "I was waiting for you, Lei.",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-6",
+      "reading_order": 6,
+      "bounds": [15, 555, 295, 290],
+      "description": "Lei crouching by an open sewer hatch leading underground.",
+      "text_regions": [
+        {
+          "id": "co-text-6-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [25, 570, 115, 120],
+          "raw_text": "地下への\nアクセス口...\nまだ使える\nみたいね。",
+          "formatted_text": "{地下|ちか}への\nアクセス{口|ぐち}...\nまだ{使|つか}える\nみたいね。",
+          "translation_en": "Underground access port... looks like it's still usable.",
+          "reading_order": 1,
+          "confidence": 0.9910,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9910, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-6-2",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [25, 760, 95, 55],
+          "raw_text": "ガコッ",
+          "formatted_text": "ガコッ",
+          "translation_en": "GAKO (Hatch clank)",
+          "reading_order": 2,
+          "confidence": 0.9880,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9880, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-7",
+      "reading_order": 7,
+      "bounds": [745, 860, 265, 275],
+      "description": "Cybernetic cat running rapidly across rain-slicked pavement.",
+      "text_regions": [
+        {
+          "id": "co-text-7-1",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [755, 870, 75, 60],
+          "raw_text": "ダッ",
+          "formatted_text": "ダッ",
+          "translation_en": "Dash!",
+          "reading_order": 1,
+          "confidence": 0.9850,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9850, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-7-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [875, 580, 115, 110],
+          "raw_text": "ニャッ!\n(危険!\n接近中!)",
+          "formatted_text": "ニャッ!\n({危険|きけん}!\n{接近中|せっきんちゅう}!)",
+          "translation_en": "Nyah! (Danger! Approaching!)",
+          "reading_order": 2,
+          "confidence": 0.9960,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-8",
+      "reading_order": 8,
+      "bounds": [355, 860, 375, 275],
+      "description": "Male character holding open hands out in a bargaining gesture under a neon sign.",
+      "text_regions": [
+        {
+          "id": "co-text-8-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [365, 580, 135, 120],
+          "raw_text": "落ち着けよ。\n俺だって命までは\n取らないさ。\n取引しようぜ。",
+          "formatted_text": "{落|お}ち{着|つ}けよ。\n{俺|おれ}だって{命|いのち}までは\n{取|と}らないさ。\n{取引|とりひき}しようぜ。",
+          "translation_en": "Calm down. I won't take your life. Let's make a deal.",
+          "reading_order": 1,
+          "confidence": 0.9940,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9940, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-9",
+      "reading_order": 9,
+      "bounds": [15, 860, 325, 275],
+      "description": "Lei aiming a handgun directly at the negotiator in fierce resistance.",
+      "text_regions": [
+        {
+          "id": "co-text-9-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [220, 570, 110, 80],
+          "raw_text": "誰だって\n聞いてるの!",
+          "formatted_text": "{誰|だれ}だって\n{聞|き}いてるの!",
+          "translation_en": "I asked WHO ARE YOU!",
+          "reading_order": 1,
+          "confidence": 0.9950,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9950, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-9-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [25, 680, 115, 70],
+          "raw_text": "その記録は\n渡さない!",
+          "formatted_text": "その{記録|きろく}は\n{渡|わた}さない!",
+          "translation_en": "I won't hand over that record!",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-9-3",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [205, 675, 110, 60],
+          "raw_text": "バンッ",
+          "formatted_text": "バンッ",
+          "translation_en": "BANG / DRAW SFX",
+          "reading_order": 3,
+          "confidence": 0.9900,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9900, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-10",
+      "reading_order": 10,
+      "bounds": [510, 1150, 500, 315],
+      "description": "Dramatic close-up of Lei in shock, purple eyes wide with realization as she hears the truth about her identity.",
+      "text_regions": [
+        {
+          "id": "co-text-10-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [865, 1165, 125, 140],
+          "raw_text": "なっ...!\nなんでそれを\n知って――!?",
+          "formatted_text": "なっ...!\nなんでそれを\n{知|し}って――!?",
+          "translation_en": "Wha...!? How do you know that――!?",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-11",
+      "reading_order": 11,
+      "bounds": [15, 1150, 480, 315],
+      "description": "Holographic terminal HUD displaying secret data file on Subject 07 with a red TOP SECRET stamp.",
+      "text_regions": [
+        {
+          "id": "co-text-11-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [25, 1160, 125, 90],
+          "raw_text": "これが\n欲しいんでしょ?",
+          "formatted_text": "これが\n{欲|ほ}しいんでしょ?",
+          "translation_en": "You want this, don't you?",
+          "reading_order": 1,
+          "confidence": 0.9960,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-11-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [25, 1265, 140, 110],
+          "raw_text": "被験者“07”の\nフルデータ。\n君自身のことだ。",
+          "formatted_text": "{被験者|ひけんしゃ}“07”の\nフルデータ。\n{君自身|きみじしん}のことだ。",
+          "translation_en": "Full data on Subject '07'. It's about yourself.",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-11-3",
+          "type": "hud_display",
+          "orientation": "horizontal",
+          "bounds": [180, 1160, 300, 290],
+          "raw_text": "PROJECT: EDEN\n被験者: 07\n極秘",
+          "formatted_text": "PROJECT: EDEN\n{被験者|ひけんしゃ}: 07\n{極秘|ごくひ}",
+          "translation_en": "PROJECT: EDEN / Subject: 07 / TOP SECRET",
+          "reading_order": 3,
+          "confidence": 0.9950,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9950, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ],
+          "structured_document": {
+            "type": "holographic_hud",
+            "title": "PROJECT: EDEN",
+            "subject_id": "07",
+            "classification": "TOP SECRET (極秘)",
+            "content": "Subject Biometric File"
+          }
+        }
+      ]
+    }
+  ],
+  "footer_layout": {
+    "narration_bar": {
+      "id": "footer-narration-1",
+      "bounds": [235, 1475, 520, 45],
+      "raw_text": "その瞬間、遠くでサイレンが鳴り響いた――!",
+      "translation_en": "At that moment, a siren echoed in the distance――!"
+    },
+    "continuation_badge": {
+      "id": "footer-continuation-1",
+      "bounds": [875, 1475, 135, 45],
+      "raw_text": "つづく",
+      "translation_en": "To be continued"
+    }
+  }
+}

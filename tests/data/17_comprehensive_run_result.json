@@ -1,0 +1,586 @@
+{
+  "schema_version": "1.0.0",
+  "page_metadata": {
+    "image_filename": "17.png",
+    "dimensions": {
+      "width": 1024,
+      "height": 1536
+    },
+    "page_type": "english_fantasy_comic_page",
+    "layout_type": "multi_koma_grid",
+    "language": "en",
+    "reading_direction": "left_to_right",
+    "total_panels": 10
+  },
+  "series_info": {
+    "title_en": "The Time Paradox Quest",
+    "location": "The Kingdom of Estoria",
+    "year": 1000,
+    "month": "Gran",
+    "day": 12
+  },
+  "validation_report": {
+    "reading_order_validation": {
+      "declared_direction": "left_to_right",
+      "inferred_direction": "left_to_right",
+      "status": "consistent",
+      "violations": []
+    },
+    "semantic_conflicts": [
+      {
+        "type": "timeline-contradiction",
+        "severity": "warning",
+        "objects": ["panel-2.speech", "panel-3.header"],
+        "message": "Hero announces journey starts 'tomorrow', but next panel banner states 'THE NEXT DAY' while hero questions why he hasn't started."
+      },
+      {
+        "type": "temporal-paradox-conflict",
+        "severity": "warning",
+        "objects": ["panel-11.book_text"],
+        "message": "Ancient book states Demon King woke up 300 years ago AND will awaken tomorrow."
+      },
+      {
+        "type": "celestial-time-conflict",
+        "severity": "warning",
+        "objects": ["panel-12.clock", "panel-13.sky"],
+        "message": "Clock reads PM 02:15 (Afternoon), but sky shows full moon night with sun simultaneously."
+      }
+    ]
+  },
+  "panels": [
+    {
+      "panel_id": "panel-1",
+      "reading_order": 1,
+      "bounds": [15, 12, 475, 460],
+      "description": "Young hero in blue tunic standing in town square looking up at the sprawling white castle of Estoria on a mountain backdrop.",
+      "text_regions": [
+        {
+          "id": "co-text-17-1-1",
+          "type": "narration_box",
+          "orientation": "horizontal",
+          "bounds": [25, 20, 195, 105],
+          "raw_text": "Year 1000\nMonth of Gran, Day 12\nThe Kingdom of Estoria",
+          "formatted_text": "Year 1000\nMonth of Gran, Day 12\nThe Kingdom of Estoria",
+          "translation_en": "Year 1000, Month of Gran, Day 12, The Kingdom of Estoria",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-1-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [115, 140, 120, 100],
+          "raw_text": "Finally...\nI made it to\nEstoria!",
+          "formatted_text": "Finally...\nI made it to\nEstoria!",
+          "translation_en": "Finally... I made it to Estoria!",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-2",
+      "reading_order": 2,
+      "bounds": [505, 12, 255, 235],
+      "description": "Hero waving hand enthusiastically.",
+      "text_regions": [
+        {
+          "id": "co-text-17-2-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [515, 25, 145, 110],
+          "raw_text": "Tomorrow I'll\nstart my journey\nto defeat the\nDemon King!",
+          "formatted_text": "Tomorrow I'll\nstart my journey\nto defeat the\nDemon King!",
+          "translation_en": "Tomorrow I'll start my journey to defeat the Demon King!",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-3",
+      "reading_order": 3,
+      "bounds": [770, 12, 240, 235],
+      "description": "Hero looking puzzled.",
+      "text_regions": [
+        {
+          "id": "co-text-17-3-1",
+          "type": "header_banner",
+          "orientation": "horizontal",
+          "bounds": [775, 18, 155, 30],
+          "raw_text": "THE NEXT DAY...",
+          "formatted_text": "THE NEXT DAY...",
+          "translation_en": "THE NEXT DAY...",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-3-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [785, 65, 100, 75],
+          "raw_text": "Wait...\ndidn't I just\nsay I'd start\ntomorrow?",
+          "formatted_text": "Wait...\ndidn't I just\nsay I'd start\ntomorrow?",
+          "translation_en": "Wait... didn't I just say I'd start tomorrow?",
+          "reading_order": 2,
+          "confidence": 0.9960,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-4",
+      "reading_order": 4,
+      "bounds": [505, 260, 505, 215],
+      "description": "Black cat sitting at library desk next to open spellbook and glowing purple orb.",
+      "text_regions": [
+        {
+          "id": "co-text-17-4-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [515, 275, 140, 75],
+          "raw_text": "Time is just a\nsuggestion for\nthose who can't\nuse magic.",
+          "formatted_text": "Time is just a\nsuggestion for\nthose who can't\nuse magic.",
+          "translation_en": "Time is just a suggestion for those who can't use magic.",
+          "reading_order": 1,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-5",
+      "reading_order": 5,
+      "bounds": [15, 490, 305, 225],
+      "description": "Blond female companion Lira waving hello.",
+      "text_regions": [
+        {
+          "id": "co-text-17-5-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [45, 505, 110, 60],
+          "raw_text": "Nice to meet\nyou! I'm Lira!",
+          "formatted_text": "Nice to meet\nyou! I'm Lira!",
+          "translation_en": "Nice to meet you! I'm Lira!",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-6",
+      "reading_order": 6,
+      "bounds": [330, 490, 260, 225],
+      "description": "Red-haired warrior friend smiling with arm on hip.",
+      "text_regions": [
+        {
+          "id": "co-text-17-6-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [340, 500, 125, 95],
+          "raw_text": "I've known you\nsince we were\nkids, remember?\nWe trained\ntogether!",
+          "formatted_text": "I've known you\nsince we were\nkids, remember?\nWe trained\ntogether!",
+          "translation_en": "I've known you since we were kids, remember? We trained together!",
+          "reading_order": 1,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-7",
+      "reading_order": 7,
+      "bounds": [600, 490, 410, 225],
+      "description": "Flashback scene of two young boys sparring with wooden swords.",
+      "text_regions": [
+        {
+          "id": "co-text-17-7-1",
+          "type": "header_banner",
+          "orientation": "horizontal",
+          "bounds": [605, 495, 195, 25],
+          "raw_text": "FLASHBACK (LAST YEAR)",
+          "formatted_text": "FLASHBACK (LAST YEAR)",
+          "translation_en": "FLASHBACK (LAST YEAR)",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-7-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [615, 530, 50, 35],
+          "raw_text": "Heh!",
+          "formatted_text": "Heh!",
+          "translation_en": "Heh!",
+          "reading_order": 2,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-7-3",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [935, 520, 55, 45],
+          "raw_text": "Take\nthis!",
+          "formatted_text": "Take\nthis!",
+          "translation_en": "Take this!",
+          "reading_order": 3,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-8",
+      "reading_order": 8,
+      "bounds": [15, 730, 995, 140],
+      "description": "Wide panoramic view of a massive floating island in the sky with waterfalls cascading into clouds.",
+      "text_regions": [
+        {
+          "id": "co-text-17-8-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [40, 745, 120, 95],
+          "raw_text": "Behold!\nThe Floating\nIsle of Zephra!",
+          "formatted_text": "Behold!\nThe Floating\nIsle of Zephra!",
+          "translation_en": "Behold! The Floating Isle of Zephra!",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-8-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [815, 755, 135, 75],
+          "raw_text": "It floats\nbecause of\nancient magic!",
+          "formatted_text": "It floats\nbecause of\nancient magic!",
+          "translation_en": "It floats because of ancient magic!",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-9",
+      "reading_order": 9,
+      "bounds": [15, 885, 490, 230],
+      "description": "Ancient stone bridge collapsing into floating rock fragments.",
+      "text_regions": [
+        {
+          "id": "co-text-17-9-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [30, 905, 100, 60],
+          "raw_text": "The bridge\nis broken!",
+          "formatted_text": "The bridge\nis broken!",
+          "translation_en": "The bridge is broken!",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-9-2",
+          "type": "sfx",
+          "orientation": "horizontal",
+          "bounds": [160, 895, 230, 60],
+          "raw_text": "CRAAASH!",
+          "formatted_text": "CRAAASH!",
+          "translation_en": "CRAAASH!",
+          "reading_order": 2,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-10",
+      "reading_order": 10,
+      "bounds": [515, 885, 495, 230],
+      "description": "Party walking across pristine unbroken stone bridge.",
+      "text_regions": [
+        {
+          "id": "co-text-17-10-1",
+          "type": "header_banner",
+          "orientation": "horizontal",
+          "bounds": [520, 890, 140, 25],
+          "raw_text": "MOMENTS LATER",
+          "formatted_text": "MOMENTS LATER",
+          "translation_en": "MOMENTS LATER",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-10-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [550, 920, 100, 50],
+          "raw_text": "Huh? It's\nfine now.",
+          "formatted_text": "Huh? It's\nfine now.",
+          "translation_en": "Huh? It's fine now.",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-10-3",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [865, 915, 110, 55],
+          "raw_text": "It was always\nlike that.",
+          "formatted_text": "It was always\nlike that.",
+          "translation_en": "It was always like that.",
+          "reading_order": 3,
+          "confidence": 0.9960,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9960, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-11",
+      "reading_order": 11,
+      "bounds": [15, 1130, 445, 335],
+      "description": "Hero and black cat reading ancient tome with contradictory red and black text entries.",
+      "text_regions": [
+        {
+          "id": "co-text-17-11-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [25, 1145, 125, 75],
+          "raw_text": "This book says\nthe Demon King\nwoke up 300\nyears ago.",
+          "formatted_text": "This book says\nthe Demon King\nwoke up 300\nyears ago.",
+          "translation_en": "This book says the Demon King woke up 300 years ago.",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-11-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [180, 1145, 125, 80],
+          "raw_text": "Then why does\nit also say he\nwill awaken\ntomorrow?",
+          "formatted_text": "Then why does\nit also say he\nwill awaken\ntomorrow?",
+          "translation_en": "Then why does it also say he will awaken tomorrow?",
+          "reading_order": 2,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-11-3",
+          "type": "book_text",
+          "orientation": "horizontal",
+          "bounds": [295, 1160, 150, 160],
+          "raw_text": "The Demon King\nwas awakened\n300 years ago.\n\nThe Demon King\nwill awaken\ntomorrow.",
+          "formatted_text": "The Demon King\nwas awakened\n300 years ago.\n\nThe Demon King\nwill awaken\ntomorrow.",
+          "translation_en": "The Demon King was awakened 300 years ago.\n\nThe Demon King will awaken tomorrow.",
+          "reading_order": 3,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ],
+          "structured_document": {
+            "type": "tome_page",
+            "title": "Demon King Legend",
+            "entry_1": "Awakened 300 years ago",
+            "entry_2": "Will awaken tomorrow"
+          }
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-12",
+      "reading_order": 12,
+      "bounds": [470, 1130, 195, 335],
+      "description": "Hand holding glowing blue pocket watch showing PM 02:15.",
+      "text_regions": [
+        {
+          "id": "co-text-17-12-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [480, 1145, 110, 30],
+          "raw_text": "What time is it?",
+          "formatted_text": "What time is it?",
+          "translation_en": "What time is it?",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-12-2",
+          "type": "clock_display",
+          "orientation": "horizontal",
+          "bounds": [515, 1205, 105, 30],
+          "raw_text": "PM 02:15",
+          "formatted_text": "PM 02:15",
+          "translation_en": "PM 02:15",
+          "reading_order": 2,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-12-3",
+          "type": "narration_box",
+          "orientation": "horizontal",
+          "bounds": [475, 1290, 180, 45],
+          "raw_text": "According to my\nclock, it's afternoon.",
+          "formatted_text": "According to my\nclock, it's afternoon.",
+          "translation_en": "According to my clock, it's afternoon.",
+          "reading_order": 3,
+          "confidence": 0.9970,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9970, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel_id": "panel-13",
+      "reading_order": 13,
+      "bounds": [675, 1130, 335, 335],
+      "description": "Town square at night with glowing clocktower under sky displaying both bright sun and full moon.",
+      "text_regions": [
+        {
+          "id": "co-text-17-13-1",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [685, 1150, 125, 95],
+          "raw_text": "Then why are\nboth the sun\nand the moon\nout?",
+          "formatted_text": "Then why are\nboth the sun\nand the moon\nout?",
+          "translation_en": "Then why are both the sun and the moon out?",
+          "reading_order": 1,
+          "confidence": 0.9980,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9980, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-17-13-2",
+          "type": "speech_bubble",
+          "orientation": "horizontal",
+          "bounds": [885, 1255, 75, 75],
+          "raw_text": "!!!",
+          "formatted_text": "!!!",
+          "translation_en": "!!!",
+          "reading_order": 2,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.0000,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.0000, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        }
+      ]
+    }
+  ],
+  "footer_layout": {
+    "narration_banner": {
+      "id": "footer-narration-17",
+      "bounds": [170, 1480, 680, 45],
+      "raw_text": "The adventure begins... or did it already?",
+      "translation_en": "The adventure begins... or did it already?"
+    }
+  }
+}
