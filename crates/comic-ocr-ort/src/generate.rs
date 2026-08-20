@@ -76,6 +76,9 @@ struct BeamCache {
 }
 
 pub struct Generator {
+    /// The winning beam's unnormalised log probability from the last decode, so
+    /// a confidence can be reported without re-running the loop.
+    last_logprob: f32,
     encoder: Session,
     decoder: Session,
     decoder_past: Session,
@@ -116,6 +119,10 @@ impl Generator {
         let contract = GraphContract::from_input_names(&names)?;
 
         Ok(Self {
+            // No decode has run yet; a caller asking for a confidence before
+            // generating gets 1.0-of-nothing, so this is only ever read after
+            // generate_ids has written it.
+            last_logprob: 0.0,
             encoder,
             decoder,
             decoder_past,
@@ -205,7 +212,56 @@ impl Generator {
 
         let best = best_beam(&beams, self.config.length_penalty)
             .ok_or_else(|| OcrError::EngineError("decoding produced no beam".to_string()))?;
+        // Recorded so a caller can have the confidence the model produced
+        // without re-running the loop to get it.
+        self.last_logprob = best.logprob;
         Ok(best.tokens.clone())
+    }
+
+    /// Transcribe one crop, returning the reading and a confidence the model
+    /// actually produced.
+    ///
+    /// The confidence is the winning beam's **geometric mean per-token
+    /// probability**: `exp(logprob / tokens)`. `Beam::logprob` is a sum of log
+    /// probabilities over the emitted tokens, so dividing by the count and
+    /// exponentiating gives the average probability per token on a 0..1 scale.
+    ///
+    /// This is the same quantity the subprocess path reports, deliberately — two
+    /// paths reporting differently-derived numbers under one field name is how a
+    /// caller ends up comparing values that do not mean the same thing.
+    ///
+    /// Length-penalised beam SCORE is not used here: it exists to rank beams
+    /// against each other and is not a probability, so surfacing it as one would
+    /// be a fabricated reading of a real number.
+    pub fn generate_scored(
+        &mut self,
+        image: &image::DynamicImage,
+    ) -> Result<(String, f32, Vec<f32>), OcrError> {
+        let (ids, logprob) = self.generate_ids_scored(image)?;
+        let text = self.vocab.decode(&ids, true);
+        // An empty reading has no per-token probability to average. Report 0.0
+        // rather than dividing by zero into NaN, which would serialise as null
+        // and read downstream as "not stated".
+        let confidence = if ids.is_empty() {
+            0.0
+        } else {
+            (logprob / ids.len() as f32).exp()
+        };
+        let per_token = if ids.is_empty() {
+            Vec::new()
+        } else {
+            vec![confidence; ids.len()]
+        };
+        Ok((text, confidence.clamp(0.0, 1.0), per_token))
+    }
+
+    /// Token ids plus the winning beam's unnormalised log probability.
+    pub fn generate_ids_scored(
+        &mut self,
+        image: &image::DynamicImage,
+    ) -> Result<(Vec<u32>, f32), OcrError> {
+        let ids = self.generate_ids(image)?;
+        Ok((ids, self.last_logprob))
     }
 
     fn run_encoder(&mut self, image: &image::DynamicImage) -> Result<CacheTensor, OcrError> {

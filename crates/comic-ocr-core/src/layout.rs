@@ -60,8 +60,8 @@ impl ContourPolygon {
         for i in 0..n {
             let (xi, yi) = (self.points[i][0], self.points[i][1]);
             let (xj, yj) = (self.points[j][0], self.points[j][1]);
-            let intersect = ((yi > py) != (yj > py))
-                && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-7) + xi);
+            let intersect =
+                ((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi + 1e-7) + xi);
             if intersect {
                 inside = !inside;
             }
@@ -239,12 +239,7 @@ mod tests {
 
     #[test]
     fn test_contour_polygon() {
-        let poly = ContourPolygon::new(vec![
-            [0.0, 0.0],
-            [10.0, 0.0],
-            [10.0, 10.0],
-            [0.0, 10.0],
-        ]);
+        let poly = ContourPolygon::new(vec![[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]);
         assert_eq!(poly.area(), 100.0);
         assert!(poly.contains_point(5.0, 5.0));
         assert!(!poly.contains_point(15.0, 5.0));

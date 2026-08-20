@@ -72,7 +72,10 @@ impl PanelEvaluator {
     }
 
     /// Detects cross-engine divergence (uncorrelated reader disagreement)
-    pub fn detect_disagreement(candidates: &[OcrResult], threshold: f32) -> Option<DisagreementReport> {
+    pub fn detect_disagreement(
+        candidates: &[OcrResult],
+        threshold: f32,
+    ) -> Option<DisagreementReport> {
         if candidates.len() < 2 {
             return None;
         }
@@ -180,7 +183,10 @@ mod tests {
     }
 
     impl OcrEngine for MockEngine {
-        fn predict(&self, _image: &image::DynamicImage) -> Result<OcrResult, comic_ocr_core::OcrError> {
+        fn predict(
+            &self,
+            _image: &image::DynamicImage,
+        ) -> Result<OcrResult, comic_ocr_core::OcrError> {
             Ok(OcrResult {
                 text: self.output.clone(),
                 confidence: self.conf,

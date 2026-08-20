@@ -127,7 +127,8 @@ fn test_benchmark_model_inference_evaluation() {
         images_dir_fallback
     };
 
-    let model_name = std::env::var("COMIC_OCR_MODEL").unwrap_or_else(|_| "kha-white/manga-ocr-base".to_string());
+    let model_name =
+        std::env::var("COMIC_OCR_MODEL").unwrap_or_else(|_| "kha-white/manga-ocr-base".to_string());
     let engine = OrtEngine::new(model_name);
 
     println!("\n==========================================================");

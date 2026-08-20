@@ -107,4 +107,3 @@ pub trait OcrEngine: Send + Sync {
         images.iter().map(|img| self.predict(img)).collect()
     }
 }
-

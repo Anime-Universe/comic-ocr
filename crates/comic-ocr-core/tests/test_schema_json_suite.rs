@@ -46,10 +46,12 @@ fn test_schema_json_suite_deserialization() {
 
     // 6. iPub Semantic Resource
     let ipub_json = fs::read_to_string("schemas/examples/sample_ipub_semantic_resource.json")
-        .or_else(|_| fs::read_to_string("../../schemas/examples/sample_ipub_semantic_resource.json"))
+        .or_else(|_| {
+            fs::read_to_string("../../schemas/examples/sample_ipub_semantic_resource.json")
+        })
         .expect("Failed to read sample_ipub_semantic_resource.json");
-    let ipub_res: serde_json::Value =
-        serde_json::from_str(&ipub_json).expect("Failed to parse sample_ipub_semantic_resource.json");
+    let ipub_res: serde_json::Value = serde_json::from_str(&ipub_json)
+        .expect("Failed to parse sample_ipub_semantic_resource.json");
     assert_eq!(ipub_res["version"], "1.0");
     assert_eq!(ipub_res["regions"][0]["id"], "co-001");
     assert_eq!(ipub_res["regions"][0]["state"], "candidate");

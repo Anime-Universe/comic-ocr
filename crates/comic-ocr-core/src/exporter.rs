@@ -125,7 +125,8 @@ pub fn export_pairs(
                 },
             };
 
-            let pair_json = serde_json::to_string_pretty(&pair_record).map_err(|e| e.to_string())?;
+            let pair_json =
+                serde_json::to_string_pretty(&pair_record).map_err(|e| e.to_string())?;
             let record_file = output_dir.join(format!("{}_{}.json", layer.id, reading.region_id));
             fs::write(&record_file, pair_json).map_err(|e| e.to_string())?;
 
@@ -183,7 +184,8 @@ mod tests {
         assert_eq!(report.pairs_written, 1);
         assert_eq!(report.skipped_rejected, 1);
 
-        let exported_json = std::fs::read_to_string(temp_dir.join("tl-co-001_co-001.json")).unwrap();
+        let exported_json =
+            std::fs::read_to_string(temp_dir.join("tl-co-001_co-001.json")).unwrap();
         let record: TrainingPairRecord = serde_json::from_str(&exported_json).unwrap();
         assert_eq!(record.provenance.confidence, 0.85);
         assert_eq!(record.provenance.state, "candidate");

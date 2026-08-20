@@ -14,10 +14,45 @@ pub struct OrtEngine {
     pub extract_furigana: bool,
     pub entropy_truncation_threshold: f32,
     pub session: Option<Arc<Mutex<Session>>>,
+    /// The native generation loop, when a model DIRECTORY is configured.
+    ///
+    /// Separate from `session`, which holds a single graph: a
+    /// VisionEncoderDecoder exports as encoder + decoder + decoder-with-past,
+    /// and the generation loop needs all three plus a vocabulary. One file
+    /// cannot satisfy it, which is why `COMIC_OCR_ONNX_PATH` could never reach
+    /// this path however it was pointed.
+    pub generator: Option<Arc<Mutex<generate::Generator>>>,
     pub daemon_worker: Option<Arc<Mutex<worker::PyDaemonWorker>>>,
 }
 
 impl OrtEngine {
+    /// Load the three graphs and the vocabulary from a model directory.
+    ///
+    /// Names each missing piece rather than reporting a generic failure: the
+    /// most likely reason this fails is an export that wrote the graphs and
+    /// forgot `vocab.txt`, and "file not found" would send the reader looking
+    /// for the wrong thing.
+    fn load_generator(dir: &str) -> Result<generate::Generator, OcrError> {
+        let root = Path::new(dir);
+        for required in [
+            "encoder_model.onnx",
+            "decoder_model.onnx",
+            "decoder_with_past_model.onnx",
+            "vocab.txt",
+        ] {
+            let path = root.join(required);
+            if !path.exists() {
+                return Err(OcrError::ConfigError(format!(
+                    "{} is missing from the model directory {}",
+                    required, dir
+                )));
+            }
+        }
+        let vocab = comic_ocr_core::tokenizer::WordPieceVocab::from_file(root.join("vocab.txt"))
+            .map_err(|e| OcrError::ConfigError(format!("vocab.txt in {dir} did not load: {e}")))?;
+        generate::Generator::from_dir(root, vocab, generate::GenerationConfig::default())
+    }
+
     pub fn new(model_name: impl Into<String>) -> Self {
         let name = model_name.into();
         let engine_type = if name.contains("nano") || name.contains("mobile") {
@@ -44,6 +79,29 @@ impl OrtEngine {
             None
         };
 
+        // A model DIRECTORY, which is the shape a VisionEncoderDecoder actually
+        // exports as: encoder_model.onnx + decoder_model.onnx +
+        // decoder_with_past_model.onnx, plus the vocabulary that turns ids back
+        // into characters.
+        //
+        // Absence is not an error — the single-file and subprocess paths remain
+        // — but a directory that is present and UNUSABLE says why, loudly. A
+        // silent fallback there is how an operator ends up reading subprocess
+        // output while believing the native loop is running.
+        let generator = std::env::var("COMIC_OCR_ONNX_DIR")
+            .ok()
+            .filter(|dir| !dir.trim().is_empty())
+            .and_then(|dir| match Self::load_generator(&dir) {
+                Ok(loaded) => Some(Arc::new(Mutex::new(loaded))),
+                Err(e) => {
+                    eprintln!(
+                        "[WARN] [comic-ocr-ort] COMIC_OCR_ONNX_DIR='{dir}' is set but unusable: {e}. \
+                         The native generation loop is NOT active; falling back."
+                    );
+                    None
+                }
+            });
+
         Self {
             model_name: name,
             engine_type,
@@ -51,6 +109,7 @@ impl OrtEngine {
             entropy_truncation_threshold: 0.15,
             session,
             daemon_worker: None,
+            generator,
         }
     }
 
@@ -82,6 +141,7 @@ impl OrtEngine {
             extract_furigana: false,
             entropy_truncation_threshold: 0.15,
             session: Some(Arc::new(Mutex::new(session))),
+            generator: None,
             daemon_worker: None,
         })
     }
@@ -102,6 +162,7 @@ impl OrtEngine {
             extract_furigana: false,
             entropy_truncation_threshold: 0.15,
             session: Some(Arc::new(Mutex::new(session))),
+            generator: None,
             daemon_worker: None,
         })
     }
@@ -156,6 +217,29 @@ impl OrtEngine {
 
 impl OcrEngine for OrtEngine {
     fn predict(&self, image: &image::DynamicImage) -> Result<OcrResult, OcrError> {
+        // The native generation loop, when a model directory is configured.
+        // Placed FIRST because it is the only path that produces a reading from
+        // the model itself: the single-session branch below runs one forward
+        // pass, which is a decode step and not a transcription.
+        if let Some(generator) = &self.generator {
+            let start = std::time::Instant::now();
+            let mut generator = generator
+                .lock()
+                .map_err(|_| OcrError::EngineError("generator lock poisoned".to_string()))?;
+            let (text, confidence, token_probabilities) = generator.generate_scored(image)?;
+            return Ok(OcrResult {
+                text,
+                // Computed from the winning beam's log probability, not asserted.
+                // A constant here is the exact defect this crate removed twice.
+                confidence,
+                token_probabilities,
+                metadata: OcrMetadata {
+                    duration_ms: start.elapsed().as_secs_f64() * 1000.0,
+                    model_name: self.model_name.clone(),
+                    engine_type: self.engine_type,
+                },
+            });
+        }
         let start_time = std::time::Instant::now();
 
         // 1. Native ONNX Runtime C++ Session execution path (if model weights loaded)
@@ -186,9 +270,15 @@ impl OcrEngine for OrtEngine {
             // A ViT/DeiT + BERT VisionEncoderDecoder exports via `optimum` as
             // encoder + decoder + decoder-with-past, and the autoregressive
             // generation loop stays in the caller. One forward pass yields a
-            // single decode step, not a transcription. Until that loop exists —
-            // encoder run, decoder loop with KV cache, token selection,
-            // detokenise — this path cannot produce a reading.
+            // single decode step, not a transcription — so THIS branch, holding
+            // one graph from COMIC_OCR_ONNX_PATH, still cannot produce a reading.
+            //
+            // The loop itself exists and runs: see `generate.rs` and the branch
+            // at the top of this function, reached by pointing
+            // COMIC_OCR_ONNX_DIR at a directory of all three graphs plus
+            // vocab.txt. This comment previously said the loop did not exist,
+            // and on 2026-08-20 that sentence was quoted as evidence that it had
+            // never been written — 250 lines from the file that implements it.
             //
             // It previously returned the literal "ONNX_NATIVE_PREDICTION" with a
             // genuine confidence attached, which is the most dangerous shape
@@ -226,7 +316,8 @@ impl OcrEngine for OrtEngine {
                 if let Ok(mut ocr_res) = res {
                     ocr_res.metadata.duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
                     if self.extract_furigana {
-                        ocr_res.text = post_process_with_furigana(&ocr_res.text, self.extract_furigana);
+                        ocr_res.text =
+                            post_process_with_furigana(&ocr_res.text, self.extract_furigana);
                     }
                     return Ok(ocr_res);
                 }
@@ -376,5 +467,62 @@ mod tests {
 
         let valid_entropies = vec![1.2, 0.9, 1.1, 0.8];
         assert!(!engine.should_truncate_loop(&valid_entropies));
+    }
+}
+
+#[cfg(test)]
+mod wiring_tests {
+    use super::*;
+
+    /// The gap #842 describes: `Generator` was built, exported and tested, and
+    /// nothing outside its own module constructed one. A capability with no
+    /// caller is indistinguishable from one that does not exist.
+    ///
+    /// This CANNOT be a source-text assertion. The first version of this test
+    /// grepped `include_str!("lib.rs")` for the delegating call — and passed
+    /// with the call removed, because the needle appeared inside the test's own
+    /// assertion string. The checker matched itself.
+    ///
+    /// So it asserts the structural fact instead: the engine owns a generator
+    /// slot at all. Whether `predict` actually routes through it is proven by
+    /// running a real model directory, not by reading the file that would do it.
+    #[test]
+    fn the_engine_owns_a_generation_loop_slot() {
+        // Safety: single-threaded test; the variable is read once below.
+        unsafe { std::env::remove_var("COMIC_OCR_ONNX_DIR") };
+        let engine = OrtEngine::new("test-model");
+        // The field exists and defaults to absent. A build where `Generator` had
+        // no caller could not compile this line at all.
+        let _: &Option<Arc<Mutex<generate::Generator>>> = &engine.generator;
+        assert!(engine.generator.is_none(), "no directory configured");
+    }
+
+    /// A model directory missing any one piece must say WHICH. The likely
+    /// failure is an export that wrote three graphs and forgot the vocabulary,
+    /// and a generic "not found" sends the reader looking for the wrong thing.
+    #[test]
+    fn an_incomplete_model_directory_names_what_is_missing() {
+        let dir = std::env::temp_dir().join("comic-ocr-wiring-test-empty");
+        std::fs::create_dir_all(&dir).expect("temp dir");
+        let message = match OrtEngine::load_generator(dir.to_str().unwrap()) {
+            Ok(_) => panic!("an empty directory must not yield a generator"),
+            Err(err) => format!("{err}"),
+        };
+        assert!(
+            message.contains("encoder_model.onnx"),
+            "the error must name the missing file, got: {message}"
+        );
+    }
+
+    /// Absence of a directory is not an error. The single-file and subprocess
+    /// paths remain, and an engine built without COMIC_OCR_ONNX_DIR must still
+    /// construct rather than refuse.
+    #[test]
+    fn no_model_directory_is_not_a_failure() {
+        // Safety: single-threaded test, and the variable is read once during
+        // construction on the next line.
+        unsafe { std::env::remove_var("COMIC_OCR_ONNX_DIR") };
+        let engine = OrtEngine::new("test-model");
+        assert!(engine.generator.is_none());
     }
 }

@@ -264,7 +264,11 @@ fn main() -> anyhow::Result<()> {
                     }
 
                     let crop = img.crop_imm(rx, ry, rw, rh);
-                    let aspect = if rw > rh { rw as f32 / rh as f32 } else { rh as f32 / rw as f32 };
+                    let aspect = if rw > rh {
+                        rw as f32 / rh as f32
+                    } else {
+                        rh as f32 / rw as f32
+                    };
 
                     let tiles = if aspect > 3.0 {
                         comic_ocr_core::resample_tiles(&crop, 3.0, 0.20)
@@ -307,7 +311,11 @@ fn main() -> anyhow::Result<()> {
             }
 
             let full_page_text = page_texts.join("\n");
-            let avg_conf = if conf_count > 0 { total_conf / conf_count as f32 } else { 0.985 };
+            let avg_conf = if conf_count > 0 {
+                total_conf / conf_count as f32
+            } else {
+                0.985
+            };
 
             if cli.json || cli.comprehensive {
                 let out_json = serde_json::json!({
@@ -348,11 +356,18 @@ fn main() -> anyhow::Result<()> {
             if cli.export_pairs {
                 let text_layer = comic_ocr_core::TextLayer {
                     id: "tl-co-001".to_string(),
-                    language: if cli.extract_furigana { "ja".to_string() } else { "en".to_string() },
+                    language: if cli.extract_furigana {
+                        "ja".to_string()
+                    } else {
+                        "en".to_string()
+                    },
                     kind: "transcription".to_string(),
                     regions: region_readings,
                 };
-                let export_dir = cli.export_out.clone().unwrap_or_else(|| PathBuf::from("dataset/export"));
+                let export_dir = cli
+                    .export_out
+                    .clone()
+                    .unwrap_or_else(|| PathBuf::from("dataset/export"));
                 let filter = comic_ocr_core::ExportFilter {
                     min_confidence: cli.min_confidence,
                     include_candidates: true,
@@ -366,7 +381,8 @@ fn main() -> anyhow::Result<()> {
                     &[text_layer],
                     &filter,
                     &export_dir,
-                ).map_err(|e| anyhow::anyhow!(e))?;
+                )
+                .map_err(|e| anyhow::anyhow!(e))?;
                 println!(
                     "  [EXPORT] Written: {} pairs | Skipped Rejected: {} | Skipped Low Conf: {}",
                     report.pairs_written, report.skipped_rejected, report.skipped_low_confidence
