@@ -7,13 +7,15 @@
 
 ## 1. Schema Suite Overview
 
-This repository publishes 5 canonical JSON Schema contracts under [`schemas/`](../schemas/):
+This repository publishes 7 canonical JSON Schema contracts under [`schemas/`](../schemas/):
 
 1. **`comic_scene_graph.json`**: Authoritative 4-layer scene graph specification (`ComicDocument` / `MangaDocument`).
 2. **`localized_text_object.json`**: Compact compiled runtime payload for individual text objects (`LocalizedTextObject`).
 3. **`ocr_result.json`**: Raw OCR inference result schema (`OcrResult`).
 4. **`page_result.json`**: Full-page bubble & panel OCR structure (`PageResult`).
 5. **`pdp_decision.json`**: Polymorphic Decision Protocol engine consensus score & candidate ledger (`PdpDecision`).
+6. **`ipub_semantic_resource.json`**: iPub Semantic Resource (`IPubSemanticResource`) envelope schema for page-semantics.
+7. **`training_pair.json`**: (Crop, Text) training pair schema with composed confidence ($\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$).
 
 ---
 
@@ -26,6 +28,7 @@ Corresponding validated sample JSON instances are maintained under [`schemas/exa
 - [`sample_ocr_result.json`](../schemas/examples/sample_ocr_result.json)
 - [`sample_page_result.json`](../schemas/examples/sample_page_result.json)
 - [`sample_pdp_decision.json`](../schemas/examples/sample_pdp_decision.json)
+- [`sample_ipub_semantic_resource.json`](../schemas/examples/sample_ipub_semantic_resource.json)
 
 ---
 

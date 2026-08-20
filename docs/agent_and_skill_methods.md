@@ -13,13 +13,9 @@ comic-ocr-rust/
 ├── .agents/
 │   ├── AGENTS.md               # Workspace Agent Operating Rules & Authority Hierarchy
 │   ├── llms.txt                # ~15 KB Agent Context Summary Manifest
-│   ├── llms-full.txt           # ~300+ KB Single-File Consolidated Workspace Corpus
+│   ├── llms-full.txt           # ~350+ KB Single-File Consolidated Workspace Corpus
 │   └── skills/                 # Custom Agent Skills
-│       ├── initialize-iepe-project/
-│       ├── operate-iepe-project/
-│       ├── qualify-iepe-outcome/
-│       ├── comic-ocr-parity-check/
-│       └── stress-test-iepe-candidate/
+│       └── comic-ocr-expert/   # Master Domain, Verification Gate & Architectural Doctrine Skill
 └── scripts/
     └── gen-llms.py             # Single-File Context Corpus Generator Script
 ```
@@ -28,17 +24,11 @@ comic-ocr-rust/
 
 ## 2. The Skill Taxonomy & Lifecycle
 
-Skills represent specialized instruction manuals stored as `.agents/skills/<skill_name>/SKILL.md`. Each skill addresses a specific phase of the engineering workflow:
+Skills represent specialized instruction manuals stored as `.agents/skills/<skill_name>/SKILL.md`. Workspace skills provide normative operational directives and verification gates:
 
 | Skill | Purpose | Execution Trigger |
 | :--- | :--- | :--- |
-| **`initialize-iepe-project`** | Bootstraps workspace governance contracts and `.agents/` directory structure. | New project adoption or workspace initialization. |
-| **`reconcile-iepe-project`** | Fixes state drift between git commits, open issues, and recorded artifacts. | First cycle of a turn or detected state inconsistency. |
-| **`operate-iepe-project`** | Guides step-by-step execution of issue contracts under bounded authority. | Primary coordinator loop during active development. |
-| **`qualify-iepe-outcome`** | Verifies empirical test evidence before merging or promoting code. | Pull request review and release candidate gates. |
-| **`stress-test-iepe-candidate`**| Executes controlled adversarial trials (corrupted images, extreme aspect ratios). | Validation phase before feature promotion. |
-| **`comic-ocr-parity-check`** | Compares Rust ONNX outputs against PyTorch baseline to verify 0% CER divergence. | Parity verification gate in CI/local runs. |
-| **`maintain-iepe-package`** | Re-compiles `llms.txt` and `llms-full.txt` corpora after code/doc updates. | Post-refactoring or document modification. |
+| **`comic-ocr-expert`** | Operational instructions, architectural doctrine, quality verification gates, status honesty rules, and master TODO roadmap for Japanese Manga & Comic OCR in Rust. | Active development, feature implementation, and CI verification gates. |
 
 ---
 

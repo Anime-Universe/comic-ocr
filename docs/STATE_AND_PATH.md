@@ -166,8 +166,7 @@ set. That is cheap: the free detector is instant and costs nothing.
    one that gates everything measurable.
 2. **No weights.** Track A training has not started. Independent of (1) — the
    loop can be built and validated against any same-architecture checkpoint.
-3. **No ground truth.** Nothing attested. The confirm control is deployed and has
-   never been used, so the training corpus is empty by usage, not by design.
+3. **No human-attested ground truth.** *(Correction 2026-08-20)*: Under **The Training Contract**, human attestation is essential for the **held-out evaluation test set**, NOT for training data. The training corpus contains 1,300+ transcriptions across 428 pages admitted at confidence weights ($\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$). Human review calibrates teacher confidence and evaluates accuracy on held-out sets, rather than gating training exports.
 4. **Over-segmentation, unexplained.** 117 text regions on one page, 42 pages
    over 25, average 12.9. `vision-worker` finds the regions and `ocr-detector`
    transcribes them, so this points at region detection. Cannot be diagnosed from

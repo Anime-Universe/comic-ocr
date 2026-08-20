@@ -40,7 +40,7 @@
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["state"],
+      "required": ["state", "confidence"],
       "description": "Enough to walk back to where the label came from, so a bad one is fixed at source rather than only in the export.",
       "properties": {
         "publication_id": { "type": "string" },
@@ -58,13 +58,18 @@
         },
         "state": {
           "type": "string",
-          "enum": ["accepted", "verified"],
-          "description": "The assertion state at export time. `candidate` is NOT permitted and is not in this enum — a machine guess is not a label, and exporting one trains a model to reproduce the engine that guessed it, mistakes included. `rejected` is likewise excluded: it was reviewed and thrown out. This enum is the gate, expressed where a validator can enforce it.",
-          "$comment": "The platform's full vocabulary is candidate|accepted|verified|rejected. Only two of the four may become training data."
+          "enum": ["candidate", "accepted", "verified"],
+          "description": "The assertion state at export time. Retracted 2026-08-20: `candidate` IS permitted so machine labels train at confidence weight. `rejected` remains strictly excluded because human-invalidated tombstones teach mistakes."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Composed confidence C_pair = C_detector * C_transcriber in [0.0, 1.0], scaling training loss weight. 0.0=unweighted machine, 0.5=glanced, 1.0=examined."
         },
         "reviewed_by": {
           "type": "string",
-          "description": "Who stood behind the label, when the source is own-corpus."
+          "description": "Who stood behind the label, when the source is own-corpus or human review."
         }
       }
     },

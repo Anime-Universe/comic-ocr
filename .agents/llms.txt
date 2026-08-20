@@ -1,25 +1,30 @@
 # Comic OCR Rust Context Manifest (llms.txt)
 
-> HEAD: 7b0e98c Derive the context manifest from the tree instead of asserting it (#1)  [WORKING TREE DIRTY — this corpus is not any committed state]
+> HEAD: 8c6f7ea Land the doc corrections that were never merged (#2)  [WORKING TREE DIRTY — this corpus is not any committed state]
 > Generated from the tree. Do not hand-edit; edit the generator.
 
-## Documents (19)
+## Documents (24)
+- [FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md](docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Status: **Normative Architectural Doctrine**. Revised 2026-08-20.
 - [INTEGRATION_INFINITE_VERSE.md](docs/INTEGRATION_INFINITE_VERSE.md): Draft, 2026-08-20. Written against `manga-service` at `45750c8` and this repo at
 - [MASTER_ARCHITECTURE_SPECIFICATION.md](docs/MASTER_ARCHITECTURE_SPECIFICATION.md): **Document Version:** `v1.0.0`
+- [ONNX_GRAPH_CONTRACT.md](docs/ONNX_GRAPH_CONTRACT.md): This document specifies the exact ONNX graph contract, tensor naming conventions, and export procedures requir
 - [STATE_AND_PATH.md](docs/STATE_AND_PATH.md): 2026-08-20. Spans two repositories: this one, and the Infinite Verse platform
 - [TODO.md](docs/TODO.md): > Master implementation roadmap, completed audit checklist, and future roadmap for **Manga OCR Rust** / **Comi
-- [TRAINING_EXPORT.md](docs/TRAINING_EXPORT.md): How `accepted`/`verified` regions become `(crop, label)` pairs. Schema:
+- [TRAINING_EXPORT.md](docs/TRAINING_EXPORT.md): > **Status: design. None of this is built.** Verified 2026-08-20: zero
 - [agent_and_skill_methods.md](docs/agent_and_skill_methods.md): This document details the agent orchestration methods, skill taxonomy, workspace customization structure (`.ag
 - [api.md](docs/api.md): This document provides the canonical specification for the library traits, data schemas, REST API endpoints, C
 - [architecture_and_doctrine.md](docs/architecture_and_doctrine.md): This document unifies the architectural blueprints, governance protocols, mathematical scoring models, and Rus
 - [code_review.md](docs/code_review.md): This document presents a comprehensive code review of the Comic OCR codebase, assessing architectural design, 
 - [iepe_integration.md](docs/iepe_integration.md): This document details how the **Intent and Evidence Project Engine (IEPE)** operates, how it integrates into t
 - [index.md](docs/index.md): Welcome to the technical documentation for **Comic OCR Rust** (`comic-ocr-rust`). This repository contains the
+- [ingestion_contract.md](docs/ingestion_contract.md): Status: **proposed**. This document specifies the contract that every ingestion
+- [ipub_format_and_infinite_verse_integration.md](docs/ipub_format_and_infinite_verse_integration.md): This document provides a comprehensive, code-level specification of the **iPub Publication Format** and its ex
 - [json_schema_suite.md](docs/json_schema_suite.md): **Document Version:** `v1.0.0`
 - [page_processing_strategy.md](docs/page_processing_strategy.md): This document defines the architectural strategy for processing complete manga pages, color covers, splash spr
 - [pdp_integration.md](docs/pdp_integration.md): This document details how the **Polymorphic Decision Protocol (PDP)** operates, how it integrates into the **C
 - [reference_mangaocr_learnings.md](docs/reference_mangaocr_learnings.md): This document summarizes key takeaways, model footprint optimizations, dataset insights, and edge-case mitigat
 - [reflective_rust_integration.md](docs/reflective_rust_integration.md): This document details how **Reflective Rust** (Rust Reflective Systems Architecture - RRSA) integrates into th
+- [rust_migration.md](docs/rust_migration.md): This document defines the normative architectural specifications, implementation blueprints, status honesty bo
 - [structure.md](docs/structure.md): This document outlines the directory structure, package organization, and component relationships across the `
 - [synthetic_data.md](docs/synthetic_data.md): This document explains the design, components, and workflow of the synthetic data generator located in [`comic
 - [training.md](docs/training.md): Two engines, not one bilingual model. This document describes both tracks, what
@@ -43,7 +48,7 @@
 - `src/scene_graph.rs`: Point, Size, Rect, EdgeInsets, NumericRange, SpatialValue, DualPoint, DualSize, DualRect, WritingMode, WritingFlow, PanelFlow, DocumentReadingModel, MangaDocument (+21 more)
 - `src/scene_solver.rs`: from_px, from_normalized, overlaps, intersection_area_px, evaluate_art_protection_penalty, ValidationIssue, validate_manga_page, generate_cleanup_masks
 - `src/tokenizer.rs`: CLS_TOKEN, SEP_TOKEN, PAD_TOKEN, UNK_TOKEN, MASK_TOKEN, TokenizerError, WordPieceVocab, from_vocab_txt, from_file, len, is_empty, token, id_of, cls_id (+9 more)
-- `src/types.rs`: OcrError, EngineType, OcrMetadata, OcrResult, OcrEngine
+- `src/types.rs`: OcrError, AssertionState, RegionKind, ProvenanceRecord, RegionReading, TextLayer, EngineType, OcrMetadata, OcrResult, OcrEngine
 - `src/validation.rs`: ProvenanceSource, AnalysisEvidence, ValidationStatus, SemanticAssertion, ReadingOrderViolationReason, ReadingOrderViolation, ReadingOrderValidation, ContradictionKind, AnomalyNature, SemanticConflict, validate_cardinality_invariants, validate_spatial_containment, validate_panel_reading_order, validate_semantic_roles
 
 ### `comic-ocr-ort`

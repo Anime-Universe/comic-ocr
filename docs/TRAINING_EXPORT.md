@@ -42,26 +42,28 @@ The label is `textLayers[].regions[].text`. The crop is
 `regions[].geometry.normalizedBounds` applied to the page bytes. The gate is
 `regions[].state`.
 
-## The one rule
+## The Training Contract (Retracted 2026-08-20)
 
-**Only `accepted` and `verified` regions may be exported.** Not `candidate`,
-which is a machine guess — exporting those trains a model to reproduce the engine
-that produced them, including its mistakes, and that is a slower and less visible
-version of no training at all. Not `rejected`, which was reviewed and thrown out;
-exporting those trains the model on precisely the boxes a human said were wrong.
+**A label does not need permission to train. It needs a confidence, and a record of where it came from.**
 
-The schema encodes this as an enum of two values so a validator refuses the other
-two rather than relying on the exporter to remember.
+The earlier 2026-08-19 gate (*"Only accepted/verified regions may be exported"*) was an invented restriction that choked the training corpus to two human-reviewed regions. That gate is **retracted**.
+
+Under **The Training Contract**:
+1. **Admit with a weight**: `candidate`, `accepted`, and `verified` regions are admissible into the training corpus. Training loss is scaled by `assertionRecord.confidence` $\in [0.0, 1.0]$.
+2. **`rejected` is strictly excluded**: Regions explicitly invalidated by human review are wrong labels and remain excluded from export.
+3. **Hierarchy of Confidence**:
+   - `machine` (single uncorroborated engine): Engine's own confidence ($0.0 - 0.98$).
+   - `corroborated` (two independent engines agree): Raised confidence.
+   - `contested` (two engines disagree): Lowered confidence (held out in review queue).
+   - `glanced` (human approved page at a glance): $0.5$.
+   - `examined` (human confirmed region itself): $1.0$.
 
 ## Shape
 
 ```rust
 pub struct ExportFilter {
-    // NOTE: there is deliberately no `states` field. `accepted`/`verified` are
-    // the only eligible states and that is not configurable — the point of the
-    // gate is that it cannot be widened by a flag on a bad day. (The comment
-    // asserting this was previously attached to `language`, describing a member
-    // that does not exist.)
+    pub min_confidence: f32, // Select threshold, e.g. >= 0.5
+    pub include_candidates: bool,
     pub language: Option<Language>,
     pub source: Source,
     /// Skip regions whose crop would be smaller than the encoder input, which

@@ -37,6 +37,12 @@ flowchart TD
 - [**Agent, Skill & Automation Methods**](docs/agent_and_skill_methods.md): Details agent orchestration, `.agents/skills` taxonomy, and `scripts/gen-llms.py` context compilation.
 - [**Reference ComicOCR Analysis & Learnings**](docs/reference_mangaocr_learnings.md): Analysis of PaddleOCR/TrOCR reference project, ~8MB model size target, and long-sequence attention bug mitigations.
 - [**Page Processing Strategy**](docs/page_processing_strategy.md): Architecture map and strategies for full-page OCR, color cover handling, and cross-panel text bubbles.
+- [**Ingestion Loop Contract**](docs/ingestion_contract.md): Six-stage discover/decode/segment/normalize/recognize/emit contract binding the CLI, pipeline script, and REST runtime, with invariants, error classes, conformance tests, and current gaps.
+- [**iPub Format & Infinite Verse Integration Specification**](docs/ipub_format_and_infinite_verse_integration.md): Comprehensive specification of the iPub format, CAS asset manifests, page-semantics envelope schemas, database attachment rules, and Mode A/Mode B integration seams.
+- [**Flywheel, Distillation & Independent Reader Architectural Doctrine**](docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Core architectural doctrine detailing VisionEncoderDecoder model scope, composed pair confidence, distillation error-correction, the independent reader principle, and held-out human evaluation set rules.
+- [**Rust Migration Specification**](docs/rust_migration.md): Technical specifications, blueprints, and verification gates for the Inference Bridge, PyO3 Python wheel, and Neural Model & PDP Architecture.
+- [**JSON Schema Suite & 12.jpg Execution Reference**](docs/json_schema_suite.md): Details all 7 canonical JSON Schema contracts, sample instances, and multi-schema execution results.
+- [**Training Pair Export Specification**](docs/TRAINING_EXPORT.md): Documents pair generation from iPub graphs, composed confidence $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$, and The Training Contract rules.
 - [**Code Review & Audit Report**](docs/code_review.md): Deep-dive audit report highlighting architectural strengths, known gaps, code smells, test coverage gaps, and refactoring roadmap.
 
 ---

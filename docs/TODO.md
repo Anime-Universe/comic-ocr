@@ -90,25 +90,46 @@
   - Parsed `冒険メモ 🐾` parchment into a structured quest log document hierarchy with progress trackers.
 - [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/ci.yml`)**:
   - Resolved `needless_range_loop` warnings in test targets.
-  - Upgraded GitHub CI workflow (`.github/workflows/ci.yml`) to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo test --workspace --all-features`, `cargo test --workspace --all-features --no-run` (ignoring model-dependent tests without rotting), and `cargo test -p comic-ocr-ort --test test_no_fabricated_output`.
+  - Upgraded GitHub CI workflow (`.github/workflows/ci.yml`) to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo test --workspace --all-features` (87 passed, 2 ignored out of 89 total targets), and `cargo test -p comic-ocr-ort --test test_no_fabricated_output`.
+- [x] **22-Image Local Benchmark Ledger (`tests/data/benchmark_results.json`)**:
+  - Consolidated 22 local test dataset images into a unified master ledger. *(Note: Distinct from the platform's 830-page `panel-detector` staging run in `manga-service`).*
+- [x] **ONNX Model Export Script & Graph Contract (`scripts/export_onnx.py`, `docs/ONNX_GRAPH_CONTRACT.md`)**:
+  - Created [`docs/ONNX_GRAPH_CONTRACT.md`](file:///Users/zachshallbetter/Projects/comic-ocr-rust/docs/ONNX_GRAPH_CONTRACT.md) defining tensor contracts and KV-cache mechanics.
+  - Created [`scripts/export_onnx.py`](file:///Users/zachshallbetter/Projects/comic-ocr-rust/scripts/export_onnx.py) to export `kha-white/manga-ocr` into `models/onnx/{encoder_model.onnx, decoder_model.onnx, decoder_with_past_model.onnx}`.
 
 ---
 
 ## Phase 9: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
 
 ### A. Pure Rust `VisionEncoderDecoder` Generation Loop (Native ONNX Decoder)
-- [ ] **Rust-side ViT Encoder + Autoregressive Decoder Loop**:
-  - Implement native Rust ViT image patch embedding encoder and autoregressive Transformer decoder loop (with KV-cache) inside `comic-ocr-ort`.
-  - Connect token ID logits directly to HuggingFace BPE/Unigram detokenizer to complete the native `OrtEngine::predict()` path without Python subprocess dependencies.
+- [ ] **Generate ONNX Model Graphs (`models/onnx/`)**:
+  - Execute `python3 scripts/export_onnx.py --model kha-white/manga-ocr --output-dir models/onnx` to restore model graphs.
+- [ ] **Empirically Verify Rust Decoder KV-Cache Loop (`crates/comic-ocr-ort/src/generate.rs`)**:
+  - `generate.rs` is **Implemented (Unverified)**. Unignore `test_benchmark_model_inference_evaluation` in `test_benchmark_dataset.rs` and verify native Rust KV-cache generator against ONNX model weights once graphs are present.
 
 ### B. Persistent Python Model Inference Worker
 - [ ] **Long-Lived Python Worker / Process Pool**:
-  - Implement a persistent long-lived background Python daemon/worker process over stdin/stdout IPC or Unix domain socket for `OrtEngine` when operating in subprocess mode, eliminating per-image PyTorch/transformers model reloading overhead across batch operations.
+  - Implement a persistent background Python daemon/worker process over stdin/stdout IPC or Unix domain socket for `OrtEngine` when operating in subprocess mode, eliminating per-image PyTorch/transformers model reloading overhead across batch operations.
 
-### C. PDP Multi-Engine Consensus & Brier Calibration
-- [ ] **Multi-Engine PDP Consensus**: Implement Brier-calibrated consensus weighting across local ONNX model predictions and remote VLM API transcriptions (e.g. Gemini / Claude) in `comic-ocr-pdp`.
-- [ ] **Cross-Engine Disagreement Detection**: Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
+### C. PDP Multi-Engine Consensus & Brier Calibration (`comic-ocr-pdp`)
+- [ ] **Multi-Engine PDP Consensus Calibration**:
+  - `comic-ocr-pdp` currently contains 70 lines of substrate types; Brier calibration is **Unbuilt / Design Intent**.
+  - Implement Brier-calibrated consensus weighting $w_i = \exp(-\text{Brier}_i)$ across local ONNX model predictions and remote VLM API transcriptions (e.g., Gemini / Claude) in `comic-ocr-pdp`.
+- [ ] **Cross-Engine Disagreement Detection**:
+  - Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
 
 ### D. Advanced Cover & Editorial Typography Reconstruction
 - [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
 - [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.
+
+### E. Distillation Exporter, Composed Confidence & Independent Reader Flywheel
+- [ ] **Composed Pair Confidence Calculation**:
+  - Implement $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{detector}} \times \mathbf{C}_{\text{transcriber}}$ composed confidence calculation when creating training pairs from `IPubSemanticResource` envelopes.
+- [ ] **Training Pair Exporter CLI & Library (`export_pairs`)**:
+  - Build Rust training pair exporter (`export_pairs(graph, filter, out)`) in `crates/comic-ocr-cli` / `comic-ocr-core` reading from CAS `page-semantics` envelopes and producing `schemas/training_pair.json` dataset records.
+  - Implement `ExportFilter` (`min_confidence`, `include_candidates`, `language`, `min_crop_px`) and emit `ExportReport` telemetry.
+  - Ensure `rejected` assertion state is strictly excluded from export.
+- [ ] **Held-Out Human Evaluation Set Discipline**:
+  - Reserve a strictly held-out, human-reviewed evaluation test corpus (e.g. `package 0000` / `test_benchmark_dataset.rs`) for measuring real model reading accuracy, strictly isolated from machine-labeled training signals.
+- [ ] **Cross-Engine Disagreement Review Queue**:
+  - Compare `comic-ocr-rust` predictions against 3rd-party teacher (Gemini `ocr-detector`) predictions to compute un-correlated cross-engine disagreement matrices and route disagreements directly to human review queues.

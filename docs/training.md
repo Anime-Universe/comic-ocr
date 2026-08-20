@@ -97,10 +97,13 @@ cross-entropy ignores them in backprop.
 Report per-track and never pooled: a bilingual average hides a track that has
 stopped working.
 
-### Holdout
+### Holdout Evaluation Set (The Human Test Set)
 
-Package `0000` is excluded from training (`skip_packages=[0]`) and reserved for
-evaluation. Applies to both tracks independently.
+Under **The Training Contract** ([`docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md`](FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md)), human annotations are **never** the primary training dataset — they form the **held-out evaluation test set**.
+
+- Measuring accuracy against machine (teacher) labels measures imitation, not true reading ability.
+- Package `0000` is strictly excluded from training (`skip_packages=[0]`) and reserved for independent human evaluation.
+- Training loss operates over confidence-weighted machine pairs $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{detector}} \times \mathbf{C}_{\text{transcriber}}$.
 
 ---
 

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.infiniteverse.ai/ipub/1.0/semantic-resource.schema.json",
+  "title": "iPub Semantic Resource Envelope",
+  "description": "The IPubSemanticResource envelope schema for page-semantics resources attached to iPub publications.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "scope",
+    "regions",
+    "provenance"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publicationId"],
+      "properties": {
+        "publicationId": { "type": "string", "minLength": 1 },
+        "readingItemId": { "type": "string", "minLength": 1 },
+        "locator": { "type": "string" }
+      }
+    },
+    "access": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["open", "entitled"]
+      }
+    },
+    "regions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "bounds", "normalizedBounds", "state"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^(co|pd|text|panel)-" },
+          "kind": { "type": "string", "enum": ["text", "speech_bubble", "panel", "badge", "sound_effect"] },
+          "bounds": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "width": { "type": "number", "minimum": 0 },
+              "height": { "type": "number", "minimum": 0 }
+            }
+          },
+          "normalizedBounds": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "state": { "type": "string", "enum": ["candidate", "accepted", "verified", "rejected"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "textLayers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "language", "kind", "regions"],
+        "properties": {
+          "id": { "type": "string" },
+          "language": { "type": "string" },
+          "kind": { "type": "string", "enum": ["ocr", "transcription", "translation"] },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "regionId", "text", "state"],
+              "properties": {
+                "id": { "type": "string" },
+                "regionId": { "type": "string" },
+                "text": { "type": "string" },
+                "direction": { "type": "string", "enum": ["ttb", "ltr", "rtl"] },
+                "ruby": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["base", "text"],
+                    "properties": {
+                      "base": { "type": "string" },
+                      "text": { "type": "string" }
+                    }
+                  }
+                },
+                "state": { "type": "string", "enum": ["candidate", "accepted", "verified", "rejected"] },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["records"],
+      "properties": {
+        "records": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["source", "engine", "createdAt"],
+            "properties": {
+              "source": { "type": "string" },
+              "engine": { "type": "string" },
+              "model": { "type": "string" },
+              "engineVersion": { "type": "string" },
+              "createdAt": { "type": "string" }
+            }
+          }
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

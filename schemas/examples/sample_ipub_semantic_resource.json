@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "scope": {
+    "publicationId": "pub_01h9x3y8z",
+    "readingItemId": "item_page_001",
+    "locator": "page-1"
+  },
+  "access": {
+    "regions": "open",
+    "textLayers": "entitled"
+  },
+  "regions": [
+    {
+      "id": "co-001",
+      "kind": "text",
+      "bounds": {
+        "x": 120.0,
+        "y": 80.0,
+        "width": 150.0,
+        "height": 400.0
+      },
+      "normalizedBounds": [0.12, 0.08, 0.27, 0.48],
+      "state": "candidate",
+      "confidence": 0.982
+    }
+  ],
+  "textLayers": [
+    {
+      "id": "tl-co-001",
+      "language": "ja",
+      "kind": "transcription",
+      "regions": [
+        {
+          "id": "co-text-001",
+          "regionId": "co-001",
+          "text": "漢字[かんじ]の読み方",
+          "direction": "ttb",
+          "ruby": [
+            {
+              "base": "漢字",
+              "text": "かんじ"
+            }
+          ],
+          "state": "candidate",
+          "confidence": 0.982
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "records": {
+      "comic-ocr": {
+        "source": "ocr",
+        "engine": "comic-ocr",
+        "model": "manga-ocr",
+        "engineVersion": "0.1.0",
+        "createdAt": "2026-08-20T00:00:00Z"
+      }
+    },
+    "fields": {
+      "/textLayers": "comic-ocr"
+    }
+  }
+}
