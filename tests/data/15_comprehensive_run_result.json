@@ -2,6 +2,7 @@
   "schema_version": "1.0.0",
   "page_metadata": {
     "image_filename": "15.png",
+    "page_number": 14,
     "dimensions": {
       "width": 1054,
       "height": 1492
@@ -15,16 +16,31 @@
   "series_info": {
     "title_ja": "ドラゴンクエスト エデンの戦士たち",
     "title_en": "Dragon Quest: Warriors of Eden",
-    "chapter_number": 14,
-    "chapter_title_ja": "オープニング・ナレーション (横書き・装飾付き)",
-    "chapter_title_en": "Opening Narration (Horizontal Text with Ornamentation)",
-    "next_chapter_preview": "第2章へつづく―― 謎の遺跡、そして新たな仲間!?"
+    "current_chapter": 1,
+    "continuation": {
+      "type": "chapter",
+      "target_chapter": 2,
+      "raw_text": "第2章へつづく――",
+      "translation_en": "To be continued in Chapter 2――"
+    }
   },
-  "header_banner": {
-    "id": "header-banner-1",
+  "header_annotation": {
+    "id": "header-annotation-1",
+    "role": "test-annotation",
+    "scope": "fixture",
+    "localizable": false,
     "bounds": [15, 12, 440, 36],
     "raw_text": "◆ オープニング・ナレーション (横書き・装飾付き)",
     "translation_en": "◆ Opening Narration (Horizontal Text with Ornamentation)"
+  },
+  "validation_report": {
+    "reading_order_validation": {
+      "declared_direction": "right_to_left",
+      "inferred_direction": "right_to_left",
+      "status": "consistent",
+      "violations": []
+    },
+    "semantic_conflicts": []
   },
   "panels": [
     {
@@ -36,54 +52,74 @@
         {
           "id": "co-text-1-1",
           "type": "narration_box",
-          "orientation": "horizontal",
-          "bounds": [30, 48, 230, 130],
-          "raw_text": "エデン大陸――\n太古の文明が\n点在する世界。",
-          "formatted_text": "エデン大陸――\n太古の文明が\n点在する世界。",
-          "translation_en": "The Eden Continent―― A world dotted with ancient civilizations.",
-          "reading_order": 1,
-          "confidence": 0.9920
-        },
-        {
-          "id": "co-text-1-2",
-          "type": "narration_box",
           "orientation": "vertical",
           "bounds": [826, 30, 195, 185],
           "raw_text": "人々は語り継いだ\n七つの島を巡り\n希望の光を探す旅を...",
           "formatted_text": "人々は語り継いだ\n七つの島を巡り\n希望の光を探す旅を...",
           "translation_en": "People passed down the tale... of a journey traveling seven islands in search of the Light of Hope...",
+          "reading_order": 1,
+          "confidence": 0.9890,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            {
+              "source": "vision",
+              "confidence": 0.9890,
+              "pass_id": "semantic-region-pass-01"
+            },
+            {
+              "source": "ocr",
+              "confidence": 0.3314,
+              "pass_id": "manga-ocr-fullpage-pass"
+            }
+          ]
+        },
+        {
+          "id": "co-text-1-2",
+          "type": "narration_box",
+          "orientation": "horizontal",
+          "bounds": [30, 48, 230, 130],
+          "raw_text": "エデン大陸――\n太古の文明が\n点在する世界。",
+          "formatted_text": "エデン大陸――\n太古の文明が\n点在する世界。",
+          "translation_en": "The Eden Continent―― A world dotted with ancient civilizations.",
           "reading_order": 2,
-          "confidence": 0.9890
+          "confidence": 0.9920,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            {
+              "source": "vision",
+              "confidence": 0.9920,
+              "pass_id": "semantic-region-pass-01"
+            },
+            {
+              "source": "ocr",
+              "confidence": 0.3314,
+              "pass_id": "manga-ocr-fullpage-pass"
+            }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-2",
       "reading_order": 2,
-      "bounds": [15, 482, 430, 288],
-      "description": "Hero holding an old map near the stone ruins, looking thoughtfully ahead.",
+      "bounds": [715, 482, 324, 288],
+      "description": "Close-up profile of hero turning his head in sudden alert surprise.",
       "text_regions": [
         {
           "id": "co-text-2-1",
           "type": "speech_bubble",
-          "orientation": "vertical",
-          "bounds": [32, 498, 120, 160],
-          "raw_text": "地図によると\nこの先の遺跡に\n何か手がかりが\nあるはず...",
-          "formatted_text": "地図によると\nこの先の遺跡に\n何か手がかりが\nあるはず...",
-          "translation_en": "According to the map, there should be a clue in the ruins ahead...",
-          "reading_order": 1,
-          "confidence": 0.9880
-        },
-        {
-          "id": "co-text-2-2",
-          "type": "symbol",
           "orientation": "horizontal",
-          "bounds": [365, 510, 40, 45],
-          "raw_text": "?",
-          "formatted_text": "?",
-          "translation_en": "?",
-          "reading_order": 2,
-          "confidence": 0.9990
+          "bounds": [738, 680, 75, 75],
+          "raw_text": "!",
+          "formatted_text": "!",
+          "translation_en": "!",
+          "reading_order": 1,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
@@ -102,45 +138,92 @@
           "formatted_text": "ゴゴゴ...",
           "translation_en": "Rumble... (Heavy stone movement)",
           "reading_order": 1,
-          "confidence": 0.9850
+          "confidence": 0.9850,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9850, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-4",
       "reading_order": 4,
-      "bounds": [715, 482, 324, 288],
-      "description": "Close-up profile of hero looking back in sudden alert surprise.",
+      "bounds": [15, 482, 430, 288],
+      "description": "Hero holding an old map near the stone ruins, looking thoughtfully ahead.",
       "text_regions": [
         {
           "id": "co-text-4-1",
           "type": "speech_bubble",
-          "orientation": "horizontal",
-          "bounds": [738, 680, 75, 75],
-          "raw_text": "!",
-          "formatted_text": "!",
-          "translation_en": "!",
+          "orientation": "vertical",
+          "bounds": [32, 498, 120, 160],
+          "raw_text": "地図によると\nこの先の遺跡に\n何か手がかりが\nあるはず...",
+          "formatted_text": "地図によると\nこの先の遺跡に\n何か手がかりが\nあるはず...",
+          "translation_en": "According to the map, there should be a clue in the ruins ahead...",
           "reading_order": 1,
-          "confidence": 0.9990
+          "confidence": 0.9880,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9880, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-4-2",
+          "type": "symbol",
+          "orientation": "horizontal",
+          "bounds": [365, 510, 40, 45],
+          "raw_text": "?",
+          "formatted_text": "?",
+          "translation_en": "?",
+          "reading_order": 2,
+          "confidence": 0.9990,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9990, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-5",
       "reading_order": 5,
-      "bounds": [15, 780, 290, 220],
-      "description": "A floor trapdoor dropping open to reveal sharp iron spikes beneath.",
+      "bounds": [625, 780, 414, 220],
+      "description": "Skeletal warrior armed with sword and shield appearing in the shadows of the corridor behind the hero.",
       "text_regions": [
         {
           "id": "co-text-5-1",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [900, 792, 125, 100],
+          "raw_text": "誰かいる\nのか...!?",
+          "formatted_text": "誰かいる\nのか...!?",
+          "translation_en": "Is someone... there...!?",
+          "reading_order": 1,
+          "confidence": 0.9840,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9840, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
+        },
+        {
+          "id": "co-text-5-2",
           "type": "sfx",
           "orientation": "horizontal",
-          "bounds": [50, 800, 200, 65],
-          "raw_text": "ガシャン!",
-          "formatted_text": "ガシャン!",
-          "translation_en": "CLANG! / TRAP TRIGGERED!",
-          "reading_order": 1,
-          "confidence": 0.9910
+          "bounds": [630, 805, 110, 45],
+          "raw_text": "ガラッ...",
+          "formatted_text": "ガラッ...",
+          "translation_en": "RATTLE... (Bony footstep)",
+          "reading_order": 2,
+          "confidence": 0.9820,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9820, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
@@ -159,56 +242,60 @@
           "formatted_text": "わっ!?",
           "translation_en": "WAH!? / WHOA!?",
           "reading_order": 1,
-          "confidence": 0.9870
+          "confidence": 0.9870,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9870, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-7",
       "reading_order": 7,
-      "bounds": [625, 780, 414, 220],
-      "description": "Skeletal warrior armed with sword and shield appearing in the shadows of the corridor behind the hero.",
+      "bounds": [15, 780, 290, 220],
+      "description": "A floor trapdoor dropping open to reveal sharp iron spikes beneath.",
       "text_regions": [
         {
           "id": "co-text-7-1",
-          "type": "speech_bubble",
-          "orientation": "vertical",
-          "bounds": [900, 792, 125, 100],
-          "raw_text": "誰かいる\nのか...!?",
-          "formatted_text": "誰かいる\nのか...!?",
-          "translation_en": "Is someone... there...!?",
-          "reading_order": 1,
-          "confidence": 0.9840
-        },
-        {
-          "id": "co-text-7-2",
           "type": "sfx",
           "orientation": "horizontal",
-          "bounds": [630, 805, 110, 45],
-          "raw_text": "ガラッ...",
-          "formatted_text": "ガラッ...",
-          "translation_en": "RATTLE... (Bony footstep)",
-          "reading_order": 2,
-          "confidence": 0.9820
+          "bounds": [50, 800, 200, 65],
+          "raw_text": "ガシャン!",
+          "formatted_text": "ガシャン!",
+          "translation_en": "CLANG! / TRAP TRIGGERED!",
+          "reading_order": 1,
+          "confidence": 0.9910,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9910, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-8",
       "reading_order": 8,
-      "bounds": [15, 1010, 310, 300],
-      "description": "Parchment document titled 'Adventure Memo' pinned with tape, listing monster kill counts, flower collection, rune deciphering, and a cute Slime drawing.",
+      "bounds": [685, 1010, 354, 300],
+      "description": "Hero smiling brightly while holding the glowing blue sphere close in both hands.",
       "text_regions": [
         {
           "id": "co-text-8-1",
-          "type": "quest_memo",
-          "orientation": "horizontal",
-          "bounds": [25, 1020, 285, 270],
-          "raw_text": "冒険メモ 🐾\n・魔物を20体たおす (7/20)\n・青い花を5つ集める (2/5)\n・古代文字を解読する\n・村人の依頼を聞く\n  がんばるぞー! ⭐️",
-          "formatted_text": "冒険メモ 🐾\n・魔物を20体たおす (7/20)\n・青い花を5つ集める (2/5)\n・古代文字を解読する\n・村人の依頼を聞く\n  がんばるぞー! ⭐️",
-          "translation_en": "Adventure Memo 🐾\n・Defeat 20 monsters (7/20)\n・Collect 5 blue flowers (2/5)\n・Decipher ancient runes\n・Listen to villagers' requests\n  I'll do my best! ⭐️",
+          "type": "speech_bubble",
+          "orientation": "vertical",
+          "bounds": [900, 1020, 125, 140],
+          "raw_text": "これが光の\n導き...か!",
+          "formatted_text": "これが{光|ひかり}の\n{導|みちび}き...か!",
+          "translation_en": "Is this... the Guidance of Light!?",
           "reading_order": 1,
-          "confidence": 0.9950
+          "confidence": 0.9910,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9910, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
@@ -227,37 +314,70 @@
           "formatted_text": "パカッ!",
           "translation_en": "CLACK! / OPENING!",
           "reading_order": 1,
-          "confidence": 0.9930
+          "confidence": 0.9930,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9930, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         },
         {
           "id": "co-text-9-2",
           "type": "speech_bubble",
           "orientation": "vertical",
           "bounds": [575, 1040, 95, 130],
-          "raw_text": "なんだ\nこれは...!?",
-          "formatted_text": "なんだ\nこれは...!?",
-          "translation_en": "What is... this...!?",
+          "raw_text": "なんだ\nこれは...!",
+          "formatted_text": "なんだ\nこれは...!",
+          "translation_en": "What is... this...!",
           "reading_order": 2,
-          "confidence": 0.9880
+          "confidence": 0.9880,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9880, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ]
         }
       ]
     },
     {
       "panel_id": "panel-10",
       "reading_order": 10,
-      "bounds": [685, 1010, 354, 300],
-      "description": "Hero smiling brightly while holding the glowing blue sphere close in both hands.",
+      "bounds": [15, 1010, 310, 300],
+      "description": "Parchment document titled 'Adventure Memo' pinned with tape, listing monster kill counts, flower collection, rune deciphering, and a cute Slime drawing.",
       "text_regions": [
         {
           "id": "co-text-10-1",
-          "type": "speech_bubble",
-          "orientation": "vertical",
-          "bounds": [900, 1020, 125, 140],
-          "raw_text": "これが光の\n導き...か!",
-          "formatted_text": "これが{光|ひかり}の\n{導|みちび}き...か!",
-          "translation_en": "Is this... the Guidance of Light!?",
+          "type": "quest_memo",
+          "orientation": "horizontal",
+          "bounds": [25, 1020, 285, 270],
+          "raw_text": "冒険メモ 🐾\n・魔物を20体たおす (7/20)\n・青い花を5つ集める (2/5)\n・古代文字を解読する\n・村人の依頼を聞く\n  がんばるぞー! ⭐️",
+          "formatted_text": "冒険メモ 🐾\n・魔物を20体たおす (7/20)\n・青い花を5つ集める (2/5)\n・古代文字を解読する\n・村人の依頼を聞く\n  がんばるぞー! ⭐️",
+          "translation_en": "Adventure Memo 🐾\n・Defeat 20 monsters (7/20)\n・Collect 5 blue flowers (2/5)\n・Decipher ancient runes\n・Listen to villagers' requests\n  I'll do my best! ⭐️",
           "reading_order": 1,
-          "confidence": 0.9910
+          "confidence": 0.9950,
+          "ocr_confidence": 0.3314,
+          "evidence": [
+            { "source": "vision", "confidence": 0.9950, "pass_id": "semantic-region-pass-01" },
+            { "source": "ocr", "confidence": 0.3314, "pass_id": "manga-ocr-fullpage-pass" }
+          ],
+          "structured_document": {
+            "type": "quest-log",
+            "title": "冒険メモ",
+            "icon": "🐾",
+            "items": [
+              {
+                "text": "魔物を20体たおす",
+                "progress": { "current": 7, "target": 20 }
+              },
+              {
+                "text": "青い花を5つ集める",
+                "progress": { "current": 2, "target": 5 }
+              },
+              { "text": "古代文字を解読する" },
+              { "text": "村人の依頼を聞く" }
+            ],
+            "memo_note": "がんばるぞー! ⭐️"
+          }
         }
       ]
     }
@@ -279,8 +399,13 @@
       "series_subtitle_raw": "ドラゴンクエスト",
       "series_subtitle_en": "Dragon Quest",
       "main_title_raw": "エデンの戦士たち",
-      "main_title_en": "Warriors of Eden",
-      "chapter_number_badge": 14
+      "main_title_en": "Warriors of Eden"
+    },
+    "page_number_badge": {
+      "id": "page-badge-14",
+      "bounds": [890, 1345, 95, 95],
+      "value": 14,
+      "semantic_role": "page_number"
     }
   }
 }

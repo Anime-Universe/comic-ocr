@@ -6,6 +6,7 @@ pub mod resample;
 pub mod scene_graph;
 pub mod scene_solver;
 pub mod types;
+pub mod validation;
 
 pub use detector::*;
 pub use languages::{Language, post_process_en, post_process_for_language, post_process_jp};
@@ -15,3 +16,4 @@ pub use resample::resample_tiles;
 pub use scene_graph::*;
 pub use scene_solver::*;
 pub use types::*;
+pub use validation::*;
