@@ -5,37 +5,38 @@
     "height": 1024,
     "size_bytes": 227449
   },
-  "processing_mode": "vertical_tile_resampling",
-  "detected_bubbles_count": 6,
-  "recognized_text": "いや...おまえは これから このような そして、 ...おまえ、 どうして",
+  "content_type": "color_manga_cover_art",
+  "title_info": {
+    "series": "DRAGON QUEST SERIES SEVEN",
+    "volume": 1,
+    "japanese_title": "ドラゴンクエスト エデンの戦士たち",
+    "english_title": "Dragon Quest VII: Warriors of Eden",
+    "author": "堀井雄二",
+    "artist": "藤原カムイ"
+  },
+  "recognized_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
   "ocr_result": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
-    "text": "いや...おまえは これから このような そして、 ...おまえ、 どうして",
-    "confidence": 0.9842,
-    "token_probabilities": [
-      0.985,
-      0.982,
-      0.986,
-      0.984,
-      0.987
-    ],
+    "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+    "confidence": 0.9850,
+    "token_probabilities": [0.99, 0.985, 0.988, 0.982],
     "metadata": {
-      "duration_ms": 18.6,
+      "duration_ms": 14.2,
       "model_name": "kha-white/manga-ocr-base",
       "engine_type": "BaseInt8Onnx"
     }
   },
   "pdp_decision": {
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
-    "selected_text": "いや...おまえは これから このような そして、 ...おまえ、 どうして",
-    "confidence": 0.9842,
+    "selected_text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+    "confidence": 0.9850,
     "is_validated": true,
     "candidates": [
       {
         "engine_type": "BaseInt8Onnx",
-        "text": "いや...おまえは これから このような そして、 ...おまえ、 どうして",
-        "raw_confidence": 0.9842,
-        "acs_score": 0.989
+        "text": "堀井雄二 藤原カムイ ドラゴンクエスト エデンの戦士たち",
+        "raw_confidence": 0.9850,
+        "acs_score": 0.9900
       }
     ]
   },
@@ -47,84 +48,28 @@
       {
         "id": "b1234567-e89b-12d3-a456-426614174014",
         "reading_order": 1,
-        "bounds": [
-          0.0,
-          0.0,
-          650.0,
-          1024.0
-        ],
+        "bounds": [0.0, 0.0, 650.0, 1024.0],
         "bubbles": [
           {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_1",
+            "id": "c1234567-e89b-12d3-a456-426614174014_author",
             "reading_order": 1,
-            "bounds": [
-              0.0,
-              0.0,
-              325.0,
-              256.0
-            ],
-            "text": "いや...おまえは",
-            "confidence": 0.982
+            "bounds": [85.0, 110.0, 100.0, 200.0],
+            "text": "堀井雄二",
+            "confidence": 0.9850
           },
           {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_2",
+            "id": "c1234567-e89b-12d3-a456-426614174014_artist",
             "reading_order": 2,
-            "bounds": [
-              325.0,
-              256.0,
-              325.0,
-              256.0
-            ],
-            "text": "これから",
-            "confidence": 0.985
+            "bounds": [205.0, 110.0, 105.0, 330.0],
+            "text": "藤原カムイ",
+            "confidence": 0.9850
           },
           {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_3",
+            "id": "c1234567-e89b-12d3-a456-426614174014_title",
             "reading_order": 3,
-            "bounds": [
-              325.0,
-              512.0,
-              325.0,
-              256.0
-            ],
-            "text": "このような",
-            "confidence": 0.981
-          },
-          {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_4",
-            "reading_order": 4,
-            "bounds": [
-              0.0,
-              512.0,
-              325.0,
-              256.0
-            ],
-            "text": "そして、",
-            "confidence": 0.986
-          },
-          {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_5",
-            "reading_order": 5,
-            "bounds": [
-              325.0,
-              768.0,
-              325.0,
-              256.0
-            ],
-            "text": "...おまえ、",
-            "confidence": 0.984
-          },
-          {
-            "id": "c1234567-e89b-12d3-a456-426614174014_bubble_6",
-            "reading_order": 6,
-            "bounds": [
-              0.0,
-              768.0,
-              325.0,
-              256.0
-            ],
-            "text": "どうして",
-            "confidence": 0.987
+            "bounds": [70.0, 770.0, 560.0, 100.0],
+            "text": "ドラゴンクエスト エデンの戦士たち",
+            "confidence": 0.9880
           }
         ]
       }
@@ -133,17 +78,17 @@
   "localized_text_objects": [
     {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_1",
+      "id": "c1234567-e89b-12d3-a456-426614174014_author",
       "panelId": "b1234567-e89b-12d3-a456-426614174014",
       "containerId": "d1234567-e89b-12d3-a456-426614174014_1",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
+      "placementMode": "title-overlay",
+      "role": "author-credit",
       "logicalOrder": 1,
       "source": {
         "language": "ja",
-        "raw": "いや...おまえは",
-        "normalized": "いや...おまえは",
-        "reading": "いや...おまえは",
+        "raw": "堀井雄二",
+        "normalized": "堀井雄二",
+        "reading": "堀[ほり]井[い]雄[ゆう]二[じ]",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -151,71 +96,49 @@
       },
       "translation": {
         "language": "en",
-        "literal": "No... you are",
-        "localized": "No... you are",
-        "displayText": "No... you are"
+        "literal": "Yuji Horii",
+        "localized": "Supervisor: Yuji Horii",
+        "displayText": "Supervisor: Yuji Horii"
       },
       "geometry": {
         "bounds": {
           "preferred": {
-            "px": {
-              "x": 0.0,
-              "y": 0.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.0,
-              "y": 0.0,
-              "width": 0.5,
-              "height": 0.25
-            }
+            "px": { "x": 85.0, "y": 110.0, "width": 100.0, "height": 200.0 },
+            "normalized": { "x": 0.1308, "y": 0.1074, "width": 0.1538, "height": 0.1953 }
           }
         },
         "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
+          "position": { "x": 0.0, "y": 0.0 },
           "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
+          "scale": { "x": 1.0, "y": 1.0 },
           "anchor": "top-left"
         }
       },
       "layout": {
         "writingMode": "horizontal-tb",
-        "textAlign": "center",
-        "verticalAlign": "middle",
+        "textAlign": "left",
+        "verticalAlign": "top",
         "flow": "wrap"
       },
       "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
+        "font": { "family": "Impact", "fallback": ["sans-serif"] },
+        "fontSize": 16.0,
         "lineHeight": 1.2
       }
     },
     {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_2",
+      "id": "c1234567-e89b-12d3-a456-426614174014_artist",
       "panelId": "b1234567-e89b-12d3-a456-426614174014",
       "containerId": "d1234567-e89b-12d3-a456-426614174014_2",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
+      "placementMode": "title-overlay",
+      "role": "artist-credit",
       "logicalOrder": 2,
       "source": {
         "language": "ja",
-        "raw": "これから",
-        "normalized": "これから",
-        "reading": "これから",
+        "raw": "藤原カムイ",
+        "normalized": "藤原カムイ",
+        "reading": "藤[ふじ]原[わら]カムイ",
         "writing": {
           "mode": "vertical-rl",
           "characterDirection": "top-to-bottom"
@@ -223,109 +146,71 @@
       },
       "translation": {
         "language": "en",
-        "literal": "From now on",
-        "localized": "From now on",
-        "displayText": "From now on"
+        "literal": "Kamui Fujiwara",
+        "localized": "Art: Kamui Fujiwara",
+        "displayText": "Art: Kamui Fujiwara"
       },
       "geometry": {
         "bounds": {
           "preferred": {
-            "px": {
-              "x": 325.0,
-              "y": 256.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.5,
-              "y": 0.25,
-              "width": 0.5,
-              "height": 0.25
-            }
+            "px": { "x": 205.0, "y": 110.0, "width": 105.0, "height": 330.0 },
+            "normalized": { "x": 0.3154, "y": 0.1074, "width": 0.1615, "height": 0.3223 }
           }
         },
         "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
+          "position": { "x": 0.0, "y": 0.0 },
           "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
+          "scale": { "x": 1.0, "y": 1.0 },
           "anchor": "top-left"
         }
       },
       "layout": {
         "writingMode": "horizontal-tb",
-        "textAlign": "center",
-        "verticalAlign": "middle",
+        "textAlign": "left",
+        "verticalAlign": "top",
         "flow": "wrap"
       },
       "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
+        "font": { "family": "Impact", "fallback": ["sans-serif"] },
+        "fontSize": 16.0,
         "lineHeight": 1.2
       }
     },
     {
       "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_3",
+      "id": "c1234567-e89b-12d3-a456-426614174014_title",
       "panelId": "b1234567-e89b-12d3-a456-426614174014",
       "containerId": "d1234567-e89b-12d3-a456-426614174014_3",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
+      "placementMode": "title-banner",
+      "role": "series-title",
       "logicalOrder": 3,
       "source": {
         "language": "ja",
-        "raw": "このような",
-        "normalized": "このような",
-        "reading": "このような",
+        "raw": "ドラゴンクエスト エデンの戦士たち",
+        "normalized": "ドラゴンクエスト エデンの戦士たち",
+        "reading": "ドラゴンクエスト エデンの戦[せん]士[し]たち",
         "writing": {
-          "mode": "vertical-rl",
-          "characterDirection": "top-to-bottom"
+          "mode": "horizontal-tb",
+          "characterDirection": "left-to-right"
         }
       },
       "translation": {
         "language": "en",
-        "literal": "Like this",
-        "localized": "Like this",
-        "displayText": "Like this"
+        "literal": "Dragon Quest: Warriors of Eden",
+        "localized": "Dragon Quest VII: Warriors of Eden",
+        "displayText": "Dragon Quest VII: Warriors of Eden"
       },
       "geometry": {
         "bounds": {
           "preferred": {
-            "px": {
-              "x": 325.0,
-              "y": 512.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.5,
-              "y": 0.5,
-              "width": 0.5,
-              "height": 0.25
-            }
+            "px": { "x": 70.0, "y": 770.0, "width": 560.0, "height": 100.0 },
+            "normalized": { "x": 0.1077, "y": 0.7520, "width": 0.8615, "height": 0.0977 }
           }
         },
         "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
+          "position": { "x": 0.0, "y": 0.0 },
           "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
+          "scale": { "x": 1.0, "y": 1.0 },
           "anchor": "top-left"
         }
       },
@@ -336,231 +221,9 @@
         "flow": "wrap"
       },
       "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
-        "lineHeight": 1.2
-      }
-    },
-    {
-      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_4",
-      "panelId": "b1234567-e89b-12d3-a456-426614174014",
-      "containerId": "d1234567-e89b-12d3-a456-426614174014_4",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
-      "logicalOrder": 4,
-      "source": {
-        "language": "ja",
-        "raw": "そして、",
-        "normalized": "そして、",
-        "reading": "そして、",
-        "writing": {
-          "mode": "vertical-rl",
-          "characterDirection": "top-to-bottom"
-        }
-      },
-      "translation": {
-        "language": "en",
-        "literal": "And then,",
-        "localized": "And then,",
-        "displayText": "And then,"
-      },
-      "geometry": {
-        "bounds": {
-          "preferred": {
-            "px": {
-              "x": 0.0,
-              "y": 512.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.0,
-              "y": 0.5,
-              "width": 0.5,
-              "height": 0.25
-            }
-          }
-        },
-        "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
-          "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
-          "anchor": "top-left"
-        }
-      },
-      "layout": {
-        "writingMode": "horizontal-tb",
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "flow": "wrap"
-      },
-      "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
-        "lineHeight": 1.2
-      }
-    },
-    {
-      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_5",
-      "panelId": "b1234567-e89b-12d3-a456-426614174014",
-      "containerId": "d1234567-e89b-12d3-a456-426614174014_5",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
-      "logicalOrder": 5,
-      "source": {
-        "language": "ja",
-        "raw": "...おまえ、",
-        "normalized": "...おまえ、",
-        "reading": "...おまえ、",
-        "writing": {
-          "mode": "vertical-rl",
-          "characterDirection": "top-to-bottom"
-        }
-      },
-      "translation": {
-        "language": "en",
-        "literal": "...you,",
-        "localized": "...you,",
-        "displayText": "...you,"
-      },
-      "geometry": {
-        "bounds": {
-          "preferred": {
-            "px": {
-              "x": 325.0,
-              "y": 768.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.5,
-              "y": 0.75,
-              "width": 0.5,
-              "height": 0.25
-            }
-          }
-        },
-        "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
-          "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
-          "anchor": "top-left"
-        }
-      },
-      "layout": {
-        "writingMode": "horizontal-tb",
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "flow": "wrap"
-      },
-      "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
-        "lineHeight": 1.2
-      }
-    },
-    {
-      "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
-      "id": "c1234567-e89b-12d3-a456-426614174014_bubble_6",
-      "panelId": "b1234567-e89b-12d3-a456-426614174014",
-      "containerId": "d1234567-e89b-12d3-a456-426614174014_6",
-      "placementMode": "flow-inside-container",
-      "role": "dialogue",
-      "logicalOrder": 6,
-      "source": {
-        "language": "ja",
-        "raw": "どうして",
-        "normalized": "どうして",
-        "reading": "どうして",
-        "writing": {
-          "mode": "vertical-rl",
-          "characterDirection": "top-to-bottom"
-        }
-      },
-      "translation": {
-        "language": "en",
-        "literal": "Why",
-        "localized": "Why",
-        "displayText": "Why"
-      },
-      "geometry": {
-        "bounds": {
-          "preferred": {
-            "px": {
-              "x": 0.0,
-              "y": 768.0,
-              "width": 325.0,
-              "height": 256.0
-            },
-            "normalized": {
-              "x": 0.0,
-              "y": 0.75,
-              "width": 0.5,
-              "height": 0.25
-            }
-          }
-        },
-        "transform": {
-          "position": {
-            "x": 0.0,
-            "y": 0.0
-          },
-          "rotation": 0.0,
-          "scale": {
-            "x": 1.0,
-            "y": 1.0
-          },
-          "anchor": "top-left"
-        }
-      },
-      "layout": {
-        "writingMode": "horizontal-tb",
-        "textAlign": "center",
-        "verticalAlign": "middle",
-        "flow": "wrap"
-      },
-      "typography": {
-        "font": {
-          "family": "Wild Words",
-          "fallback": [
-            "Comic Sans MS",
-            "sans-serif"
-          ]
-        },
-        "fontSize": 14.0,
-        "lineHeight": 1.2
+        "font": { "family": "DragonQuestLogo", "fallback": ["Impact", "sans-serif"] },
+        "fontSize": 28.0,
+        "lineHeight": 1.1
       }
     }
   ],
@@ -568,10 +231,10 @@
     "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
     "id": "e1234567-e89b-12d3-a456-426614174014",
     "metadata": {
-      "title": "Manga OCR Sample Crop 14",
-      "series": "Example Benchmark Suite",
+      "title": "Dragon Quest VII: Warriors of Eden",
+      "series": "DRAGON QUEST SERIES SEVEN",
       "volume": "1",
-      "chapter": "14",
+      "chapter": "1",
       "sourceLanguage": "ja",
       "targetLanguage": "en"
     },
@@ -601,10 +264,7 @@
         "source": {
           "imageId": "f1234567-e89b-12d3-a456-426614174014",
           "filename": "14.jpg",
-          "nativeSize": {
-            "width": 650.0,
-            "height": 1024.0
-          },
+          "nativeSize": { "width": 650.0, "height": 1024.0 },
           "dpi": 300.0,
           "colorSpace": "rgb"
         },
@@ -613,9 +273,7 @@
             "id": "g1234567-e89b-12d3-a456-426614174014",
             "order": 1,
             "direction": "rtl",
-            "panelIds": [
-              "b1234567-e89b-12d3-a456-426614174014"
-            ]
+            "panelIds": ["b1234567-e89b-12d3-a456-426614174014"]
           }
         ],
         "panels": [
@@ -624,210 +282,18 @@
             "logicalOrder": 1,
             "frame": {
               "bounds": {
-                "px": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "width": 650.0,
-                  "height": 1024.0
-                },
-                "normalized": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "width": 1.0,
-                  "height": 1.0
-                }
+                "px": { "x": 0.0, "y": 0.0, "width": 650.0, "height": 1024.0 },
+                "normalized": { "x": 0.0, "y": 0.0, "width": 1.0, "height": 1.0 }
               },
               "borderWidth": 1.0
             },
             "zIndex": 1
           }
         ],
-        "containers": [
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_1",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.0,
-                  "y": 0.0,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          },
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_2",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 325.0,
-                  "y": 256.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.5,
-                  "y": 0.25,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          },
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_3",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 325.0,
-                  "y": 512.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.5,
-                  "y": 0.5,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          },
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_4",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 0.0,
-                  "y": 512.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.0,
-                  "y": 0.5,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          },
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_5",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 325.0,
-                  "y": 768.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.5,
-                  "y": 0.75,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          },
-          {
-            "id": "d1234567-e89b-12d3-a456-426614174014_6",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "type": "speech-balloon",
-            "geometry": {
-              "shape": "ellipse",
-              "bounds": {
-                "px": {
-                  "x": 0.0,
-                  "y": 768.0,
-                  "width": 325.0,
-                  "height": 256.0
-                },
-                "normalized": {
-                  "x": 0.0,
-                  "y": 0.75,
-                  "width": 0.5,
-                  "height": 0.25
-                }
-              }
-            }
-          }
-        ],
+        "containers": [],
         "text_regions": [],
         "art_regions": [],
-        "masks": [
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_1",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_1",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_2",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_2",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_3",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_3",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_4",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_4",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_5",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_5",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          },
-          {
-            "id": "h1234567-e89b-12d3-a456-426614174014_6",
-            "panelId": "b1234567-e89b-12d3-a456-426614174014",
-            "textRegionId": "c1234567-e89b-12d3-a456-426614174014_bubble_6",
-            "type": "clean-balloon",
-            "expansion": 2.0,
-            "feather": 1.0
-          }
-        ]
+        "masks": []
       }
     ]
   }
