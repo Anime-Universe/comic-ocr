@@ -91,65 +91,125 @@ Measured on staging today.
 | `panel-detector` coverage | **830 pages, 2,715 regions, 831 jobs, zero failures** |
 | `vision-worker` coverage | 272 pages, 3,646 regions (rate-limit damage: 229 jobs failed, 181 burning all five attempts in one window because `mark_failed` re-queues with no backoff) |
 | `ocr-detector` coverage | 264 pages, 406 envelopes, 2,397 claimed transcriptions |
-| **OCR envelopes with no `blob_url`** | **300 of 406 — 74% unreadable** |
 | Pages claiming >25 text regions | 42, worst is **117** (avg 12.9) |
 | Regions `accepted` or `verified` | **0** |
 
-### What that means
+### Envelope bodies: 836 lost, in one window, already over
 
-The transcription corpus is **not usable, and smaller than its headline**. Three
-quarters of the envelopes record a digest and a count with no pointer to a body —
-nothing can retrieve the text. Of the ~106 that remain, an unknown fraction are
-over-segmented: 117 regions on one page is a balloon detector fragmenting, or
-reading art as text.
+Missing `blob_url` by engine — the envelope exists, carries a digest and a count,
+and has no pointer to a body:
 
-Zero regions are attested, so there is no ground truth at all. The judge control
+| engine | envelopes | with body | missing |
+| --- | ---: | ---: | ---: |
+| `image-stats` | 1,245 | 851 | 394 |
+| `vision-worker` | 424 | 282 | 142 |
+| `ocr-detector` | 406 | 106 | **300** |
+| `panel-detector` | 830 | **830** | **0** |
+
+**Every loss falls between 2026-08-18 11:00 and 2026-08-19 00:00 UTC**, across
+all three Gemini-era engines. From 08-19 01:00 onward every engine is 100%
+clean, including today's 830 panel-detector envelopes.
+
+So this is **historical damage, not a live defect**. The shared
+`register_envelope` path works — `panel-detector` uses it and is perfect. Most
+likely blob-service or CAS was unreachable during that window while
+registration proceeded regardless, recording a digest with no URL.
+
+> **Correction.** This document previously said more documents should not be
+> ingested until this was fixed. That was wrong, and it was wrong in the
+> expensive direction — it would have halted ingestion over a scar rather than
+> an open wound. Nothing is currently corrupting data.
+
+Zero regions are attested, so there is still no ground truth. The judge control
 that produces it is deployed and unused.
+
+### The comparison that cannot yet be made
+
+Free detector versus Gemini, panels against panels: **zero pages have
+retrievable bodies from both engines.** The overlap falls entirely inside the
+damaged window. Manifest counts don't substitute — `vision-worker`'s
+`region_count` includes text regions, `panel-detector`'s does not, so the raw
+averages (17.6 vs 3.3) compare different things.
+
+Settling replace-or-join needs a fresh run of both over the same bounded page
+set. That is cheap: the free detector is instant and costs nothing.
 
 ---
 
 ## The blockers, in order
 
-1. **Empty `blob_url` on 300 OCR envelopes.** Either the CAS upload failed and
-   registration proceeded anyway, or the metadata write dropped the field. Fails
-   silently because `transcription_count` still looks healthy. In
-   `manga-service` — Management's repo, needs coordinating. **Blocking
-   regardless of what else happens**, and blocking harder if more documents are
-   ingested.
-2. **Over-segmentation.** 117 regions on a page. `vision-worker` finds the
-   regions and `ocr-detector` transcribes them, so this points at region
-   detection, not transcription.
-3. **No decoder loop.** The native path cannot produce text. Needs encoder run →
-   decoder loop with KV cache → beam search (`num_beams: 4`,
-   `length_penalty: 2.0`, `no_repeat_ngram_size: 3` — greedy is not equivalent)
-   → detokenise.
-4. **No weights.** Track A training has not started.
-5. **No ground truth.** Nothing attested; the confirm loop has never been used.
+1. **No decoder loop.** The native path cannot produce text — it runs a forward
+   pass and returns `NotImplemented`. Needs encoder run → decoder loop with KV
+   cache → beam search (`num_beams: 4`, `length_penalty: 2.0`,
+   `no_repeat_ngram_size: 3`; greedy is not equivalent) → detokenise. This is the
+   one that gates everything measurable.
+2. **No weights.** Track A training has not started. Independent of (1) — the
+   loop can be built and validated against any same-architecture checkpoint.
+3. **No ground truth.** Nothing attested. The confirm control is deployed and has
+   never been used, so the training corpus is empty by usage, not by design.
+4. **Over-segmentation, unexplained.** 117 text regions on one page, 42 pages
+   over 25, average 12.9. `vision-worker` finds the regions and `ocr-detector`
+   transcribes them, so this points at region detection. Cannot be diagnosed from
+   stored data — the bodies for those pages are in the damaged window.
+
+Note what is **not** on this list: the missing `blob_url`. It is historical, the
+window closed on 08-19 01:00, and nothing is currently producing it.
+
+---
+
+## Two scoped jobs from the envelope damage
+
+### A. Repair — 836 envelopes, but only some are worth it
+
+| engine | missing | re-derivable? | worth re-running? |
+| --- | ---: | --- | --- |
+| `image-stats` | 394 | deterministic, free, no API | **yes** — pure compute, no reason not to |
+| `vision-worker` | 142 | costs Gemini calls | **partly** — enough to enable the panels-vs-panels comparison |
+| `ocr-detector` | 300 | costs Gemini calls | **probably not** — a local engine is coming; re-buying transcriptions we intend to replace is spending twice |
+
+The re-run mechanism already exists and is proven: enqueue jobs with a fresh
+idempotency key, as the panel-detector backfill did (831 jobs, zero failures,
+about six minutes).
+
+### B. Harden — one guard, in `manga-service`
+
+The real defect is that **a failed upload was survivable**. `register_envelope`
+recorded a digest with no `blob_url` and reported success, so
+`transcription_count` still looked healthy while the body was unreachable.
+
+The guard: refuse to register an envelope whose upload did not yield a URL —
+return `Err`, let the job fail and retry, rather than persisting a row that reads
+as success. Small, and it is what stops the next outage leaving the same scar.
+
+Both are in Management's repo and need coordinating.
 
 ---
 
 ## The path
 
-**Now — fix what corrupts data.**
-Chase the empty `blob_url` and the over-segmentation *before* ingesting more
-documents. More volume through this pipeline produces more unretrievable
-envelopes and more fragmented regions: more rows, not more data.
+**Now — ingest more documents.** This was previously advised against on a
+mistaken reading. It is in fact the useful move: every new page is free
+`panel-detector` coverage and a bigger pool for the confirm surface. Region
+detection still costs Gemini calls per page until a local engine lands, which is
+an argument for pace, not for stopping.
 
-**Next — make one engine actually read.**
-The decoder loop, validated against whatever checkpoint is available. This is
-what turns `NotImplemented` into a transcription and makes everything downstream
-measurable.
+**Now, in parallel — the register guard**, because it is small and prevents
+recurrence.
 
-**Then — ground truth.**
-Request Manga109-s now (a week's lead time, costs nothing to hold) for a quality
-baseline. Meanwhile the confirm control is the only source of labels that are
-ours; the `attested` count is not a dashboard number, it is the size of the
-training corpus.
+**Next — the decoder loop.** Turns `NotImplemented` into a transcription and
+makes every downstream number real. Validate against any same-architecture
+checkpoint; weights of our own are not a prerequisite.
 
-**Then — Track A.**
-Japanese first: it is the track that justifies training rather than adopting.
-English may not need training in v1 at all — measure an off-the-shelf engine
-behind the same trait before spending the budget.
+**Next — settle replace-or-join** with a fresh bounded run of both detectors over
+the same pages. Free detector is instant; a small `vision-worker` re-run is the
+only cost.
+
+**Then — ground truth.** Request Manga109-s now for the lead time. The confirm
+control is the only source of labels that are ours, and the `attested` count is
+the size of the training corpus, not a dashboard number.
+
+**Then — Track A.** Japanese first. English may not need training in v1 at all;
+measure an off-the-shelf engine behind the same trait before spending on it.
 
 **Throughout — the chain that matters.**
 
