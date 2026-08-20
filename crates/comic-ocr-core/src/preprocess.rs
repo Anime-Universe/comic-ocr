@@ -50,7 +50,7 @@
 //!    `[0, 1]` onto `[-1, 1]`.
 //! 5. Emit CHW `f32` with a leading batch axis: `[1, 3, 224, 224]`.
 
-use comic_ocr_core::OcrError;
+use crate::OcrError;
 use image::{DynamicImage, RgbImage};
 
 /// Target edge length. Source: `preprocessor_config.json` `"size": 224`,

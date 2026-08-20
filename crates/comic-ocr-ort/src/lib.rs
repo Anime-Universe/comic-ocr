@@ -6,8 +6,6 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 
-pub mod preprocess;
-
 pub struct OrtEngine {
     pub model_name: String,
     pub engine_type: EngineType,
@@ -159,7 +157,7 @@ impl OcrEngine for OrtEngine {
             // normalised with ImageNet mean/std; `preprocessor_config.json`
             // says 0.5/0.5, so that loop was feeding the encoder a shifted and
             // wrongly-scaled image. See `preprocess` for the sourcing.
-            let (shape, input_tensor) = preprocess::preprocess(image)?.into_parts();
+            let (shape, input_tensor) = comic_ocr_core::preprocess::preprocess(image)?.into_parts();
             let tensor_value =
                 ort::value::Value::from_array((shape, input_tensor)).map_err(|e| {
                     OcrError::EngineError(format!("ONNX tensor allocation failed: {}", e))

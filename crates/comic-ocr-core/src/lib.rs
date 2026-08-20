@@ -1,8 +1,10 @@
 pub mod ambiguity;
+pub mod decode;
 pub mod detector;
 pub mod languages;
 pub mod layout;
 pub mod post_process;
+pub mod preprocess;
 pub mod resample;
 pub mod scene_graph;
 pub mod scene_solver;
