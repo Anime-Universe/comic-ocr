@@ -12,6 +12,7 @@ pub mod scene_solver;
 pub mod tokenizer;
 pub mod types;
 pub mod validation;
+pub mod vocab_build;
 
 pub use ambiguity::*;
 pub use detector::*;
