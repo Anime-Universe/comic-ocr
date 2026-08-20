@@ -88,18 +88,27 @@
   - Decoupled full-page raw OCR confidence (`0.3314`) from sub-region vision analysis (`0.9890`) with explicit `AnalysisEvidence` provenance.
   - Marked top header banner as `test-annotation` / `fixture` (`localizable: false`).
   - Parsed `冒険メモ 🐾` parchment into a structured quest log document hierarchy with progress trackers.
-- [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/main.yml`)**:
+- [x] **Enforced All-Targets Clippy & GitHub Actions CI Gate (`.github/workflows/ci.yml`)**:
   - Resolved `needless_range_loop` warnings in test targets.
-  - Upgraded GitHub CI workflow to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`, and `python3 scripts/run_pipeline.py --gate`.
+  - Upgraded GitHub CI workflow (`.github/workflows/ci.yml`) to run `cargo fmt --all --check`, `cargo clippy --workspace --all-targets --all-features -- -D warnings`, `cargo test --workspace --all-features`, `cargo test --workspace --all-features --no-run` (ignoring model-dependent tests without rotting), and `cargo test -p comic-ocr-ort --test test_no_fabricated_output`.
 
 ---
 
 ## Phase 9: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
 
-### A. PDP Multi-Engine Consensus & Brier Calibration
+### A. Pure Rust `VisionEncoderDecoder` Generation Loop (Native ONNX Decoder)
+- [ ] **Rust-side ViT Encoder + Autoregressive Decoder Loop**:
+  - Implement native Rust ViT image patch embedding encoder and autoregressive Transformer decoder loop (with KV-cache) inside `comic-ocr-ort`.
+  - Connect token ID logits directly to HuggingFace BPE/Unigram detokenizer to complete the native `OrtEngine::predict()` path without Python subprocess dependencies.
+
+### B. Persistent Python Model Inference Worker
+- [ ] **Long-Lived Python Worker / Process Pool**:
+  - Implement a persistent long-lived background Python daemon/worker process over stdin/stdout IPC or Unix domain socket for `OrtEngine` when operating in subprocess mode, eliminating per-image PyTorch/transformers model reloading overhead across batch operations.
+
+### C. PDP Multi-Engine Consensus & Brier Calibration
 - [ ] **Multi-Engine PDP Consensus**: Implement Brier-calibrated consensus weighting across local ONNX model predictions and remote VLM API transcriptions (e.g. Gemini / Claude) in `comic-ocr-pdp`.
 - [ ] **Cross-Engine Disagreement Detection**: Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
 
-### B. Advanced Cover & Editorial Typography Reconstruction
+### D. Advanced Cover & Editorial Typography Reconstruction
 - [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
 - [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.

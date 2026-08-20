@@ -23,6 +23,13 @@ High-performance, zero-cost, multi-crate Rust workspace for optical character re
 
 ---
 
+## Runtime Engine Modes & Environment Requirements
+
+- **Current Neural Model Inference Path**: Out-of-the-box neural recognition uses PyTorch/HuggingFace transformers (`python3`, `torch`, `transformers`) executed via `OrtEngine` with zero-copy stream processing and per-token logit softmax calculation.
+- **Native Rust Decoder Loop (In Active Development)**: `OrtEngine::from_onnx_file` provides C++ ONNX session loading. Full native Rust ViT Encoder + Autoregressive Transformer Decoder KV-cache generation loop is tracked under Phase 9.
+
+---
+
 ## Quick Start
 
 ### Build Workspace

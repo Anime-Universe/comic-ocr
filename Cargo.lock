@@ -442,6 +442,7 @@ dependencies = [
  "comic-ocr-ort",
  "image",
  "pyo3",
+ "pyo3-build-config",
 ]
 
 [[package]]

@@ -23,11 +23,15 @@ impl OrtEngine {
             EngineType::BaseInt8Onnx
         };
 
-        // Initialize ONNX Session if local file path exists
-        let session = if Path::new(&name).exists() {
+        // Initialize ONNX Session if local file path exists or via COMIC_OCR_ONNX_PATH env var
+        let onnx_path = std::env::var("COMIC_OCR_ONNX_PATH")
+            .or_else(|_| std::env::var("MANGA_OCR_ONNX_PATH"))
+            .unwrap_or_else(|_| name.clone());
+
+        let session = if Path::new(&onnx_path).exists() {
             Session::builder()
                 .ok()
-                .and_then(|mut builder| builder.commit_from_file(&name).ok())
+                .and_then(|mut builder| builder.commit_from_file(&onnx_path).ok())
                 .map(|sess| Arc::new(Mutex::new(sess)))
         } else {
             None
@@ -210,15 +214,37 @@ impl OcrEngine for OrtEngine {
             .save(&temp_path)
             .map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
-        let py_script = format!(
-            "import json, math, torch\nfrom PIL import Image\nfrom transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer\nmodel = VisionEncoderDecoderModel.from_pretrained('{}')\nprocessor = ViTImageProcessor.from_pretrained('{}')\ntokenizer = AutoTokenizer.from_pretrained('{}')\nimg = Image.open('{}').convert('RGB')\npixel_values = processor(img, return_tensors='pt').pixel_values\noutput = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)\noutput_ids = output.sequences[0]\ntext = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')\ntoken_probs = []\nif hasattr(output, 'scores') and output.scores:\n    for score in output.scores:\n        probs = torch.softmax(score[0], dim=-1)\n        token_probs.append(float(probs.max().item()))\nconf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0\nprint(json.dumps({{'text': text, 'confidence': conf, 'token_probabilities': token_probs}}))",
-            self.model_name,
-            self.model_name,
-            self.model_name,
-            temp_path.display()
-        );
+        let py_script = r#"
+import os, json, math, torch
+from PIL import Image
+from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
-        let output = Command::new("python3").arg("-c").arg(&py_script).output();
+model_name = os.environ.get('COMIC_OCR_MODEL_NAME', 'kha-white/manga-ocr-base')
+image_path = os.environ.get('COMIC_OCR_IMAGE_PATH', '')
+
+model = VisionEncoderDecoderModel.from_pretrained(model_name)
+processor = ViTImageProcessor.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+img = Image.open(image_path).convert('RGB')
+pixel_values = processor(img, return_tensors='pt').pixel_values
+output = model.generate(pixel_values, return_dict_in_generate=True, output_scores=True)
+output_ids = output.sequences[0]
+text = tokenizer.decode(output_ids, skip_special_tokens=True).replace(' ', '')
+token_probs = []
+if hasattr(output, 'scores') and output.scores:
+    for score in output.scores:
+        probs = torch.softmax(score[0], dim=-1)
+        token_probs.append(float(probs.max().item()))
+conf = math.exp(sum(math.log(max(p, 1e-7)) for p in token_probs) / len(token_probs)) if token_probs else 0.0
+print(json.dumps({'text': text, 'confidence': conf, 'token_probabilities': token_probs}))
+"#;
+
+        let output = Command::new("python3")
+            .arg("-c")
+            .arg(py_script)
+            .env("COMIC_OCR_MODEL_NAME", &self.model_name)
+            .env("COMIC_OCR_IMAGE_PATH", &temp_path)
+            .output();
 
         let _ = std::fs::remove_file(&temp_path);
 
