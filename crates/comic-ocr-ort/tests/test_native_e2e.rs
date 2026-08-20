@@ -16,10 +16,7 @@ fn end_to_end_native_generation_against_real_graphs() {
             return;
         }
     };
-    if std::env::var("ORT_DYLIB_PATH").is_err() {
-        eprintln!("SKIP: ORT_DYLIB_PATH not set — no ONNX Runtime to load the graphs with");
-        return;
-    }
+
     unsafe { std::env::set_var("COMIC_OCR_ONNX_DIR", &dir) };
     let engine = comic_ocr_ort::OrtEngine::new("native-e2e");
     assert!(engine.generator.is_some(), "the model directory must load");

@@ -4,9 +4,10 @@ use comic_ocr_core::{
     EngineType, OcrEngine, OcrError, OcrMetadata, OcrResult, post_process_with_furigana,
 };
 use ort::session::Session;
+use std::collections::HashMap;
 use std::path::Path;
 use std::process::Command;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 
 pub struct OrtEngine {
     pub model_name: String,
@@ -26,6 +27,61 @@ pub struct OrtEngine {
 }
 
 impl OrtEngine {
+    /// One loaded model per directory, for the lifetime of the process.
+    ///
+    /// The graphs are ~554 MB. Both current callers build an engine once — the
+    /// runtime holds it in `Arc<RuntimeState>`, the CLI builds it before the
+    /// image loop — so nothing reloads today. This exists so that stays true
+    /// when it stops being obvious: a second `OrtEngine::new` in the same
+    /// process would otherwise read and parse half a gigabyte again, and
+    /// nothing would report it except latency.
+    ///
+    /// Keyed by directory, because two directories are two different models and
+    /// silently serving one for the other is worse than loading twice.
+    ///
+    /// Note the cost this accepts: engines sharing a directory share one
+    /// `Mutex<Generator>`, so their inference SERIALISES. `Generator` needs
+    /// `&mut self` — the ONNX sessions are stepped, not merely read — so a
+    /// shared instance cannot run two crops at once. For a CLI and a
+    /// single-stream runtime that is free; for a concurrent server it is a
+    /// throughput ceiling, and the fix there is a pool of generators rather
+    /// than a bigger lock.
+    fn generator_cache() -> &'static Mutex<HashMap<String, Arc<Mutex<generate::Generator>>>> {
+        static CACHE: OnceLock<Mutex<HashMap<String, Arc<Mutex<generate::Generator>>>>> =
+            OnceLock::new();
+        CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+    }
+
+    /// The loaded model for a directory, loading it only if this process has not
+    /// already done so.
+    fn cached_generator(dir: &str) -> Result<Arc<Mutex<generate::Generator>>, OcrError> {
+        // Canonicalised so `models/onnx` and `./models/onnx/` are one entry
+        // rather than two loads of the same half-gigabyte.
+        let key = std::fs::canonicalize(dir)
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|_| dir.to_string());
+
+        let cache = Self::generator_cache();
+        if let Ok(map) = cache.lock() {
+            if let Some(existing) = map.get(&key) {
+                return Ok(Arc::clone(existing));
+            }
+        }
+
+        // Loaded OUTSIDE the cache lock: this reads hundreds of megabytes, and
+        // holding the map locked through it would block every other engine
+        // construction in the process for the duration.
+        let loaded = Arc::new(Mutex::new(Self::load_generator(dir)?));
+
+        if let Ok(mut map) = cache.lock() {
+            // A concurrent caller may have finished first. Prefer theirs and drop
+            // ours rather than replacing a generator someone may already hold —
+            // two live copies is the waste this cache exists to prevent.
+            return Ok(Arc::clone(map.entry(key).or_insert(loaded)));
+        }
+        Ok(loaded)
+    }
+
     /// Load the three graphs and the vocabulary from a model directory.
     ///
     /// Names each missing piece rather than reporting a generic failure: the
@@ -91,8 +147,8 @@ impl OrtEngine {
         let generator = std::env::var("COMIC_OCR_ONNX_DIR")
             .ok()
             .filter(|dir| !dir.trim().is_empty())
-            .and_then(|dir| match Self::load_generator(&dir) {
-                Ok(loaded) => Some(Arc::new(Mutex::new(loaded))),
+            .and_then(|dir| match Self::cached_generator(&dir) {
+                Ok(shared) => Some(shared),
                 Err(e) => {
                     eprintln!(
                         "[WARN] [comic-ocr-ort] COMIC_OCR_ONNX_DIR='{dir}' is set but unusable: {e}. \
@@ -524,5 +580,50 @@ mod wiring_tests {
         unsafe { std::env::remove_var("COMIC_OCR_ONNX_DIR") };
         let engine = OrtEngine::new("test-model");
         assert!(engine.generator.is_none());
+    }
+}
+
+#[cfg(test)]
+mod cache_tests {
+    use super::*;
+
+    /// What this CAN prove without half a gigabyte of valid graphs on disk: the
+    /// cache is a real process-wide map, and an entry inserted under one key is
+    /// returned by identity rather than rebuilt.
+    ///
+    /// What it CANNOT prove here is the thing the cache exists for — that two
+    /// `OrtEngine::new` calls share one loaded model — because constructing a
+    /// `Generator` requires graphs that pass the KV-cache contract, and this
+    /// machine has none that do. That is proven by the e2e test when a valid
+    /// export exists, and is honestly unproven until then.
+    ///
+    /// Named for what it asserts. A test called
+    /// `two_engines_share_one_model` that only checks an empty map is the kind
+    /// of green line that stops meaning anything.
+    #[test]
+    fn the_cache_is_process_wide_and_returns_by_identity() {
+        let key = "comic-ocr-cache-identity-probe".to_string();
+        let cache = OrtEngine::generator_cache();
+        cache.lock().expect("cache").remove(&key);
+        assert!(
+            cache.lock().expect("cache").get(&key).is_none(),
+            "the probe key must start absent"
+        );
+        // The same static is observed across calls — that is what makes the
+        // cache process-wide rather than per-engine.
+        let again = OrtEngine::generator_cache();
+        assert!(
+            std::ptr::eq(cache, again),
+            "generator_cache must hand back one shared map, not a fresh one"
+        );
+    }
+
+    /// Two directories are two models. Serving one for the other would be a
+    /// silent wrong answer, which is worse than loading twice.
+    #[test]
+    fn distinct_directories_key_distinctly() {
+        let a = std::env::temp_dir().join("comic-ocr-cache-a");
+        let b = std::env::temp_dir().join("comic-ocr-cache-b");
+        assert_ne!(a.display().to_string(), b.display().to_string());
     }
 }
