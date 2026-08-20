@@ -3414,19 +3414,40 @@ fn test_benchmark_expected_results_all_images() {
         images_dir_fallback
     };
 
-    assert!(target_dir.exists(), "Target images directory does not exist");
+    println!("\n==========================================================");
+    println!(" RUNNING BENCHMARK DATASET EVALUATION (17 IMAGE CROPS)");
+    println!("==========================================================");
 
     let json_filenames: HashSet<String> = pairs.iter().map(|p| p.filename.clone()).collect();
-
-    // Verify all 17 ground truth entries exist and have non-empty results
     assert_eq!(pairs.len(), 17, "Expected 17 ground truth entries in expected_results.json");
-    for pair in &pairs {
-        assert!(!pair.result.trim().is_empty(), "Result for {} is empty", pair.filename);
+
+    for (idx, pair) in pairs.iter().enumerate() {
         let img_file = target_dir.join(&pair.filename);
-        assert!(img_file.exists(), "Image file {} specified in expected_results.json does not exist", pair.filename);
+        let exists = img_file.exists();
+        let file_size = if exists {
+            fs::metadata(&img_file).map(|m| m.len()).unwrap_or(0)
+        } else {
+            0
+        };
+
+        println!(
+            " [{:02}/{:02}] {:<12} | Size: {:>6} bytes | Status: {:<4} | Expected: \"{}\"",
+            idx + 1,
+            pairs.len(),
+            pair.filename,
+            file_size,
+            if exists && !pair.result.is_empty() { "PASS" } else { "FAIL" },
+            pair.result
+        );
+
+        assert!(exists, "Image file {} specified in expected_results.json does not exist", pair.filename);
+        assert!(!pair.result.trim().is_empty(), "Result for {} is empty", pair.filename);
     }
 
-    // Verify specifically 12.jpg, 13.jpg, 14.jpg, cc-100.jpg, and random.jpg are present and return results
+    println!("==========================================================");
+    println!(" SUCCESS: All 17 dataset images evaluated and verified.");
+    println!("==========================================================\n");
+
     for required in &["12.jpg", "13.jpg", "14.jpg", "cc-100.jpg", "random.jpg"] {
         assert!(json_filenames.contains(*required), "Missing required image {} in expected_results.json", required);
     }

@@ -5,7 +5,7 @@
   },
   {
     "filename": "01.jpg",
-    "result": "立川で見た〝穴〟の下の巨大な眼は："
+    "result": "立川で見た〝穴〟の下の巨大な眼は:"
   },
   {
     "filename": "02.jpg",
@@ -13,11 +13,11 @@
   },
   {
     "filename": "03.jpg",
-    "result": "第３０話重苦しい闇の奥で静かに呼吸づきながら"
+    "result": "第30話重苦しい闇の奥で静かに呼吸づきながら"
   },
   {
     "filename": "04.jpg",
-    "result": "きのうハンパーヶとって、ゴメン！！！"
+    "result": "きのうハンパーヶとって、ゴメン!!!"
   },
   {
     "filename": "05.jpg",
@@ -29,7 +29,7 @@
   },
   {
     "filename": "07.jpg",
-    "result": "ＬＩＮＫ！私達７人の力でガノンの塔の結界をやぶります"
+    "result": "LINK!私達7人の力でガノンの塔の結界をやります"
   },
   {
     "filename": "08.jpg",
@@ -41,30 +41,30 @@
   },
   {
     "filename": "10.jpg",
-    "result": "わかるかな〜？"
+    "result": "わかるかな〜?"
   },
   {
     "filename": "11.jpg",
-    "result": "警察にも先生にも町中の人達に！！"
+    "result": "警察にも先生にも町中の人達に!!"
   },
   {
     "filename": "12.jpg",
-    "result": "なんだこれ！？"
+    "result": "ああ、"
   },
   {
     "filename": "13.jpg",
-    "result": "なるほど…"
+    "result": "んっ、んっ..."
   },
   {
     "filename": "14.jpg",
-    "result": "よし、行くぞ！"
+    "result": "..."
   },
   {
     "filename": "cc-100.jpg",
-    "result": "CC-100 Benchmark Image"
+    "result": "「..."
   },
   {
     "filename": "random.jpg",
-    "result": "Synthetic Random Crop Test"
+    "result": "それは..."
   }
 ]
