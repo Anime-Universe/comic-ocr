@@ -46,5 +46,25 @@
   {
     "filename": "11.jpg",
     "result": "警察にも先生にも町中の人達に！！"
+  },
+  {
+    "filename": "12.jpg",
+    "result": "なんだこれ！？"
+  },
+  {
+    "filename": "13.jpg",
+    "result": "なるほど…"
+  },
+  {
+    "filename": "14.jpg",
+    "result": "よし、行くぞ！"
+  },
+  {
+    "filename": "cc-100.jpg",
+    "result": "CC-100 Benchmark Image"
+  },
+  {
+    "filename": "random.jpg",
+    "result": "Synthetic Random Crop Test"
   }
 ]
