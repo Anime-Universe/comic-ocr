@@ -1,0 +1,344 @@
+{
+  "input_file": "assets/examples/12.jpg",
+  "image_dimensions": {
+    "width": 1024,
+    "height": 793,
+    "size_bytes": 201986
+  },
+  "recognized_text": "ああ、",
+  "ocr_result": {
+    "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/ocr_result.json",
+    "text": "ああ、",
+    "confidence": 0.985,
+    "token_probabilities": [
+      0.99,
+      0.985,
+      0.98,
+      0.985
+    ],
+    "metadata": {
+      "duration_ms": 4.2,
+      "model_name": "kha-white/manga-ocr-base",
+      "engine_type": "BaseInt8Onnx"
+    }
+  },
+  "pdp_decision": {
+    "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/pdp_decision.json",
+    "selected_text": "ああ、",
+    "confidence": 0.985,
+    "is_validated": true,
+    "candidates": [
+      {
+        "engine_type": "BaseInt8Onnx",
+        "text": "ああ、",
+        "raw_confidence": 0.985,
+        "acs_score": 0.99
+      },
+      {
+        "engine_type": "NanoMobileNet",
+        "text": "ああ、",
+        "raw_confidence": 0.915,
+        "acs_score": 0.92
+      }
+    ]
+  },
+  "page_result": {
+    "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/page_result.json",
+    "page_id": "a1234567-e89b-12d3-a456-426614174012",
+    "page_number": 12,
+    "panels": [
+      {
+        "id": "b1234567-e89b-12d3-a456-426614174012",
+        "reading_order": 1,
+        "bounds": [
+          0.0,
+          0.0,
+          1024.0,
+          793.0
+        ],
+        "bubbles": [
+          {
+            "id": "c1234567-e89b-12d3-a456-426614174012",
+            "reading_order": 1,
+            "bounds": [
+              10.0,
+              10.0,
+              1004.0,
+              773.0
+            ],
+            "text": "ああ、",
+            "confidence": 0.985
+          }
+        ]
+      }
+    ]
+  },
+  "localized_text_object": {
+    "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+    "id": "c1234567-e89b-12d3-a456-426614174012",
+    "panelId": "b1234567-e89b-12d3-a456-426614174012",
+    "containerId": "d1234567-e89b-12d3-a456-426614174012",
+    "placementMode": "flow-inside-container",
+    "role": "dialogue",
+    "logicalOrder": 1,
+    "source": {
+      "language": "ja",
+      "raw": "ああ、",
+      "normalized": "ああ、",
+      "reading": "ああ、",
+      "writing": {
+        "mode": "vertical-rl",
+        "characterDirection": "top-to-bottom"
+      }
+    },
+    "translation": {
+      "language": "en",
+      "literal": "Ah,",
+      "localized": "Ah...",
+      "displayText": "Ah..."
+    },
+    "geometry": {
+      "bounds": {
+        "preferred": {
+          "px": {
+            "x": 10.0,
+            "y": 10.0,
+            "width": 1004.0,
+            "height": 773.0
+          },
+          "normalized": {
+            "x": 0.05,
+            "y": 0.05,
+            "width": 0.9,
+            "height": 0.9
+          }
+        }
+      },
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "rotation": 0.0,
+        "scale": {
+          "x": 1.0,
+          "y": 1.0
+        },
+        "anchor": "top-left"
+      }
+    },
+    "layout": {
+      "writingMode": "horizontal-tb",
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "flow": "wrap"
+    },
+    "typography": {
+      "font": {
+        "family": "Wild Words",
+        "fallback": [
+          "Comic Sans MS",
+          "sans-serif"
+        ]
+      },
+      "fontSize": 14.0,
+      "lineHeight": 1.2
+    }
+  },
+  "comic_scene_graph": {
+    "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/comic_scene_graph.json",
+    "id": "e1234567-e89b-12d3-a456-426614174012",
+    "metadata": {
+      "title": "Manga OCR Sample Crop 12",
+      "series": "Example Benchmark Suite",
+      "volume": "1",
+      "chapter": "12",
+      "sourceLanguage": "ja",
+      "targetLanguage": "en"
+    },
+    "reading": {
+      "binding": "right",
+      "pageDirection": "rtl",
+      "defaultPanelFlow": {
+        "strategy": "manga-rtl",
+        "primaryAxis": "vertical",
+        "secondaryAxis": "rtl"
+      },
+      "sourceWriting": {
+        "mode": "vertical-rl",
+        "characterDirection": "top-to-bottom",
+        "columnDirection": "right-to-left"
+      },
+      "targetWriting": {
+        "mode": "horizontal-tb",
+        "characterDirection": "left-to-right",
+        "lineDirection": "top-to-bottom"
+      }
+    },
+    "pages": [
+      {
+        "id": "a1234567-e89b-12d3-a456-426614174012",
+        "pageNumber": 12,
+        "source": {
+          "imageId": "f1234567-e89b-12d3-a456-426614174012",
+          "filename": "12.jpg",
+          "nativeSize": {
+            "width": 1024.0,
+            "height": 793.0
+          },
+          "dpi": 300.0,
+          "colorSpace": "rgb"
+        },
+        "bands": [
+          {
+            "id": "g1234567-e89b-12d3-a456-426614174012",
+            "order": 1,
+            "direction": "rtl",
+            "panelIds": [
+              "b1234567-e89b-12d3-a456-426614174012"
+            ]
+          }
+        ],
+        "panels": [
+          {
+            "id": "b1234567-e89b-12d3-a456-426614174012",
+            "logicalOrder": 1,
+            "frame": {
+              "bounds": {
+                "px": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "width": 1024.0,
+                  "height": 793.0
+                },
+                "normalized": {
+                  "x": 0.0,
+                  "y": 0.0,
+                  "width": 1.0,
+                  "height": 1.0
+                }
+              },
+              "borderWidth": 1.0
+            },
+            "zIndex": 1
+          }
+        ],
+        "containers": [
+          {
+            "id": "d1234567-e89b-12d3-a456-426614174012",
+            "panelId": "b1234567-e89b-12d3-a456-426614174012",
+            "type": "speech-balloon",
+            "geometry": {
+              "shape": "ellipse",
+              "bounds": {
+                "px": {
+                  "x": 10.0,
+                  "y": 10.0,
+                  "width": 1004.0,
+                  "height": 773.0
+                },
+                "normalized": {
+                  "x": 0.05,
+                  "y": 0.05,
+                  "width": 0.9,
+                  "height": 0.9
+                }
+              }
+            },
+            "padding": {
+              "top": 5.0,
+              "right": 5.0,
+              "bottom": 5.0,
+              "left": 5.0
+            }
+          }
+        ],
+        "text_regions": [
+          {
+            "$schema": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/localized_text_object.json",
+            "id": "c1234567-e89b-12d3-a456-426614174012",
+            "panelId": "b1234567-e89b-12d3-a456-426614174012",
+            "containerId": "d1234567-e89b-12d3-a456-426614174012",
+            "placementMode": "flow-inside-container",
+            "role": "dialogue",
+            "logicalOrder": 1,
+            "source": {
+              "language": "ja",
+              "raw": "ああ、",
+              "normalized": "ああ、",
+              "reading": "ああ、",
+              "writing": {
+                "mode": "vertical-rl",
+                "characterDirection": "top-to-bottom"
+              }
+            },
+            "translation": {
+              "language": "en",
+              "literal": "Ah,",
+              "localized": "Ah...",
+              "displayText": "Ah..."
+            },
+            "geometry": {
+              "bounds": {
+                "preferred": {
+                  "px": {
+                    "x": 10.0,
+                    "y": 10.0,
+                    "width": 1004.0,
+                    "height": 773.0
+                  },
+                  "normalized": {
+                    "x": 0.05,
+                    "y": 0.05,
+                    "width": 0.9,
+                    "height": 0.9
+                  }
+                }
+              },
+              "transform": {
+                "position": {
+                  "x": 0.0,
+                  "y": 0.0
+                },
+                "rotation": 0.0,
+                "scale": {
+                  "x": 1.0,
+                  "y": 1.0
+                },
+                "anchor": "top-left"
+              }
+            },
+            "layout": {
+              "writingMode": "horizontal-tb",
+              "textAlign": "center",
+              "verticalAlign": "middle",
+              "flow": "wrap"
+            },
+            "typography": {
+              "font": {
+                "family": "Wild Words",
+                "fallback": [
+                  "Comic Sans MS",
+                  "sans-serif"
+                ]
+              },
+              "fontSize": 14.0,
+              "lineHeight": 1.2
+            }
+          }
+        ],
+        "art_regions": [],
+        "masks": [
+          {
+            "id": "h1234567-e89b-12d3-a456-426614174012",
+            "panelId": "b1234567-e89b-12d3-a456-426614174012",
+            "textRegionId": "c1234567-e89b-12d3-a456-426614174012",
+            "type": "clean-balloon",
+            "expansion": 2.0,
+            "feather": 1.0
+          }
+        ]
+      }
+    ]
+  }
+}

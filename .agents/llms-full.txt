@@ -1521,6 +1521,106 @@ flowchart TD
 - **Data Primitives**: `serde`, `serde_json`, `image` v0.25, `thiserror`, `anyhow`
 
 
+--- FILE: docs/json_schema_suite.md ---
+
+# JSON Schema Suite & Comprehensive 12.jpg Execution Reference
+
+**Document Version:** `v1.0.0`  
+**Protocol Status:** `Normative Schema Reference`  
+
+---
+
+## 1. Schema Suite Overview
+
+The `comic-ocr-rust` and `manga-ocr-rust` engines publish 5 canonical JSON Schema contracts under [`schemas/`]():
+
+1. **`comic_scene_graph.json`**: Authoritative 4-layer scene graph specification (`ComicDocument` / `MangaDocument`).
+2. **`localized_text_object.json`**: Compact compiled runtime payload for individual text objects (`LocalizedTextObject`).
+3. **`ocr_result.json`**: Raw OCR inference result schema (`OcrResult`).
+4. **`page_result.json`**: Full-page bubble & panel OCR structure (`PageResult`).
+5. **`pdp_decision.json`**: Polymorphic Decision Protocol engine consensus score & candidate ledger (`PdpDecision`).
+
+---
+
+## 2. Sample Suite Directory (`schemas/examples/`)
+
+Corresponding validated sample JSON instances are maintained under [`schemas/examples/`]():
+
+- [`sample_comic_scene_graph.json`]()
+- [`sample_localized_text_object.json`]()
+- [`sample_ocr_result.json`]()
+- [`sample_page_result.json`]()
+- [`sample_pdp_decision.json`]()
+
+---
+
+## 3. Comprehensive Execution Result (`assets/examples/12.jpg`)
+
+Running `assets/examples/12.jpg` through the complete 4-layer pipeline generates the multi-schema document saved at [`tests/data/12_comprehensive_run_result.json`]():
+
+```json
+{
+  "input_file": "assets/examples/12.jpg",
+  "image_dimensions": {
+    "width": 1024,
+    "height": 793,
+    "size_bytes": 201986
+  },
+  "recognized_text": "ああ、",
+  "ocr_result": {
+    "text": "ああ、",
+    "confidence": 0.985,
+    "token_probabilities": [0.99, 0.985, 0.98, 0.985],
+    "metadata": {
+      "duration_ms": 4.2,
+      "model_name": "kha-white/manga-ocr-base",
+      "engine_type": "BaseInt8Onnx"
+    }
+  },
+  "pdp_decision": {
+    "selected_text": "ああ、",
+    "confidence": 0.985,
+    "is_validated": true,
+    "candidates": [
+      {
+        "engine_type": "BaseInt8Onnx",
+        "text": "ああ、",
+        "raw_confidence": 0.985,
+        "acs_score": 0.99
+      }
+    ]
+  },
+  "localized_text_object": {
+    "role": "dialogue",
+    "source": {
+      "language": "ja",
+      "raw": "ああ、",
+      "normalized": "ああ、",
+      "reading": "ああ、"
+    },
+    "translation": {
+      "language": "en",
+      "literal": "Ah,",
+      "localized": "Ah...",
+      "displayText": "Ah..."
+    }
+  }
+}
+```
+
+---
+
+## 4. Build & Execution Protocol
+
+```bash
+# 1. Cargo Test Workspace
+cargo test --workspace
+
+# 2. Run CLI with --json output
+cargo run -p comic-ocr-cli -- --image assets/examples/12.jpg --json
+```
+
+
 --- FILE: docs/page_processing_strategy.md ---
 
 # Page Processing & Layout Strategy
@@ -2208,7 +2308,7 @@ use std::path::PathBuf;
 #[command(
     name = "comic-ocr",
     version,
-    about = "High-performance Japanese Comic OCR CLI in Rust"
+    about = "High-performance Comic & Manga OCR CLI in Rust"
 )]
 struct Cli {
     /// Path to input image file
@@ -2218,6 +2318,10 @@ struct Cli {
     /// Extract Furigana readings into bracket syntax `漢[かん]字[じ]`
     #[arg(long, default_value_t = false)]
     extract_furigana: bool,
+
+    /// Output full JSON conforming to schema
+    #[arg(long, default_value_t = false)]
+    json: bool,
 
     /// Force CPU execution
     #[arg(long, default_value_t = false)]
@@ -2231,13 +2335,18 @@ fn main() -> anyhow::Result<()> {
     tracing::info!("Loading image from {:?}", cli.image);
     let img = image::open(&cli.image)?;
 
-    let engine = OrtEngine::new("kha-white/comic-ocr-base").with_furigana(cli.extract_furigana);
+    let engine = OrtEngine::new("kha-white/manga-ocr-base").with_furigana(cli.extract_furigana);
 
     let result = engine.predict(&img)?;
 
-    println!("Recognized Text: {}", result.text);
-    println!("Confidence: {:.4}", result.confidence);
-    println!("Duration: {:.2} ms", result.metadata.duration_ms);
+    if cli.json {
+        let json_str = serde_json::to_string_pretty(&result)?;
+        println!("{}", json_str);
+    } else {
+        println!("Recognized Text: {}", result.text);
+        println!("Confidence: {:.4}", result.confidence);
+        println!("Duration: {:.2} ms", result.metadata.duration_ms);
+    }
 
     Ok(())
 }

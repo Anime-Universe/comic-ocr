@@ -393,6 +393,7 @@ dependencies = [
  "comic-ocr-core",
  "comic-ocr-ort",
  "image",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
 ]
