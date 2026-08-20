@@ -7,7 +7,7 @@
 
 ## 1. Schema Suite Overview
 
-The `comic-ocr-rust` and `manga-ocr-rust` engines publish 5 canonical JSON Schema contracts under [`schemas/`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/):
+This repository publishes 5 canonical JSON Schema contracts under [`schemas/`](../schemas/):
 
 1. **`comic_scene_graph.json`**: Authoritative 4-layer scene graph specification (`ComicDocument` / `MangaDocument`).
 2. **`localized_text_object.json`**: Compact compiled runtime payload for individual text objects (`LocalizedTextObject`).
@@ -19,19 +19,19 @@ The `comic-ocr-rust` and `manga-ocr-rust` engines publish 5 canonical JSON Schem
 
 ## 2. Sample Suite Directory (`schemas/examples/`)
 
-Corresponding validated sample JSON instances are maintained under [`schemas/examples/`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/):
+Corresponding validated sample JSON instances are maintained under [`schemas/examples/`](../schemas/examples/):
 
-- [`sample_comic_scene_graph.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/sample_comic_scene_graph.json)
-- [`sample_localized_text_object.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/sample_localized_text_object.json)
-- [`sample_ocr_result.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/sample_ocr_result.json)
-- [`sample_page_result.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/sample_page_result.json)
-- [`sample_pdp_decision.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/schemas/examples/sample_pdp_decision.json)
+- [`sample_comic_scene_graph.json`](../schemas/examples/sample_comic_scene_graph.json)
+- [`sample_localized_text_object.json`](../schemas/examples/sample_localized_text_object.json)
+- [`sample_ocr_result.json`](../schemas/examples/sample_ocr_result.json)
+- [`sample_page_result.json`](../schemas/examples/sample_page_result.json)
+- [`sample_pdp_decision.json`](../schemas/examples/sample_pdp_decision.json)
 
 ---
 
 ## 3. Comprehensive Execution Result (`assets/examples/12.jpg`)
 
-Running `assets/examples/12.jpg` through the complete 4-layer pipeline generates the multi-schema document saved at [`tests/data/12_comprehensive_run_result.json`](file:///Users/zachshallbetter/Projects/manga-ocr-rust/tests/data/12_comprehensive_run_result.json):
+Running `assets/examples/12.jpg` through the complete 4-layer pipeline generates the multi-schema document saved at [`tests/data/12_comprehensive_run_result.json`](../tests/data/12_comprehensive_run_result.json):
 
 ```json
 {

@@ -1,5 +1,15 @@
 # Exporting training pairs from the iPub graph
 
+> **Status: design. None of this is built.** Verified 2026-08-20: zero
+> occurrences of `export_pairs`, `ExportFilter`, `ExportReport` or `training_pair`
+> across the 32 `.rs` files in this repository, and nothing references
+> `schemas/training_pair.json`. The schema is the only artifact that exists.
+>
+> An earlier revision of this page described the filter, the report and the
+> licence separation in the present tense, which read as though an exporter were
+> running. It is not. Where the text below says the export "refuses" or
+> "enforces", read it as *must*, not *does*.
+
 How `accepted`/`verified` regions become `(crop, label)` pairs. Schema:
 [`schemas/training_pair.json`](../schemas/training_pair.json).
 
@@ -47,8 +57,11 @@ two rather than relying on the exporter to remember.
 
 ```rust
 pub struct ExportFilter {
-    /// Only these states are ever eligible. Not configurable — the point of the
-    /// gate is that it cannot be widened by a flag on a bad day.
+    // NOTE: there is deliberately no `states` field. `accepted`/`verified` are
+    // the only eligible states and that is not configurable — the point of the
+    // gate is that it cannot be widened by a flag on a bad day. (The comment
+    // asserting this was previously attached to `language`, describing a member
+    // that does not exist.)
     pub language: Option<Language>,
     pub source: Source,
     /// Skip regions whose crop would be smaller than the encoder input, which
@@ -93,7 +106,8 @@ at another resolution without re-reviewing anything.
 
 ## Licence separation
 
-`source` is enforced at write time, not documented and hoped for:
+`source` **must be** enforced at write time rather than documented and hoped for —
+this is a requirement on the exporter, not a description of one:
 
 - `manga109s` pairs are written to a **separate dataset root** from `own-corpus`.
   Redistribution of that data is forbidden, so the two must never share a
@@ -117,6 +131,14 @@ shaped, only how to read `training_pair.json`.
 `machine`/`candidate`. The confirm control that produces attested regions is
 deployed and has never been used.
 
-That is the honest state and it is worth stating plainly: the exporter is
-correct, has nothing to export, and will continue to have nothing until someone
-reviews a page. The number is a function of usage, not of capability.
+Two independent reasons, and it is worth separating them because only one is
+about usage:
+
+1. **No region is attested.** The confirm control is deployed and has never been
+   used, so the eligible set is empty.
+2. **No exporter exists.** Nothing would read the regions even if they were
+   attested.
+
+An earlier version of this paragraph said "the exporter is correct, has nothing to
+export" — which credits a program that was never written. Fixing (1) alone changes
+nothing until (2) is built.

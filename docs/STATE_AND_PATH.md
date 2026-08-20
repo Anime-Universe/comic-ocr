@@ -35,7 +35,15 @@ corpus is our own: `accepted`/`verified` regions out of the iPub graph. Requires
 an agreement the owner accepts personally; never vendored, never in an image,
 never on a shared volume.
 
-**The reference checkpoint is fully purged.** Zero `kha-white` references remain.
+**The reference checkpoint is fully purged.** Zero `kha-white` references remain
+(the only grep hit is this sentence).
+
+**The phrase `manga-ocr` is NOT purged**, which the line above does not cover and
+previously read as though it did. 96 occurrences remain, verified 2026-08-20:
+84 as `"pass_id": "manga-ocr-fullpage-pass"` across five `tests/data/*_comprehensive_run_result.json`
+fixtures loaded by no test, and 12 in `docs/json_schema_suite.md`, which links
+into `file:///Users/zachshallbetter/Projects/manga-ocr-rust/` — **a directory that
+does not exist**, so every one of those links is dead.
 
 ---
 
@@ -43,7 +51,7 @@ never on a shared volume.
 
 | Area | State |
 | --- | --- |
-| Build | compiles; **73 tests pass, 2 ignored**; `fmt` clean; `clippy --workspace --all-targets --all-features -D warnings` clean |
+| Build | compiles; **87 tests pass, 0 failed, 2 ignored**; `fmt` clean; `clippy --workspace --all-targets --all-features -D warnings` clean |
 | Weights | **none exist.** No checkpoint on disk, none under any HF account, no training code in this repo (`comic_ocr_dev/training/` is referenced but absent; nearest is a reference project) |
 | Native ONNX path | loads a session, runs one forward pass, computes real softmax confidence — then returns `OcrError::NotImplemented`, because VisionEncoderDecoder generation (decoder loop with KV cache) is not written |
 | Subprocess path | works locally, needs `python3` + torch + transformers, which the shipped image does not carry |
@@ -110,15 +118,28 @@ and has no pointer to a body:
 all three Gemini-era engines. From 08-19 01:00 onward every engine is 100%
 clean, including today's 830 panel-detector envelopes.
 
-So this is **historical damage, not a live defect**. The shared
-`register_envelope` path works — `panel-detector` uses it and is perfect. Most
-likely blob-service or CAS was unreachable during that window while
-registration proceeded regardless, recording a digest with no URL.
+So this is **historical damage, not a live defect**.
 
-> **Correction.** This document previously said more documents should not be
-> ingested until this was fixed. That was wrong, and it was wrong in the
-> expensive direction — it would have halted ingestion over a scar rather than
-> an open wound. Nothing is currently corrupting data.
+> **Correction, 2026-08-20 — the cause was not an outage.** This section
+> previously guessed that "blob-service or CAS was unreachable during that window
+> while registration proceeded regardless." That is wrong. #103 (`d4af069`,
+> 2026-08-18 15:06 PDT) names it: *"the envelopes themselves were built correctly,
+> uploaded correctly, canonicalised correctly and registered correctly. Every
+> layer was right except the one field that says where the bytes are."* Both
+> writers computed the URL and dropped it before the insert. **No upload failed.**
+> The window closes at 08-19 01:00 UTC because that fix deployed — not because a
+> service recovered. And `panel-detector` being perfect proves the fix works: it
+> first ran on 08-19, after #103, so it is evidence *for* the repair, not evidence
+> that registration was always sound.
+
+**The bodies are very probably still in CAS.** `asset_id` *is* the CAS key, so an
+affected row already names its own bytes; only `metadata.blob_url` is absent, and
+the bucket is readable from any post-#103 row. That makes this a metadata
+backfill, not a re-run. Confirm against one known-good row first.
+
+> **Earlier correction, kept.** This document once said more documents should not
+> be ingested until this was fixed. That was wrong in the expensive direction — it
+> would have halted ingestion over a scar rather than an open wound.
 
 Zero regions are attested, so there is still no ground truth. The judge control
 that produces it is deployed and unused.
@@ -153,7 +174,9 @@ set. That is cheap: the free detector is instant and costs nothing.
    stored data — the bodies for those pages are in the damaged window.
 
 Note what is **not** on this list: the missing `blob_url`. It is historical, the
-window closed on 08-19 01:00, and nothing is currently producing it.
+window closed on 08-19 01:00 when #103 deployed, and nothing is currently
+producing it. Blocker 4 may be diagnosable after the backfill — the evidence was
+called unreachable, but the bytes are likely present and merely unaddressed.
 
 ---
 
@@ -161,27 +184,39 @@ window closed on 08-19 01:00, and nothing is currently producing it.
 
 ### A. Repair — 836 envelopes, but only some are worth it
 
-| engine | missing | re-derivable? | worth re-running? |
-| --- | ---: | --- | --- |
-| `image-stats` | 394 | deterministic, free, no API | **yes** — pure compute, no reason not to |
-| `vision-worker` | 142 | costs Gemini calls | **partly** — enough to enable the panels-vs-panels comparison |
-| `ocr-detector` | 300 | costs Gemini calls | **probably not** — a local engine is coming; re-buying transcriptions we intend to replace is spending twice |
+**Try the backfill first — re-running is the fallback, not the plan.** Since no
+upload failed, every one of these rows should already point at bytes that exist:
 
-The re-run mechanism already exists and is proven: enqueue jobs with a fresh
-idempotency key, as the panel-detector backfill did (831 jobs, zero failures,
-about six minutes).
+| engine | missing | recovery |
+| --- | ---: | --- |
+| `image-stats` | 394 | backfill `metadata.blob_url` from `asset_id`; re-compute only what stays unreadable (free either way) |
+| `vision-worker` | 142 | backfill — **this is the one that matters**, because re-running costs Gemini calls for data already paid for |
+| `ocr-detector` | 300 | backfill; do **not** re-run — a local engine is coming and re-buying transcriptions we intend to replace is spending twice |
+
+Recipe: read the bucket from any post-#103 row, set
+`metadata.blob_url = '/api/blob/{bucket}/' || asset_id` for rows missing it, then
+read one back through the diagnostics surface to confirm the body resolves.
+**Verify on a single row before touching 836.**
+
+If a body genuinely is not in CAS, the re-run mechanism exists and is proven:
+enqueue with a fresh idempotency key, as the panel-detector backfill did (831
+jobs, zero failures, about six minutes).
 
 ### B. Harden — one guard, in `manga-service`
 
-The real defect is that **a failed upload was survivable**. `register_envelope`
-recorded a digest with no `blob_url` and reported success, so
-`transcription_count` still looked healthy while the body was unreachable.
+**Demoted from "the real defect" to belt-and-braces.** The defect was a dropped
+field, fixed in #103, not a survivable upload failure — and on current `main` a
+failed upload is already skipped rather than persisted (`main.rs:2163` logs
+`PAGE_SEMANTICS_CAS_WRITE_FAILED` and attaches nothing; the vision path
+propagates with `?`).
 
-The guard: refuse to register an envelope whose upload did not yield a URL —
-return `Err`, let the job fail and retry, rather than persisting a row that reads
-as success. Small, and it is what stops the next outage leaving the same scar.
+The guard — refuse to register an envelope whose upload yielded no URL — is still
+worth having, because it makes the bad state unrepresentable rather than merely
+absent from today's call sites. It is not blocking, and it does not repair
+anything that happened.
 
-Both are in Management's repo and need coordinating.
+Ownership: `manga-service`. This previously read "Management's repo"; that session
+no longer exists, so coordinate on the repo's open PRs instead.
 
 ---
 
@@ -196,20 +231,20 @@ from it. The step ends when the corpus has a baseline that can be trusted and
 seen, which is also what makes the decoder loop's arrival measurable when it
 lands.
 
-### 0. The register guard — first, and blocking
+### 0. Backfill the dropped URLs — first, and cheap
 
-A failed CAS upload is currently **survivable**: `register_envelope` records a
-digest with no `blob_url` and reports success, so `transcription_count` reads
-healthy while the body is unreachable. That is what produced 836 orphaned
-envelopes between 08-18 11:00 and 08-19 00:00.
+**This step replaced "the register guard, first and blocking."** The guard was
+sequenced first on the belief that a re-run without it would leave the same scar.
+That belief was wrong: no upload failed, #103 already fixed the dropped field, and
+the scar is a missing pointer to bytes that exist.
 
-Fix: refuse to register an envelope whose upload did not yield a URL. Return
-`Err`, let the job fail and retry, rather than persisting a row that reads as
-success.
+So the first move is to recover them: set `metadata.blob_url` from `asset_id` for
+the affected rows, using a bucket read off any post-#103 row. Verify one row end
+to end through the diagnostics surface before doing 836.
 
-Owner: `manga-service` — another session. **Must be coordinated.** It is first
-because a re-run without it can leave exactly the same scar, and then the whole
-step is repeated.
+This changes the cost of everything downstream — if it works, steps 3 and 4 shrink
+to whatever the backfill could not recover, and the panels-versus-panels
+comparison may need no Gemini spend at all.
 
 ### 1. Make it watchable — before anything is purged
 
@@ -314,8 +349,9 @@ never grow.
 ## Standing constraints
 
 - Staging only, never production.
-- `manga-service` and `universe-broker` are owned by another session; coordinate
-  before any write.
+- `manga-service` and `universe-broker` are shared; announce and work in your own
+  worktree before any write. (This previously named a specific owning session,
+  which no longer exists — an unowned constraint blocks work for nobody's benefit.)
 - Manga109-s: owner accepts personally; never vendored, never redistributed,
   ≤20% of any volume published, attribution required.
 - Anything that cannot be computed returns `Err` — never a placeholder, never a
