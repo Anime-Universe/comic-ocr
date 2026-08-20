@@ -1,0 +1,14 @@
+[package]
+name = "comic-ocr-pdp"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+comic-ocr-core = { path = "../comic-ocr-core" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+image.workspace = true

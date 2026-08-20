@@ -1,0 +1,20 @@
+[package]
+name = "comic-ocr-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "comic-ocr"
+path = "src/main.rs"
+
+[dependencies]
+comic-ocr-core = { path = "../comic-ocr-core" }
+comic-ocr-ort = { path = "../comic-ocr-ort" }
+clap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+image.workspace = true

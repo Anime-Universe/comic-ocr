@@ -1,0 +1,18 @@
+# Comic OCR Rust Context Manifest (llms.txt)
+
+> High-performance, zero-cost, multi-crate Rust workspace for optical character recognition of Japanese and English manga/comics.
+
+## Workspace Architecture & System Modules
+
+- [Master Architecture Specification](docs/MASTER_ARCHITECTURE_SPECIFICATION.md): Canonical technical specification.
+- [API & Schema Reference](docs/api.md): Rust traits, JSON schemas, REST endpoints, CLI parameters.
+- [Architecture & Doctrine Synthesis](docs/architecture_and_doctrine.md): PDP, IEPE, Reflective Rust, Titan blueprints.
+- [Master TODO Ledger](docs/TODO.md): Implementation checklist & audit tracking.
+
+## Core Crates Summary
+
+- `comic-ocr-core`: Domain primitives, OcrEngine trait, multi-language post-processing (Japanese, English), Furigana FSM.
+- `comic-ocr-pdp`: Polymorphic Decision Protocol panel evaluator & ACS discounting.
+- `comic-ocr-ort`: ONNX Runtime (ort) C-bindings engine & token entropy loop truncation.
+- `comic-ocr-cli`: Fast command-line binary (comic-ocr).
+- `comic-ocr-runtime`: Titan-style Reflective Runtime microservice (Tokio + Axum).
