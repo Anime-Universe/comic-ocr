@@ -1,3 +1,4 @@
+pub mod generate;
 use comic_ocr_core::{
     EngineType, OcrEngine, OcrError, OcrMetadata, OcrResult, post_process_with_furigana,
 };
