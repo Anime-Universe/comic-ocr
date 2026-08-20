@@ -151,6 +151,80 @@ The morphology set maps almost directly onto the scene graph's
 `masks[].type: "clean-balloon" | "repair-art"`. The clean-plate step is not
 future work; it is written and pointed at the wrong domain.
 
+### ImageTracer does not work at all — measured, not predicted
+
+This document originally parked "does the tracer survive screentone?" as an
+unknown. It was measured on 2026-08-20 and the answer is prior to the question:
+**`ImageTracer::trace` returns zero paths on every input.**
+
+On `tests/data/images/12.jpg` (a 1024x793 two-page spread), with the shipped
+code:
+
+| Config | Layers | Paths |
+| --- | --- | --- |
+| `default()` (16 colours) | 16 | **0** |
+| `contour_holes()` (the production sticker preset) | 2 | **0** |
+| tuned B/W (2 colours, blur 5) | 2 | **0** |
+
+The stages before path extraction are healthy: colour quantisation assigns
+146,317 and 665,715 pixels to its two indices, and `layering_step` produces
+10,082 valid path-start cells per layer. `pathscan` then walks all 10,082 —
+and every resulting path has **zero points**. Maximum points across all of
+them: 0.
+
+Two defects, and they compound:
+
+1. **`trace_path` initialises `dir = 0`.** `pathscan` starts walks only at
+   codes 4 and 11, and `PATHSCAN_LOOKUP[4][0]` and `PATHSCAN_LOOKUP[11][0]` are
+   both `[-1,-1,-1,-1]`. The loop's first act is to read that entry and break.
+   Every walk terminates before pushing a single point. imagetracerjs starts
+   these walks at direction 1.
+2. **The `new_arr_val` write-back is missing**, which the code's own comment
+   states: `// (we track visited; arr stays read-only)`. The `visited` array
+   that replaced it is written but never read inside the loop. Without the
+   write-back a saddle cell (code 5 or 10) takes the same branch on every
+   visit, so the walk cannot resolve ambiguous crossings.
+
+Applying both together — direction 1, and writing `entry[0]` back to the
+previous cell — produces paths. (They were applied together; whether the
+direction fix alone suffices was not isolated.)
+
+**This is a live silent failure, not dead code.** `PathsGenerator::generate`
+handles `find_primary_path` returning `None` with a fallback of
+`[[0,0],[0,1],[1,1],[1,0],[0,0]]` — a one-unit square. So `/v1/geometry/trace`
+does not error. It returns a well-formed `GeometryOutput`, with a canonical
+hash and passing validations, whose die-cut path is a scaled 1px square.
+
+### Even repaired, the tracer is the wrong front end
+
+With both defects fixed, and counting only paths whose bounding box exceeds
+400 px (below that is noise at page scale):
+
+| Page | `default()` | tuned B/W | Otsu -> components -> contours |
+| --- | --- | --- | --- |
+| `12.jpg` 1024x793 spread | 446 (175 ms) | 224 (64 ms) | **98** (20 ms) |
+| `13.jpg` 671x1024 | 521 (125 ms) | 429 (67 ms) | **145** (17 ms) |
+| `14.jpg` 650x1024 | 456 (107 ms) | 135 (48 ms) | **62** (11 ms) |
+| `18.jpg` 1704x2580 | 2,330 (761 ms) | 740 (322 ms) | **360** (71 ms) |
+
+`12.jpg` carries roughly 12 panels and 13 balloons — about 25 regions. Every
+column over-produces, but the threshold front end is consistently tightest by
+2–6x and 5–10x faster.
+
+The predicted path explosion is real; it was simply masked by a more basic
+defect. Quantise-then-layer-per-colour is the wrong decomposition for a page
+whose ink is bimodal.
+
+**Decision: do not port `ImageTracer`.** Use imageproc's
+`contrast::otsu_level` -> `contrast::threshold` -> `region_labelling::connected_components`
+-> `contours::find_contours` as the front end. Keep the tracer's *downstream*
+helpers, which are independent of the broken walk and are worth having:
+`douglas_peucker`, `polygon_offset` (clipper2), `chaikin_smooth`,
+`check_self_intersection`, hole-parent assignment, and the DXF emitters.
+
+That is a smaller port than the one this document originally proposed, and it
+deletes the `find_primary_path` problem rather than solving it.
+
 ### The one assumption that must go
 
 `find_primary_path` (`tracer.rs:1028`) selects **the single largest non-hole
@@ -236,18 +310,14 @@ pool while teaching nothing about balloons.
 3. **Hoist `page_result.json` text regions** to page level with an optional
    panel reference; fold `onomatopoeia_crops` in as a role.
 4. **Give `MaskRegion` and `ArtRegion` geometry**, and give `Polygon` holes.
-5. **Extract the tracer** from geometry-runtime as a crate; replace
-   `find_primary_path` with a containment forest.
+5. **Build the front end on imageproc** (Otsu -> components -> contours), not
+   on `ImageTracer`; assemble the results into a containment forest. Take the
+   tracer's simplification, offset, and hole-assignment helpers only.
 6. **Feature-based classifier** over the forest; measure against a labelled set.
 7. **Detector**, scored on recall (Infinite-Verse#834, blocked on #837).
 
 ## What is honestly still unknown
 
-- **Whether `ImageTracer` survives screentone.** It quantises colour first and
-  layers per colour; on a halftoned B/W page, tone is a colour layer and
-  `pathscan` may emit thousands of tiny paths. `pathomit` and `selective_blur`
-  exist to suppress exactly this, but were tuned on flat sticker art. This is a
-  prediction, not a measurement, and it is the first thing to test.
 - Whether the geometric features actually separate the container types, or only
   look as though they should.
 - Whether `LocalizedTextObject` should be implemented or retired.
