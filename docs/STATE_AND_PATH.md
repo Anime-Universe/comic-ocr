@@ -62,7 +62,7 @@ does not exist**, so every one of those links is dead.
 | Preprocessing | **real and measured.** 81–91% of tensor elements bit-identical to `ViTImageProcessor`, mean error 0.09–0.19 LSB. Constants marked as model properties to re-read per checkpoint |
 | `resample_tiles` | **integrated and verified.** Sliding window slicing ($\delta = 0.20$ overlap) for aspect ratio $> 3.0$ |
 | Reading direction | **shared and verified.** One shared `ReadingDirection` enum across sorting and validation engines |
-| Context Corpus | **real and compiled.** `python3 scripts/gen-llms.py` generates `.agents/llms.txt` and `.agents/llms-full.txt` (410KB single-file context corpus) |
+| Context Corpus | **real and compiled.** `python3 scripts/gen-llms.py` generates `.agents/llms-cor.txt` and `.agents/llms-full-cor.txt` |
 
 ### Defects found and fixed today
 

@@ -65,6 +65,42 @@ struct Cli {
     #[arg(long, default_value_t = 0.0)]
     min_confidence: f32,
 
+    /// Dataset class: silver, gold, or evaluation
+    #[arg(long, default_value = "gold")]
+    dataset_class: String,
+
+    /// Canonical publication id for an export manifest
+    #[arg(long)]
+    publication_id: Option<String>,
+
+    /// Canonical reading-item id for an export manifest
+    #[arg(long)]
+    item_id: Option<String>,
+
+    /// Immutable source page digest for an export manifest
+    #[arg(long)]
+    page_digest: Option<String>,
+
+    /// Immutable semantic-envelope digest for an export manifest
+    #[arg(long)]
+    envelope_digest: Option<String>,
+
+    /// Opaque reviewer id; required for gold and evaluation
+    #[arg(long)]
+    reviewed_by: Option<String>,
+
+    /// Platform training/evaluation-rights grant id
+    #[arg(long)]
+    rights_grant_id: Option<String>,
+
+    /// Work/publication lineage group used for split isolation
+    #[arg(long)]
+    split_group: Option<String>,
+
+    /// Dataset split: train, validation, or test
+    #[arg(long, default_value = "train")]
+    dataset_split: String,
+
     /// Force CPU execution
     #[arg(long, default_value_t = false)]
     force_cpu: bool,
@@ -85,6 +121,12 @@ struct Cli {
     /// often a transcription error than a character the model must learn
     #[arg(long, default_value_t = 2)]
     vocab_min_frequency: usize,
+}
+
+fn required_export_value<'a>(name: &str, value: &'a Option<String>) -> anyhow::Result<&'a str> {
+    value
+        .as_deref()
+        .ok_or_else(|| anyhow::anyhow!("--{name} is required with --export-pairs"))
 }
 
 fn main() -> anyhow::Result<()> {
@@ -294,6 +336,7 @@ fn main() -> anyhow::Result<()> {
                     normalized_bounds: [0.0, 0.0, 1.0, 1.0],
                     kind: comic_ocr_core::RegionKind::Text,
                     state: comic_ocr_core::AssertionState::Candidate,
+                    empty_is_intentional: false,
                     provenance: None,
                 });
             } else {
@@ -349,6 +392,7 @@ fn main() -> anyhow::Result<()> {
                         normalized_bounds: norm_bounds,
                         kind: comic_ocr_core::RegionKind::Text,
                         state: comic_ocr_core::AssertionState::Candidate,
+                        empty_is_intentional: false,
                         provenance: None,
                     });
                 }
@@ -411,17 +455,47 @@ fn main() -> anyhow::Result<()> {
                 let export_dir = cli
                     .export_out
                     .clone()
-                    .unwrap_or_else(|| PathBuf::from("dataset/export"));
+                    .unwrap_or_else(|| PathBuf::from("dataset/export"))
+                    .join(img_path.file_stem().unwrap_or_default());
+                let dataset_class = match cli.dataset_class.as_str() {
+                    "silver" => comic_ocr_core::DatasetClass::Silver,
+                    "gold" => comic_ocr_core::DatasetClass::Gold,
+                    "evaluation" => comic_ocr_core::DatasetClass::Evaluation,
+                    value => anyhow::bail!("unsupported dataset class: {value}"),
+                };
+                let split = match cli.dataset_split.as_str() {
+                    "train" => comic_ocr_core::DatasetSplit::Train,
+                    "validation" => comic_ocr_core::DatasetSplit::Validation,
+                    "test" => comic_ocr_core::DatasetSplit::Test,
+                    value => anyhow::bail!("unsupported dataset split: {value}"),
+                };
                 let filter = comic_ocr_core::ExportFilter {
                     min_confidence: cli.min_confidence,
-                    include_candidates: true,
+                    dataset_class,
                     language: None,
                     min_crop_px: 16,
                 };
+                let context = comic_ocr_core::ExportContext {
+                    publication_id: required_export_value("publication-id", &cli.publication_id)?,
+                    item_id: required_export_value("item-id", &cli.item_id)?,
+                    page_digest: required_export_value("page-digest", &cli.page_digest)?,
+                    envelope_digest: required_export_value(
+                        "envelope-digest",
+                        &cli.envelope_digest,
+                    )?,
+                    reviewed_by: cli.reviewed_by.as_deref(),
+                    rights_grant_id: required_export_value(
+                        "rights-grant-id",
+                        &cli.rights_grant_id,
+                    )?,
+                    split_group: required_export_value("split-group", &cli.split_group)?,
+                    split,
+                    direction: if cli.extract_furigana { "ttb" } else { "ltr" },
+                    source: "own-corpus",
+                };
                 let report = comic_ocr_core::export_pairs(
-                    Some("pub_manga"),
-                    img_path.file_stem().map(|s| s.to_str().unwrap()),
-                    None,
+                    &context,
+                    &img,
                     &[text_layer],
                     &filter,
                     &export_dir,

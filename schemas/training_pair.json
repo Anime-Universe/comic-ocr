@@ -52,6 +52,10 @@
           "type": "string",
           "description": "The region id within the page's semantic envelope, e.g. `text-004`."
         },
+        "page_digest": {
+          "type": "string",
+          "description": "Digest of the immutable page bytes from which the crop was produced. Together with envelope_digest and region_id, this makes the exported example reproducible and detects a crop attached to the wrong page."
+        },
         "envelope_digest": {
           "type": "string",
           "description": "The semantic envelope this label was read from. Makes the export reproducible against a specific document rather than against whatever the graph holds now."

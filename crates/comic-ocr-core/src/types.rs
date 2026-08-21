@@ -64,6 +64,9 @@ pub struct RegionReading {
     pub normalized_bounds: [f32; 4],
     pub kind: RegionKind,
     pub state: AssertionState,
+    /// True only when a reviewer deliberately confirmed an empty crop.
+    #[serde(default)]
+    pub empty_is_intentional: bool,
     pub provenance: Option<ProvenanceRecord>,
 }
 

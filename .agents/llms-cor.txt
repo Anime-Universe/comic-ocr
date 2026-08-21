@@ -1,16 +1,18 @@
-# Comic OCR Rust Context Manifest (llms.txt)
+# Comic OCR Rust Context Manifest (llms-cor.txt)
 
-> HEAD: 589eafb Retract the training gate; a label is admitted with a weight  [WORKING TREE DIRTY — this corpus is not any committed state]
+> HEAD: 72dcf66 Define the boundary model, and measure the schema drift nothing was checking (#5)  [WORKING TREE DIRTY — this corpus is not any committed state]
 > Generated from the tree. Do not hand-edit; edit the generator.
 
-## Documents (24)
+## Documents (26)
 - [FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md](docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Status: **Normative Architectural Doctrine**. Revised 2026-08-20.
+- [GEOMETRY_PATH.md](docs/GEOMETRY_PATH.md): Status: normative. Written 2026-08-20, against measured facts.
 - [INTEGRATION_INFINITE_VERSE.md](docs/INTEGRATION_INFINITE_VERSE.md): Draft, 2026-08-20. Written against `manga-service` at `45750c8` and this repo at
 - [MASTER_ARCHITECTURE_SPECIFICATION.md](docs/MASTER_ARCHITECTURE_SPECIFICATION.md): **Document Version:** `v1.0.0`
 - [ONNX_GRAPH_CONTRACT.md](docs/ONNX_GRAPH_CONTRACT.md): This document specifies the exact ONNX graph contract, tensor naming conventions, and export procedures requir
 - [STATE_AND_PATH.md](docs/STATE_AND_PATH.md): 2026-08-20. Spans two repositories: this one, and the Infinite Verse platform
 - [TODO.md](docs/TODO.md): > Master implementation roadmap, completed audit checklist, and future roadmap for **Manga OCR Rust** / **Comi
-- [TRAINING_EXPORT.md](docs/TRAINING_EXPORT.md): > **Status: design. None of this is built.** Verified 2026-08-20: zero
+- [TRAINING_EXPORT.md](docs/TRAINING_EXPORT.md): > **Status: library and CLI boundary implemented; platform orchestration not
+- [TRAINING_PATH.md](docs/TRAINING_PATH.md): Status: normative. Written 2026-08-20, against measured counts.
 - [agent_and_skill_methods.md](docs/agent_and_skill_methods.md): This document details the agent orchestration methods, skill taxonomy, workspace customization structure (`.ag
 - [api.md](docs/api.md): This document provides the canonical specification for the library traits, data schemas, REST API endpoints, C
 - [architecture_and_doctrine.md](docs/architecture_and_doctrine.md): This document unifies the architectural blueprints, governance protocols, mathematical scoring models, and Rus
@@ -38,7 +40,7 @@
 - `src/ambiguity.rs`: AmbiguityType, ResolutionStatus, Hypothesis, AmbiguousProperty, new, evaluate_speaker_attribution
 - `src/decode.rs`: GraphContract, from_input_names, present_for, past_for, banned_by_no_repeat_ngram, Beam, start, score, select_beams, should_stop, best_beam
 - `src/detector.rs`: TextDetector, detect_regions
-- `src/exporter.rs`: ExportFilter, ExportReport, TrainingPairRecord, TrainingPairProvenance, export_pairs
+- `src/exporter.rs`: ExportFilter, DatasetClass, DatasetSplit, ExportContext, ExportReport, TrainingPairRecord, TrainingPairProvenance, DatasetManifestRecord, DatasetManifest, TrainingPairGeometry, TrainingPairPoint, export_pairs
 - `src/languages/en.rs`: post_process_en
 - `src/languages/jp.rs`: post_process_jp
 - `src/languages/mod.rs`: Language, post_process_for_language
@@ -51,9 +53,10 @@
 - `src/tokenizer.rs`: CLS_TOKEN, SEP_TOKEN, PAD_TOKEN, UNK_TOKEN, MASK_TOKEN, TokenizerError, WordPieceVocab, from_vocab_txt, from_file, len, is_empty, token, id_of, cls_id (+9 more)
 - `src/types.rs`: OcrError, AssertionState, RegionKind, ProvenanceRecord, RegionReading, TextLayer, EngineType, OcrMetadata, OcrResult, OcrEngine
 - `src/validation.rs`: ProvenanceSource, AnalysisEvidence, ValidationStatus, SemanticAssertion, ReadingOrderViolationReason, ReadingOrderViolation, ReadingOrderValidation, ContradictionKind, AnomalyNature, SemanticConflict, validate_cardinality_invariants, validate_spatial_containment, validate_panel_reading_order, validate_semantic_roles
+- `src/vocab_build.rs`: SPECIAL_TOKENS, VocabReport, build_character_vocab
 
 ### `comic-ocr-ort`
-- `src/generate.rs`: GenerationConfig, Generator, from_dir, contract, generate, generate_ids
+- `src/generate.rs`: GenerationConfig, Generator, from_dir, contract, generate, generate_ids, generate_scored, generate_ids_scored
 - `src/lib.rs`: OrtEngine, new, from_onnx_file, from_onnx_bytes, with_furigana, with_daemon, softmax, calculate_token_entropy, should_truncate_loop
 - `src/worker.rs`: PyDaemonWorker, spawn, predict_image_path
 

@@ -42,7 +42,7 @@ flowchart TD
 - [**Flywheel, Distillation & Independent Reader Architectural Doctrine**](docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Core architectural doctrine detailing VisionEncoderDecoder model scope, composed pair confidence, distillation error-correction, the independent reader principle, and held-out human evaluation set rules.
 - [**Rust Migration Specification**](docs/rust_migration.md): Technical specifications, blueprints, and verification gates for the Inference Bridge, PyO3 Python wheel, and Neural Model & PDP Architecture.
 - [**JSON Schema Suite & 12.jpg Execution Reference**](docs/json_schema_suite.md): Details all 7 canonical JSON Schema contracts, sample instances, and multi-schema execution results.
-- [**Training Pair Export Specification**](docs/TRAINING_EXPORT.md): Documents pair generation from iPub graphs, composed confidence $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{det}} \times \mathbf{C}_{\text{trans}}$, and The Training Contract rules.
+- [**Training Pair Export Specification**](TRAINING_EXPORT.md): Documents pair generation, silver/gold/evaluation isolation, rights grants, immutable manifests, and The Training Contract rules.
 - [**Code Review & Audit Report**](docs/code_review.md): Deep-dive audit report highlighting architectural strengths, known gaps, code smells, test coverage gaps, and refactoring roadmap.
 
 ---

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zachshallbetter/comic-ocr-rust/main/schemas/dataset_manifest.json",
+  "title": "ComicOcrDatasetManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "policy_version", "manifest_digest", "dataset_class", "split", "split_group", "source", "rights_grant_id", "publication_id", "item_id", "page_digest", "envelope_digest", "records", "report"],
+  "properties": {
+    "version": { "const": "1.0" },
+    "policy_version": { "const": "curation-training-v1" },
+    "manifest_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "dataset_class": { "enum": ["silver", "gold", "evaluation"] },
+    "split": { "enum": ["train", "validation", "test"] },
+    "split_group": { "type": "string", "minLength": 1 },
+    "source": { "enum": ["own-corpus", "manga109s", "synthetic"] },
+    "rights_grant_id": { "type": "string", "minLength": 1 },
+    "publication_id": { "type": "string", "minLength": 1 },
+    "item_id": { "type": "string", "minLength": 1 },
+    "page_digest": { "type": "string", "minLength": 1 },
+    "envelope_digest": { "type": "string", "minLength": 1 },
+    "reviewed_by": { "type": ["string", "null"] },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["record", "record_digest", "crop", "crop_digest", "region_id"],
+        "properties": {
+          "record": { "type": "string", "minLength": 1 },
+          "record_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "crop": { "type": "string", "minLength": 1 },
+          "crop_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+          "region_id": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "report": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "dataset_class": { "const": "evaluation" } } },
+      "then": {
+        "properties": { "split": { "const": "test" }, "reviewed_by": { "type": "string", "minLength": 1 } }
+      }
+    },
+    {
+      "if": { "properties": { "dataset_class": { "enum": ["silver", "gold"] } } },
+      "then": { "properties": { "split": { "enum": ["train", "validation"] } } }
+    }
+  ]
+}

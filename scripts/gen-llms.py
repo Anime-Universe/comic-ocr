@@ -3,8 +3,8 @@
 
 Compiles repository markdown documentation, architecture specifications, API contracts,
 and Rust crate definitions into single-file LLM context corpora:
-  - .agents/llms.txt (Manifest & Summary)
-  - .agents/llms-full.txt (Full Aggregated Context Corpus)
+  - .agents/llms-cor.txt (Manifest & Summary)
+  - .agents/llms-full-cor.txt (Full Aggregated Context Corpus)
 
 Ensures all generated context output is sanitized and free of absolute local filesystem paths.
 """
@@ -69,7 +69,7 @@ def _public_symbols(crate_dir: Path):
 
 def build_manifest() -> str:
     root = Path(ROOT_DIR) if "ROOT_DIR" in globals() else Path(__file__).resolve().parent.parent
-    parts = ["# Comic OCR Rust Context Manifest (llms.txt)", ""]
+    parts = ["# Comic OCR Rust Context Manifest (llms-cor.txt)", ""]
     try:
         head = subprocess.check_output(["git", "log", "-1", "--format=%h %s"], cwd=root,
                                        stderr=subprocess.DEVNULL, text=True).strip()
@@ -127,8 +127,8 @@ def sanitize_content(text: str) -> str:
 
 
 def compile_full_corpus():
-    full_text_path = AGENTS_DIR / "llms-full.txt"
-    manifest_path = AGENTS_DIR / "llms.txt"
+    full_text_path = AGENTS_DIR / "llms-full-cor.txt"
+    manifest_path = AGENTS_DIR / "llms-cor.txt"
 
     manifest_path.write_text(sanitize_content(build_manifest()), encoding="utf-8")
 
@@ -140,7 +140,7 @@ def compile_full_corpus():
 
     corpus_parts = []
     corpus_parts.append("================================================================================")
-    corpus_parts.append("COMIC OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full.txt)")
+    corpus_parts.append("COMIC OCR RUST: AGGREGATED SINGLE-FILE CONTEXT CORPUS (llms-full-cor.txt)")
     corpus_parts.append("================================================================================")
     corpus_parts.append("\n\n")
 

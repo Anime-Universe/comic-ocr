@@ -5,6 +5,7 @@
 ---
 
 ## Phase 1: Python Monolith Refactoring & Foundation (Completed)
+
 - [x] **Wayland & Threading Fixes**: Resolved Python thread lock issues during image load.
 - [x] **Confidence Score Calculation**: Implemented geometric mean logit softmax confidence scoring.
 - [x] **FastAPI & ONNX Engine**: Built FastAPI server wrapper and ONNX Runtime inference pipeline.
@@ -12,6 +13,7 @@
 ---
 
 ## Phase 2: Architectural Research & Specifications (Completed)
+
 - [x] **Master Architecture & Systems Specification**: Created canonical technical specification (`docs/MASTER_ARCHITECTURE_SPECIFICATION.md`).
 - [x] **API & Schema Reference**: Documented Rust traits, JSON schemas, endpoints (`docs/api.md`).
 - [x] **Reflective Rust & Titan Runtime**: Documented zero-copy PyO3 RSP FFI and Tokio/Axum microservice architecture.
@@ -19,18 +21,20 @@
 ---
 
 ## Phase 3: Pure Rust Cargo Workspace Migration (Completed)
+
 - [x] **100% Python Legacy Stripping**: Removed all Python legacy files and caches (`find . -name "*.py"` returns 0 runtime code).
 - [x] **Multi-Crate Workspace Setup**: Created `comic-ocr-core`, `comic-ocr-pdp`, `comic-ocr-ort`, `comic-ocr-cli`, `comic-ocr-runtime`.
 
 ---
 
 ## Phase 4: Core Domain Features & Multi-Language Support (Completed)
+
 - [x] **Furigana Bracket Parser FSM (`comic-ocr-core`)**: Implemented 4-state FSM emitting `漢[かん]字[じ]`.
 - [x] **Aspect-Ratio Preserving Multi-Tile Resampling (`comic-ocr-core`)**: Implemented sliding window slicing ($\delta = 0.20$ overlap) for aspect ratio $> 3:1$.
 - [x] **Autoregressive Attention Loop Truncation (`comic-ocr-ort`)**: Implemented token entropy calculation $H_k$ and rolling entropy check ($\bar{H}_{k-3:k} < 0.15$).
 - [x] **Japanese Reading Order Bubble Sorting (`comic-ocr-core`)**: Implemented Right-to-Left, Top-to-Bottom bubble sorting.
 - [x] **Multi-Language Package Support (`comic-ocr-core`)**: Implemented `Japanese` (full-width h2z) and `English` (ASCII quote standardization, spacing cleanup) language profiles.
-- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generated `.agents/llms.txt` and `.agents/llms-full.txt` (212KB).
+- [x] **Context Corpus Compiler Script (`scripts/gen-llms.py`)**: Generates `.agents/llms-cor.txt` and `.agents/llms-full-cor.txt`.
 - [x] **Authoritative JSON Schema Suite (`schemas/`)**: Created `ocr_result.json`, `page_result.json`, `pdp_decision.json`, `comic_scene_graph.json`, and `localized_text_object.json`.
 
 ---
@@ -99,38 +103,48 @@
 
 ---
 
-## Phase 9: Distillation Exporter, ONNX Model Graphs & Brier Calibration (Completed)
+## Phase 9: Future Roadmap & Outstanding Engineering Directives (TODO / In Progress)
 
-### A. Pure Rust `VisionEncoderDecoder` Generation Loop & ONNX Model Graphs
-- [x] **Generate ONNX Model Graphs (`models/onnx/`)**:
-  - Executed `scripts/export_onnx.py` to export `encoder_model.onnx` (329.72MB), `decoder_model.onnx` (112.01MB), and `decoder_with_past_model.onnx` (112.01MB).
-- [x] **Empirically Verify Rust Decoder KV-Cache Loop (`crates/comic-ocr-ort/src/generate.rs`)**:
-  - Executed dynamic ONNX model inference evaluation in `test_benchmark_dataset.rs` over 20 real images.
+### A. Pure Rust `VisionEncoderDecoder` Generation Loop (Native ONNX Decoder)
+
+- [ ] **Generate ONNX Model Graphs (`models/onnx/`)**:
+  - Execute `python3 scripts/export_onnx.py --model kha-white/manga-ocr --output-dir models/onnx` to restore model graphs.
+- [ ] **Empirically Verify Rust Decoder KV-Cache Loop (`crates/comic-ocr-ort/src/generate.rs`)**:
+  - `generate.rs` is **Implemented (Unverified)**. Unignore `test_benchmark_model_inference_evaluation` in `test_benchmark_dataset.rs` and verify native Rust KV-cache generator against ONNX model weights once graphs are present.
 
 ### B. Persistent Python Model Inference Worker
-- [x] **Long-Lived Python Worker / Process Pool (`crates/comic-ocr-ort/src/worker.rs`)**:
-  - Implemented `PyDaemonWorker` background process communication over stdin/stdout JSON lines IPC for `OrtEngine`, eliminating per-image PyTorch/transformers model reloading overhead.
+
+- [ ] **Long-Lived Python Worker / Process Pool**:
+  - Implement a persistent background Python daemon/worker process over stdin/stdout IPC or Unix domain socket for `OrtEngine` when operating in subprocess mode, eliminating per-image PyTorch/transformers model reloading overhead across batch operations.
 
 ### C. PDP Multi-Engine Consensus & Brier Calibration (`comic-ocr-pdp`)
-- [x] **Multi-Engine PDP Consensus Calibration**:
-  - Implemented Brier-calibrated consensus weighting $w_i = \exp(-\text{Brier}_i)$ across local ONNX model predictions and remote VLM API transcriptions in `comic-ocr-pdp`.
-- [x] **Cross-Engine Disagreement Detection**:
-  - Built pure Rust Levenshtein CER divergence detector (`detect_disagreement`) to flag regions with CER divergence $\ge 0.20$ for automated human-in-the-loop review.
+
+- [ ] **Multi-Engine PDP Consensus Calibration**:
+  - `comic-ocr-pdp` currently contains 70 lines of substrate types; Brier calibration is **Unbuilt / Design Intent**.
+  - Implement Brier-calibrated consensus weighting $w_i = \exp(-\text{Brier}_i)$ across local ONNX model predictions and remote VLM API transcriptions (e.g., Gemini / Claude) in `comic-ocr-pdp`.
+- [ ] **Cross-Engine Disagreement Detection**:
+  - Flag region transcriptions with high CER disagreement for automated human-in-the-loop review.
 
 ### D. Advanced Cover & Editorial Typography Reconstruction
-- [x] **Vector Contour Geometry Slicing (`comic-ocr-core::layout`)**:
-  - Implemented `ContourPolygon` with Shoelace polygonal area calculation and Ray-casting point containment for non-rectangular balloons.
-- [x] **Cover Font & Style Extraction**:
-  - Defined metadata representation for stroke width, fill color, and font style extraction.
+
+- [ ] **Vector Contour Geometry Slicing**: Upgrade geometric detector from coarse bounding boxes to exact polygonal speech-balloon and title contour masks.
+- [ ] **Cover Font & Style Extraction**: Automatically infer color, stroke width, and gradient fill attributes from cover art text regions for fidelity-preserving re-lettering rendering.
 
 ### E. Distillation Exporter, Composed Confidence & Independent Reader Flywheel
-- [x] **Composed Pair Confidence Calculation**:
-  - Implemented $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{detector}} \times \mathbf{C}_{\text{transcriber}}$ composed confidence calculation when exporting training pairs.
+
+- [ ] **Composed Pair Confidence Calculation**:
+  - Implement $\mathbf{C}_{\text{pair}} = \mathbf{C}_{\text{detector}} \times \mathbf{C}_{\text{transcriber}}$ composed confidence calculation when creating training pairs from `IPubSemanticResource` envelopes.
 - [x] **Training Pair Exporter CLI & Library (`export_pairs`)**:
-  - Built Rust training pair exporter `export_pairs()` in `comic-ocr-core::exporter` and `--export-pairs` CLI subcommand in `comic-ocr-cli` producing records matching `schemas/training_pair.json`.
-  - Implemented `ExportFilter` (`min_confidence`, `include_candidates`, `language`, `min_crop_px`) emitting `ExportReport` telemetry.
-  - Enforced The Training Contract: `rejected` assertion state is strictly excluded from dataset export.
-- [x] **Held-Out Human Evaluation Set Discipline**:
-  - Reserved strictly held-out evaluation test corpus in `tests/data/benchmark_results.json` and `test_benchmark_dataset.rs` for measuring real model reading accuracy.
-- [x] **Cross-Engine Disagreement Review Queue**:
-  - Integrated cross-engine disagreement matrix computation into PDP to isolate uncorrelated reader divergence directly into human review queues.
+  - `comic-ocr-core` writes real crops, canonical `training_pair.json` records,
+    counted rejection telemetry, and `dataset_manifest.json`; the CLI requires
+    canonical page/envelope ids, rights grant, class and split context.
+  - `ExportFilter` selects one closed class (`silver`, `gold`, `evaluation`),
+    confidence/language/crop bounds, and strictly excludes `rejected`.
+- [ ] **Platform dataset orchestration**:
+  - Resolve page and semantic-envelope bytes from CAS, validate an active
+    `semantic_training_grant`, enforce corpus-wide crop deduplication and
+    split-group isolation, then invoke the implemented exporter boundary.
+- [ ] **Held-Out Human Evaluation Set Discipline**:
+  - Reserve a strictly held-out, human-reviewed evaluation test corpus (e.g. `package 0000` / `test_benchmark_dataset.rs`) for measuring real model reading accuracy, strictly isolated from machine-labeled training signals.
+- [ ] **Cross-Engine Disagreement Review Queue**:
+  - Compare `comic-ocr-rust` predictions against 3rd-party teacher (Gemini `ocr-detector`) predictions to compute un-correlated cross-engine disagreement matrices and route disagreements directly to human review queues.
