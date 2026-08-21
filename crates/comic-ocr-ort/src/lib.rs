@@ -62,10 +62,10 @@ impl OrtEngine {
             .unwrap_or_else(|_| dir.to_string());
 
         let cache = Self::generator_cache();
-        if let Ok(map) = cache.lock() {
-            if let Some(existing) = map.get(&key) {
-                return Ok(Arc::clone(existing));
-            }
+        if let Ok(map) = cache.lock()
+            && let Some(existing) = map.get(&key)
+        {
+            return Ok(Arc::clone(existing));
         }
 
         // Loaded OUTSIDE the cache lock: this reads hundreds of megabytes, and
@@ -365,18 +365,17 @@ impl OcrEngine for OrtEngine {
             .save(&temp_path)
             .map_err(|e| OcrError::EngineError(format!("Failed to save input frame: {}", e)))?;
 
-        if let Some(ref worker_mutex) = self.daemon_worker {
-            if let Ok(mut worker) = worker_mutex.lock() {
-                let res = worker.predict_image_path(&temp_path);
-                let _ = std::fs::remove_file(&temp_path);
-                if let Ok(mut ocr_res) = res {
-                    ocr_res.metadata.duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
-                    if self.extract_furigana {
-                        ocr_res.text =
-                            post_process_with_furigana(&ocr_res.text, self.extract_furigana);
-                    }
-                    return Ok(ocr_res);
+        if let Some(ref worker_mutex) = self.daemon_worker
+            && let Ok(mut worker) = worker_mutex.lock()
+        {
+            let res = worker.predict_image_path(&temp_path);
+            let _ = std::fs::remove_file(&temp_path);
+            if let Ok(mut ocr_res) = res {
+                ocr_res.metadata.duration_ms = start_time.elapsed().as_secs_f64() * 1000.0;
+                if self.extract_furigana {
+                    ocr_res.text = post_process_with_furigana(&ocr_res.text, self.extract_furigana);
                 }
+                return Ok(ocr_res);
             }
         }
 

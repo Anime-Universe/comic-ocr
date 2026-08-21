@@ -45,7 +45,7 @@ fn main() {
     let entries = labels.as_array().expect("a list of entries");
     let (mut scored, mut exact, mut total_cer, mut failed) = (0usize, 0usize, 0.0f64, 0usize);
 
-    println!("{:<10} {:>7} {:>7}  {}", "page", "CER", "conf", "reading");
+    println!("{:<10} {:>7} {:>7}  reading", "page", "CER", "conf");
     println!("{}", "-".repeat(78));
     for entry in entries {
         let name = entry["filename"].as_str().unwrap_or("?");

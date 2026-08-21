@@ -74,10 +74,10 @@ pub fn export_pairs(
     fs::create_dir_all(output_dir).map_err(|e| e.to_string())?;
 
     for layer in text_layers {
-        if let Some(ref target_lang) = filter.language {
-            if &layer.language != target_lang {
-                continue;
-            }
+        if let Some(ref target_lang) = filter.language
+            && &layer.language != target_lang
+        {
+            continue;
         }
 
         for reading in &layer.regions {
