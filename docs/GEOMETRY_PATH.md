@@ -189,11 +189,18 @@ Applying both together — direction 1, and writing `entry[0]` back to the
 previous cell — produces paths. (They were applied together; whether the
 direction fix alone suffices was not isolated.)
 
-**This is a live silent failure, not dead code.** `PathsGenerator::generate`
-handles `find_primary_path` returning `None` with a fallback of
+**This was a live silent failure, not dead code.** `PathsGenerator::generate`
+handled `find_primary_path` returning `None` with a fallback of
 `[[0,0],[0,1],[1,1],[1,0],[0,0]]` — a one-unit square. So `/v1/geometry/trace`
-does not error. It returns a well-formed `GeometryOutput`, with a canonical
-hash and passing validations, whose die-cut path is a scaled 1px square.
+did not error. It returned a well-formed `GeometryOutput`, with a canonical
+hash and passing validations, whose die-cut path was a scaled 1px square.
+
+Fixed in AcmeProductCo/compute#1, which also found a third defect that only
+became visible once tracing worked: `find_primary_path` takes the largest
+non-hole path across every layer, and in `alpha_mode` the transparent
+background layer's ring spans the whole canvas — so a real RGBA cutout cut the
+sheet edge rather than the sticker. That runtime's tests went 9 to 16; the
+original 9 never touched the tracer, which is why this survived.
 
 ### Even repaired, the tracer is the wrong front end
 
