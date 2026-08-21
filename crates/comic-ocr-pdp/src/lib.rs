@@ -172,6 +172,25 @@ impl PanelEvaluator {
     }
 }
 
+fn levenshtein_dist(a: &[char], b: &[char]) -> usize {
+    let mut distances = vec![vec![0usize; b.len() + 1]; a.len() + 1];
+    for (i, row) in distances.iter_mut().enumerate() {
+        row[0] = i;
+    }
+    for (j, cell) in distances[0].iter_mut().enumerate() {
+        *cell = j;
+    }
+    for i in 1..=a.len() {
+        for j in 1..=b.len() {
+            let cost = if a[i - 1] == b[j - 1] { 0 } else { 1 };
+            distances[i][j] = (distances[i - 1][j] + 1)
+                .min(distances[i][j - 1] + 1)
+                .min(distances[i - 1][j - 1] + cost);
+        }
+    }
+    distances[a.len()][b.len()]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -219,23 +238,4 @@ mod tests {
         assert!(decision.brier_weighted_confidence > 0.85);
         assert!(decision.disagreement_detected);
     }
-}
-
-fn levenshtein_dist(a: &[char], b: &[char]) -> usize {
-    let mut distances = vec![vec![0usize; b.len() + 1]; a.len() + 1];
-    for i in 0..=a.len() {
-        distances[i][0] = i;
-    }
-    for j in 0..=b.len() {
-        distances[0][j] = j;
-    }
-    for i in 1..=a.len() {
-        for j in 1..=b.len() {
-            let cost = if a[i - 1] == b[j - 1] { 0 } else { 1 };
-            distances[i][j] = (distances[i - 1][j] + 1)
-                .min(distances[i][j - 1] + 1)
-                .min(distances[i - 1][j - 1] + cost);
-        }
-    }
-    distances[a.len()][b.len()]
 }
