@@ -308,6 +308,79 @@ pool while teaching nothing about balloons.
 
 ---
 
+## Front and back matter is not optional
+
+The first pages and last pages of a volume are how a publication is identified
+and how overlapping copies are detected. That makes matter extraction load
+bearing whether or not it is convenient — and matter is the *least* standardised
+part of any book.
+
+It is also a **different problem from dialogue**, and an easier one: flat text
+blocks, no balloons, no tails, no speaker attribution, and reading order barely
+matters because the task is extracting **typed fields** rather than narrative.
+The highest-value tokens are pattern-matched, not comprehended — `ISBN-13`,
+`978-`, a 13-digit JAN, `定価`, `雑誌`, `©`, `First Printing`.
+
+### ISBN is the wrong key on its own
+
+Sampled across real pages, identity sits in different places and is often absent:
+
+| Source | Identity present | ISBN? |
+| --- | --- | --- |
+| Colophon, p.176 | ISBN-10 **and** ISBN-13 as text, publisher, print date | yes |
+| Wraparound cover | barcode, ISBN, JAN, price, publisher code | yes — on the **back** cover, which is page 1 of the scan |
+| Table of contents | chapter to page map | no |
+| Publisher promo splash | translator, letterer, editor, licensor, author, air date | **no** |
+| Scanlation credit page | group, volume, chapter, five staff names | **no** |
+| French BD cover | scénario / dessin / couleurs, language | **no** |
+
+Three of six carry no ISBN, and they are the scanlation-shaped ones — which is
+most of the corpus.
+
+More importantly, **ISBN answers the wrong question for dedup**: two rips of the
+same volume from different groups share an ISBN, and that is exactly the overlap
+worth detecting. What discriminates them is the credits page. So:
+
+- **ISBN joins this copy to the canonical work.**
+- **The credits page joins it to *this copy*** — `(series, volume, chapter,
+  group or publisher, language)`.
+
+Both are needed. Only the first has been pursued, and
+[`TRAINING_PATH.md`](TRAINING_PATH.md) records that it yields nothing: all seven
+live publications carry content digests and not one ISBN.
+
+A likely cause, unverified: `barcode.rs` runs on *a classified cover*. A colophon
+on p.176 is never handed to it, and a wraparound is probably read as one cover
+with the code in a corner. The decoder may be fine and simply never called on the
+page that has the code. Check before assuming it is broken. Note also that a
+colophon can carry the ISBN as **text only, no barcode** — so decode and
+regex-on-OCR are two independent paths that fail differently.
+
+### Two structural problems matter pages expose
+
+**Spreads.** A wraparound scan is two physical pages in one image — three
+surfaces counting the spine, whose text is vertical on a narrow strip. Every
+spread shifts page numbering, so "the first three pages of the file" may be six
+physical pages, and page-relative coordinates no longer mean what they say.
+
+**Binding direction is derivable here.** `定価` and vertical spine type imply
+RTL; `SCÉNARIO` implies LTR. The matter pages do not merely name the book, they
+**configure the reader for it** — which is exactly what `reading.binding` and
+`reading.pageDirection` in `comic_scene_graph.json` need.
+
+### Why this is cheap
+
+Matter extraction is a separate pipeline with different everything: full-page
+input rather than crops, typed fields rather than strings, field accuracy rather
+than CER — and **trivially synthesisable training data**. Generating 100k
+plausible colophons with known ISBNs, publishers, and prices is an afternoon.
+Generating 100k plausible balloon pages is not.
+
+Matter pages stay **excluded from the dialogue training set**. They are the
+cleanest printed text in any volume and would dominate a confidence-weighted
+pool while teaching nothing about balloons. This is what `textRegion.role`'s
+`title`, `credit`, and `editorial` values are for.
+
 ## Order of work
 
 1. **Text training** — unchanged, per [`TRAINING_PATH.md`](TRAINING_PATH.md).
@@ -322,6 +395,9 @@ pool while teaching nothing about balloons.
    tracer's simplification, offset, and hole-assignment helpers only.
 6. **Feature-based classifier** over the forest; measure against a labelled set.
 7. **Detector**, scored on recall (Infinite-Verse#834, blocked on #837).
+8. **Matter extraction** — typed fields from the first and last pages, with the
+   credits page as the dedup key alongside ISBN. Independent of 5–7 and
+   synthesisable, so it can run in parallel with anything above.
 
 ## What is honestly still unknown
 
