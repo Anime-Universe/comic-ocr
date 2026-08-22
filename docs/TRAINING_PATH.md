@@ -53,6 +53,28 @@ The label is known **by construction**. There is no detector and no transcriber
 in the chain, so the composed-confidence rule does not apply: `confidence` is
 1.0 because nothing inferred it.
 
+**Status 2026-08-21: the generator exists** (`crates/comic-ocr-synth`), and the
+crops have been checked against the one question that matters — does a model
+that has never seen this generator read them as manga?
+
+Measured with `cargo run -p comic-ocr-synth --example verify_realism`, eight
+real balloon labels rendered vertically and read by the reference model:
+
+| | mean CER |
+| --- | --- |
+| synthetic, clean | **1.25%** |
+| synthetic, degraded (JPEG 63-89, rotation to 0.9 deg, blur to 0.81, noise to 5.7) | **1.25%** |
+| *reference model on real crops above 0.60 confidence* | *2.78%* |
+
+Seven of eight were exact; the single error was a hallucinated trailing `、`.
+
+Two honest readings of that number. The crops occupy the right distribution —
+a model trained on real manga reads them without being told they are synthetic.
+But they are read **more** easily than real pages, and degradation did not move
+the number at all, which says the sampled ranges are too conservative to be
+teaching robustness yet. Widening them is the next increment, and the example is
+the instrument for knowing whether it worked.
+
 Two properties make this the load-bearing stage:
 
 - **It is unlimited and free.** 100k pairs is compute, not a data-collection
