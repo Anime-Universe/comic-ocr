@@ -42,8 +42,8 @@ fn main() {
     let rows: Vec<serde_json::Value> = serde_json::from_str(&raw).expect("valid json");
 
     println!(
-        "{:<20} {:>6} {:>6} {:>6} {:>6} {:>7}  px x run",
-        "label", "real", "clean", "typ", "poor", "delta"
+        "{:>4} {:>6} {:>6} {:>6} {:>6} {:>7}  px x run  verdict  synthetic reading",
+        "len", "real", "clean", "typ", "poor", "delta"
     );
     println!("{}", "-".repeat(88));
 
@@ -136,8 +136,12 @@ fn main() {
 
         let d = synth.confidence - real.confidence;
         println!(
-            "{:<20} {:>6.3} {:>6.3} {:>6.3} {:>6.3} {:>+7.3}  {}{:>3.0}x{:<2.0}",
-            text.chars().take(11).collect::<String>(),
+            "{:>3}c {:>6.3} {:>6.3} {:>6.3} {:>6.3} {:>+7.3}  {}{:>3.0}x{:<2.0} {:<7}  {}",
+            // NEVER truncate the label while printing the reading in full:
+            // that is what made 22-character labels look like 11-character
+            // labels the model had continued past. Print the length and the
+            // verdict instead of a clipped string.
+            chars,
             real.confidence,
             synth.confidence,
             synth_t.confidence,
@@ -149,7 +153,15 @@ fn main() {
                 "H"
             },
             font_px,
-            runs
+            runs,
+            if synth.text == *text {
+                "exact"
+            } else if synth.text.starts_with(text) {
+                "OVERRUN"
+            } else {
+                "misread"
+            },
+            synth.text
         );
         deltas.push(d);
         real_sum += real.confidence;
