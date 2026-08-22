@@ -87,7 +87,44 @@ Everything ties. The 1.25% is **one label's hallucinated trailing `、`**, which
 blur 2.0 happens to suppress — n=1 on a single quirk. Only blur ≥3.0 causes
 genuine character confusion.
 
-**The real finding is that this probe is saturated.** Eight labels the model
+### A paired instrument, because CER could not discriminate
+
+`examples/compare_confidence` renders each of the 13 crop-labelled benchmark
+entries as synthetic text and compares the model's **confidence** against the
+real crop of the same string, at matched scale. Pairing controls for the text,
+so a gap is attributable to the rendering. Confidence has the range CER lacks —
+it is the axis on which real crops separate 2.78% CER from 77.59%.
+
+Measured 2026-08-22 over 11 pairs (2 skipped: the font could not cover the text,
+and the renderer refused rather than drawing notdef boxes):
+
+| | |
+| --- | --- |
+| mean real confidence | 0.869 |
+| mean synthetic confidence | 0.929 |
+| **median delta** | **+0.023** |
+| worst / best delta | −0.206 / +0.791 |
+
+The median is the honest number. The +0.060 mean is dragged by one pair where
+the real crop scores 0.208 — far below the 0.60 line, so it is a genuinely
+unreadable scan — against a trivially clean synthetic render.
+
+**What it caught that CER did not.** Two pairs went the other way, both at the
+smallest rendered size (`font_px 12`), and both **hallucinated continuations
+past the end of the text**:
+
+```
+第30話重苦しい闇の奥  ->  第30回国苦しい国の姿で静かに比較す   (0.655)
+LINK!私達7人の力     ->  LINK!私学人の女子ガノンの学の場      (0.662)
+```
+
+Small synthetic renders are degenerate in a way the real crops at the same
+nominal scale are not, and generating 100k pairs without noticing would have
+poisoned the small-text end of the distribution. Worth noting the failure mode
+is *hallucinated continuation*, which is the same behaviour under investigation
+in Infinite-Verse#837.
+
+**The CER probe, by contrast, is saturated.** Eight labels the model
 reads essentially perfectly from pristine through jpeg 30, 3° rotation and
 noise 20. It can confirm the crops are legible; it cannot distinguish good
 synthetic data from excellent, and no degradation range can be tuned on it.

@@ -1,0 +1,128 @@
+//! Paired: the same text, once as a real scanned crop and once synthesised.
+//!
+//! `verify_realism` measures CER and is saturated -- the model reads eight
+//! labels essentially perfectly from pristine through jpeg 30, so CER cannot
+//! distinguish good synthetic data from excellent.
+//!
+//! Confidence has the dynamic range CER lacks: on real crops this model
+//! separates 2.78% CER above 0.60 confidence from 77.59% below it. Pairing each
+//! synthetic crop against the REAL crop of the same text controls for the text
+//! itself, so a gap is attributable to the rendering.
+//!
+//! What a gap would mean. Synthetic confidence far ABOVE real says the crops are
+//! too easy -- a model trained on them meets real pages under-prepared, and the
+//! composed-confidence weighting in TRAINING_EXPORT would over-trust them.
+//! Far BELOW says they are out of distribution and would teach the wrong thing.
+//!
+//!   COMIC_OCR_ONNX_DIR=... cargo run -p comic-ocr-synth --example compare_confidence
+
+use comic_ocr_core::types::OcrEngine as _;
+use comic_ocr_synth::render::{Direction, RenderSpec, SynthFont, render};
+
+fn main() {
+    let root = std::env::var("COMIC_OCR_CORPUS")
+        .unwrap_or_else(|_| "/Users/zachshallbetter/Projects/comic-ocr-rust".into());
+    let font_path = std::env::var("COMIC_OCR_SYNTH_FONT")
+        .unwrap_or_else(|_| "/System/Library/Fonts/Hiragino Sans GB.ttc".into());
+    let Ok(font) = SynthFont::from_path(&font_path, 0) else {
+        eprintln!("no font at {font_path}");
+        std::process::exit(2);
+    };
+    let engine = comic_ocr_ort::OrtEngine::new("compare");
+    if engine.generator.is_none() {
+        eprintln!("no generator; set COMIC_OCR_ONNX_DIR");
+        std::process::exit(2);
+    }
+
+    let raw = std::fs::read_to_string(format!("{root}/tests/data/benchmark_results.json"))
+        .expect("benchmark_results.json");
+    let rows: Vec<serde_json::Value> = serde_json::from_str(&raw).expect("valid json");
+
+    println!(
+        "{:<22} {:>6} {:>6} {:>7}   {:>5}  synthetic reading",
+        "label", "real", "synth", "delta", "px"
+    );
+    println!("{}", "-".repeat(88));
+
+    let (mut real_sum, mut synth_sum, mut n, mut skipped) = (0.0f32, 0.0f32, 0usize, 0usize);
+    let mut deltas: Vec<f32> = Vec::new();
+
+    for row in rows.iter().filter(|r| r["label_kind"] == "crop") {
+        let (Some(name), Some(text)) = (row["filename"].as_str(), row["expected_text"].as_str())
+        else {
+            continue;
+        };
+        let Ok(real_img) = image::open(format!("{root}/tests/data/images/{name}")) else {
+            continue;
+        };
+        let Ok(real) = engine.predict(&real_img) else {
+            continue;
+        };
+
+        // Match the real crop's scale: vertical text of N chars in one column
+        // occupies roughly N * font_px of height. Comparing a 32px synthetic
+        // render against a 62px-wide real crop would measure scale, not realism.
+        let chars = text.chars().filter(|c| !c.is_whitespace()).count().max(1);
+        let real_h = real_img.height() as f32;
+        let font_px = (real_h / chars as f32).clamp(12.0, 64.0);
+
+        let spec = RenderSpec {
+            text: text.to_string(),
+            direction: Direction::VerticalRl,
+            font_px,
+            cells_per_run: chars,
+            ..Default::default()
+        };
+        let Ok(synth_img) = render(&spec, &font) else {
+            skipped += 1;
+            continue;
+        };
+        let Ok(synth) = engine.predict(&image::DynamicImage::ImageLuma8(synth_img)) else {
+            continue;
+        };
+
+        let d = synth.confidence - real.confidence;
+        println!(
+            "{:<22} {:>6.3} {:>6.3} {:>+7.3}   {:>5.0}  {}",
+            text.chars().take(11).collect::<String>(),
+            real.confidence,
+            synth.confidence,
+            d,
+            font_px,
+            synth.text.chars().take(18).collect::<String>()
+        );
+        deltas.push(d);
+        real_sum += real.confidence;
+        synth_sum += synth.confidence;
+        n += 1;
+    }
+
+    if n == 0 {
+        eprintln!("no paired crops");
+        std::process::exit(1);
+    }
+    println!("{}", "-".repeat(88));
+    let (rm, sm) = (real_sum / n as f32, synth_sum / n as f32);
+    deltas.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let median = deltas[deltas.len() / 2];
+    println!(
+        "mean over {n} paired crops   real {rm:.3}   synthetic {sm:.3}   delta {:+.3}",
+        sm - rm
+    );
+    // One pathological real crop (confidence 0.208, well under the 0.60 line)
+    // pairs against a trivially clean synthetic render and contributes +0.79 on
+    // its own. The median is the honest summary of the typical pair.
+    println!(
+        "median delta {median:+.3}   worst {:+.3}   best {:+.3}",
+        deltas[0],
+        deltas[deltas.len() - 1]
+    );
+    if skipped > 0 {
+        println!("{skipped} skipped: font could not cover the text (not counted either way)");
+    }
+    println!(
+        "\nThe 0.60 threshold is where this model's real-crop CER goes from 2.78% to 77.59%.\n\
+         Synthetic sitting far above real means the crops are easier than the pages\n\
+         they are meant to prepare a model for."
+    );
+}
