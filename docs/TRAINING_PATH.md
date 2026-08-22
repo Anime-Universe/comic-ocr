@@ -140,6 +140,38 @@ The generator produces uniformly easier crops than the pages it is meant to
 prepare a model for, and the composed-confidence weighting in
 [`TRAINING_EXPORT.md`](TRAINING_EXPORT.md) would over-trust them.
 
+### Degradation is not what closes the gap
+
+With a sensitive instrument available, the obvious next move was to tune the
+`ScanQuality` ranges until synthetic difficulty matched real. Measured
+2026-08-22, it does not work:
+
+| | mean confidence |
+| --- | --- |
+| synthetic, clean | 0.983 |
+| synthetic, typical scan | 0.967 |
+| synthetic, **poor** scan (JPEG 22–55, ±4°, blur to 2.2, noise to 22) | 0.957 |
+| **real crops** | **0.869** |
+
+Aggressive scan degradation closes **0.026 of a 0.114 gap — about a fifth** —
+and it does so unevenly: two crops drop sharply (1.000 → 0.849, 0.906 → 0.753)
+while most barely move. Pushing the ranges further would degrade those two into
+noise long before the average reached real difficulty.
+
+**So what makes a real crop hard is not scan quality.** The remaining gap has to
+live in what is still unmodelled:
+
+- **Typography.** These renders use a clean system sans (Hiragino). Real manga is
+  hand-lettered or set in display faces with different weights, proportions and
+  stroke contrast.
+- **Crop context.** Real boxes clip balloon borders, tails, and slivers of
+  adjacent text; these renders sit on flat ground with clean margins.
+- **Ground.** Real balloon interiors carry paper grain, tone bleed from adjacent
+  panels, and uneven ink — not a uniform value with additive noise.
+
+That is the next increment, and it is a redirection: **do not tune the
+degradation ranges further.** They are doing what they can.
+
 Separately, hallucinated continuation survives every rendering fix — `…で静かに
 呼吸づ`, `…でガンの塔の結`, `…人達に!!` all appear after a correctly-read label.
 That is decoder behaviour rather than a rendering flaw, and it is the same

@@ -17,7 +17,10 @@
 //!   COMIC_OCR_ONNX_DIR=... cargo run -p comic-ocr-synth --example compare_confidence
 
 use comic_ocr_core::types::OcrEngine as _;
+use comic_ocr_synth::degrade::{DegradeSpec, ScanQuality, apply};
 use comic_ocr_synth::render::{Direction, RenderSpec, SynthFont, render};
+use rand::SeedableRng;
+use rand::rngs::StdRng;
 
 fn main() {
     let root = std::env::var("COMIC_OCR_CORPUS")
@@ -39,13 +42,14 @@ fn main() {
     let rows: Vec<serde_json::Value> = serde_json::from_str(&raw).expect("valid json");
 
     println!(
-        "{:<22} {:>6} {:>6} {:>7}   {:>7} synthetic reading",
-        "label", "real", "synth", "delta", "px x col"
+        "{:<20} {:>6} {:>6} {:>6} {:>6} {:>7}  {}",
+        "label", "real", "clean", "typ", "poor", "delta", "px x run"
     );
     println!("{}", "-".repeat(88));
 
     let (mut real_sum, mut synth_sum, mut n, mut skipped) = (0.0f32, 0.0f32, 0usize, 0usize);
     let mut deltas: Vec<f32> = Vec::new();
+    let (mut t_sum, mut p_sum) = (0.0f32, 0.0f32);
 
     for row in rows.iter().filter(|r| r["label_kind"] == "crop") {
         let (Some(name), Some(text)) = (row["filename"].as_str(), row["expected_text"].as_str())
@@ -105,16 +109,39 @@ fn main() {
             skipped += 1;
             continue;
         };
+        let mut rng = StdRng::seed_from_u64(20260822 + n as u64);
+        let typ = apply(
+            &synth_img,
+            &DegradeSpec::sample_at(&mut rng, ScanQuality::Typical),
+            &mut rng,
+        )
+        .unwrap_or_else(|_| synth_img.clone());
+        let poor = apply(
+            &synth_img,
+            &DegradeSpec::sample_at(&mut rng, ScanQuality::Poor),
+            &mut rng,
+        )
+        .unwrap_or_else(|_| synth_img.clone());
         let Ok(synth) = engine.predict(&image::DynamicImage::ImageLuma8(synth_img)) else {
             continue;
         };
+        let Ok(synth_t) = engine.predict(&image::DynamicImage::ImageLuma8(typ)) else {
+            continue;
+        };
+        let Ok(synth_p) = engine.predict(&image::DynamicImage::ImageLuma8(poor)) else {
+            continue;
+        };
+        t_sum += synth_t.confidence;
+        p_sum += synth_p.confidence;
 
         let d = synth.confidence - real.confidence;
         println!(
-            "{:<22} {:>6.3} {:>6.3} {:>+7.3}  {}{:>3.0}x{:<2.0} {}",
+            "{:<20} {:>6.3} {:>6.3} {:>6.3} {:>6.3} {:>+7.3}  {}{:>3.0}x{:<2.0}",
             text.chars().take(11).collect::<String>(),
             real.confidence,
             synth.confidence,
+            synth_t.confidence,
+            synth_p.confidence,
             d,
             if direction == Direction::VerticalRl {
                 "V"
@@ -122,8 +149,7 @@ fn main() {
                 "H"
             },
             font_px,
-            runs,
-            synth.text.chars().take(18).collect::<String>()
+            runs
         );
         deltas.push(d);
         real_sum += real.confidence;
@@ -150,6 +176,13 @@ fn main() {
         "median delta {median:+.3}   worst {:+.3}   best {:+.3}",
         deltas[0],
         deltas[deltas.len() - 1]
+    );
+    // Does degrading the synthetic crop bring it back toward real difficulty?
+    // CER could not answer this -- it was saturated. Confidence can.
+    println!(
+        "synthetic mean confidence:  clean {sm:.3}   typical-scan {:.3}   poor-scan {:.3}   (real {rm:.3})",
+        t_sum / n as f32,
+        p_sum / n as f32
     );
     if skipped > 0 {
         println!("{skipped} skipped: font could not cover the text (not counted either way)");
