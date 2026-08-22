@@ -20,8 +20,25 @@ about what is *recorded*, not what is computed:
 
 - Region geometry is stored page-native, against `page.source.nativeSize`.
 - A crop is a **transient view materialised for one inference and discarded** —
-  `view(page, polygon) -> tensor`. It is never persisted and never the unit of
-  record.
+  `view(page, polygon) -> tensor`. It is never the unit of record.
+
+**One exception, and it is a real one.** A *training dataset export* may
+materialise crops to disk, because a dataset is a frozen artifact and
+reproducibility requires the exact pixels a model saw. Infinite-Verse#845
+requires precisely this: accepted and verified rows carry geometry **and** a
+page crop, under deterministic file naming, with an immutable manifest whose
+digest changes when any identity-bearing input changes.
+
+That does not weaken the rule, because those crops are **derived and
+regenerable from geometry**, pinned by a digest, and downstream of the corpus
+rather than inside it. The rule is about what the corpus records, not about what
+an export may contain. Stated precisely:
+
+| | Crop permitted? |
+| --- | --- |
+| the corpus's record of a region | **no** — geometry, always |
+| a view built for one inference | yes, transient |
+| a digest-pinned training dataset | yes, derived and regenerable |
 
 This is not tidiness. It buys three things a crop directory cannot:
 
