@@ -16,7 +16,7 @@
 //! It is deliberately not a pass/fail gate. It is a measurement.
 
 use comic_ocr_core::types::OcrEngine as _;
-use comic_ocr_synth::degrade::{DegradeSpec, apply};
+use comic_ocr_synth::degrade::{DegradeSpec, ScanQuality, apply};
 use comic_ocr_synth::render::{Direction, RenderSpec, SynthFont, render};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
@@ -71,6 +71,7 @@ fn main() {
     let mut rng = StdRng::seed_from_u64(20260821);
     let mut clean_total = 0.0;
     let mut degraded_total = 0.0;
+    let mut poor_total = 0.0;
     let mut n = 0usize;
 
     println!(
@@ -91,8 +92,10 @@ fn main() {
             eprintln!("skip (font coverage): {label}");
             continue;
         };
-        let dspec = DegradeSpec::sample(&mut rng);
+        let dspec = DegradeSpec::sample_at(&mut rng, ScanQuality::Typical);
         let degraded = apply(&clean, &dspec, &mut rng).expect("degrade");
+        let pspec = DegradeSpec::sample_at(&mut rng, ScanQuality::Poor);
+        let poor = apply(&clean, &pspec, &mut rng).expect("degrade");
 
         let Ok(c) = engine.predict(&image::DynamicImage::ImageLuma8(clean)) else {
             eprintln!("predict failed (clean): {label}");
@@ -102,7 +105,16 @@ fn main() {
             eprintln!("predict failed (degraded): {label}");
             continue;
         };
-        let (cc, dd) = (cer(label, &c.text), cer(label, &d.text));
+        let Ok(p) = engine.predict(&image::DynamicImage::ImageLuma8(poor)) else {
+            eprintln!("predict failed (poor): {label}");
+            continue;
+        };
+        let (cc, dd, pp) = (
+            cer(label, &c.text),
+            cer(label, &d.text),
+            cer(label, &p.text),
+        );
+        poor_total += pp;
         clean_total += cc;
         degraded_total += dd;
         n += 1;
@@ -110,14 +122,15 @@ fn main() {
         // Report how much the degradation actually perturbed the image, so a
         // no-op degradation cannot masquerade as robustness.
         println!(
-            "{label:<24} {:>7.1}% {:>7.1}%  q{:<3} r{:+.2} b{:.2} n{:.1}  {}",
+            "{label:<22} {:>6.1}% {:>6.1}% {:>6.1}%   poor: q{:<3} r{:+.1} b{:.1} n{:.0}  {}",
             100.0 * cc,
             100.0 * dd,
-            dspec.jpeg_quality.unwrap_or(0),
-            dspec.rotate_deg,
-            dspec.blur_sigma,
-            dspec.noise_sd,
-            c.text
+            100.0 * pp,
+            pspec.jpeg_quality.unwrap_or(0),
+            pspec.rotate_deg,
+            pspec.blur_sigma,
+            pspec.noise_sd,
+            p.text
         );
     }
 
@@ -127,9 +140,10 @@ fn main() {
     }
     println!("{}", "-".repeat(96));
     println!(
-        "mean CER over {n} crops   clean {:.2}%   degraded {:.2}%",
+        "mean CER over {n} crops   clean {:.2}%   typical {:.2}%   poor {:.2}%",
         100.0 * clean_total / n as f64,
-        100.0 * degraded_total / n as f64
+        100.0 * degraded_total / n as f64,
+        100.0 * poor_total / n as f64
     );
     println!(
         "\nReference: this model reads REAL crops at 2.78% CER above 0.60 confidence\n\

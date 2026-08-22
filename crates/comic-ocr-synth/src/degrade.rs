@@ -33,15 +33,49 @@ impl Default for DegradeSpec {
     }
 }
 
+/// How badly the page was scanned. Named rather than numeric because the
+/// ranges are an empirical claim about real scans, and a caller passing raw
+/// numbers cannot be corrected when that claim turns out wrong.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScanQuality {
+    /// A clean digital release: mild recompression, near-square placement.
+    Typical,
+    /// A hand-scanned or multiply-recompressed copy -- the tail of the corpus
+    /// where a reader actually earns its accuracy.
+    Poor,
+}
+
 impl DegradeSpec {
     /// A plausible draw for a scanned page. Deterministic given `rng`, so a
     /// generation run can be reproduced from its seed.
     pub fn sample<R: Rng>(rng: &mut R) -> Self {
-        Self {
-            jpeg_quality: Some(rng.gen_range(55..=92)),
-            rotate_deg: rng.gen_range(-1.5..=1.5),
-            blur_sigma: rng.gen_range(0.0..=0.9),
-            noise_sd: rng.gen_range(0.0..=6.0),
+        Self::sample_at(rng, ScanQuality::Typical)
+    }
+
+    /// Measured 2026-08-22 by `examples/ablate_degradation`: on the eight-label
+    /// probe, NOTHING in either range moves the reference model -- pristine,
+    /// jpeg 30, rotation 3 deg and noise 20 all tie at 1.25%, and that 1.25% is a
+    /// single hallucinated punctuation mark rather than a reading error. Only
+    /// blur >= 3.0 produces genuine confusion (女川 for 立川).
+    ///
+    /// So these ranges are NOT yet validated against evidence; the probe is
+    /// saturated and cannot tell a good range from a bad one. They are a
+    /// starting position drawn from what scans plausibly do, and the honest
+    /// status is unverified.
+    pub fn sample_at<R: Rng>(rng: &mut R, quality: ScanQuality) -> Self {
+        match quality {
+            ScanQuality::Typical => Self {
+                jpeg_quality: Some(rng.gen_range(55..=92)),
+                rotate_deg: rng.gen_range(-1.5..=1.5),
+                blur_sigma: rng.gen_range(0.0..=0.9),
+                noise_sd: rng.gen_range(0.0..=6.0),
+            },
+            ScanQuality::Poor => Self {
+                jpeg_quality: Some(rng.gen_range(22..=55)),
+                rotate_deg: rng.gen_range(-4.0..=4.0),
+                blur_sigma: rng.gen_range(0.8..=2.2),
+                noise_sd: rng.gen_range(6.0..=22.0),
+            },
         }
     }
 }

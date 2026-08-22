@@ -68,12 +68,32 @@ real balloon labels rendered vertically and read by the reference model:
 
 Seven of eight were exact; the single error was a hallucinated trailing `、`.
 
-Two honest readings of that number. The crops occupy the right distribution —
-a model trained on real manga reads them without being told they are synthetic.
-But they are read **more** easily than real pages, and degradation did not move
-the number at all, which says the sampled ranges are too conservative to be
-teaching robustness yet. Widening them is the next increment, and the example is
-the instrument for knowing whether it worked.
+The crops occupy the right distribution: a model trained on real manga reads
+them without being told they are synthetic.
+
+**What the degradation numbers do NOT show.** I first read "degradation did not
+move the CER" as ranges being too conservative, widened them, and found *heavier*
+degradation scored **better** (0.00%) than clean. The tempting story — that
+clean synthetic renders are unrealistically sharp and blur corrects toward real
+scans — is not supported. `examples/ablate_degradation` isolates each parameter:
+
+| arm | mean CER |
+| --- | --- |
+| none, blur 0.5–1.5, jpeg 30, jpeg 75, rotate 3°, noise 20 | 1.25% |
+| blur 2.0 | 0.00% |
+| blur 3.0 | 4.58% (女川 for 立川, 迷惑 for 迷路) |
+
+Everything ties. The 1.25% is **one label's hallucinated trailing `、`**, which
+blur 2.0 happens to suppress — n=1 on a single quirk. Only blur ≥3.0 causes
+genuine character confusion.
+
+**The real finding is that this probe is saturated.** Eight labels the model
+reads essentially perfectly from pristine through jpeg 30, 3° rotation and
+noise 20. It can confirm the crops are legible; it cannot distinguish good
+synthetic data from excellent, and no degradation range can be tuned on it.
+The `ScanQuality` ranges are therefore a starting position drawn from what scans
+plausibly do, and their honest status is **unverified**. Harder material, or far
+more of it, is the next increment — not wider ranges.
 
 Two properties make this the load-bearing stage:
 
