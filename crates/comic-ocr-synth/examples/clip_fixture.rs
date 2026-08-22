@@ -61,6 +61,8 @@ fn main() {
             height: 3400,
             target_regions: target,
             draw_borders: false, // borders cost space and this is a counting test
+            draw_panels: false,  // ditto: panel frames only reduce placeable area
+            panel_grid: (1, 1),
             ground: 250,
         };
         let Ok((img, truth)) = render_page(&spec, &font, &texts, &mut rng) else {
