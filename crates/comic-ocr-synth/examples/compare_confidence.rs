@@ -42,8 +42,8 @@ fn main() {
     let rows: Vec<serde_json::Value> = serde_json::from_str(&raw).expect("valid json");
 
     println!(
-        "{:<20} {:>6} {:>6} {:>6} {:>6} {:>7}  {}",
-        "label", "real", "clean", "typ", "poor", "delta", "px x run"
+        "{:<20} {:>6} {:>6} {:>6} {:>6} {:>7}  px x run",
+        "label", "real", "clean", "typ", "poor", "delta"
     );
     println!("{}", "-".repeat(88));
 
