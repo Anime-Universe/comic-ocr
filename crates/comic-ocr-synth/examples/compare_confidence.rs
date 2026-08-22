@@ -39,8 +39,8 @@ fn main() {
     let rows: Vec<serde_json::Value> = serde_json::from_str(&raw).expect("valid json");
 
     println!(
-        "{:<22} {:>6} {:>6} {:>7}   {:>5}  synthetic reading",
-        "label", "real", "synth", "delta", "px"
+        "{:<22} {:>6} {:>6} {:>7}   {:>7} synthetic reading",
+        "label", "real", "synth", "delta", "px x col"
     );
     println!("{}", "-".repeat(88));
 
@@ -59,18 +59,46 @@ fn main() {
             continue;
         };
 
-        // Match the real crop's scale: vertical text of N chars in one column
-        // occupies roughly N * font_px of height. Comparing a 32px synthetic
-        // render against a 62px-wide real crop would measure scale, not realism.
+        // Match the real crop's scale. Assuming ONE column is wrong for anything
+        // but short text: an 11-character balloon is typeset in several columns,
+        // so height/chars underestimates the glyph size by roughly the column
+        // count and produces renders far smaller than the crop they are paired
+        // against.
+        //
+        // For C columns of N characters in a W x H crop:
+        //     H ~= ceil(N/C) * font_px      W ~= C * font_px
+        // Eliminating font_px gives C ~= sqrt(N * W / H).
         let chars = text.chars().filter(|c| !c.is_whitespace()).count().max(1);
-        let real_h = real_img.height() as f32;
-        let font_px = (real_h / chars as f32).clamp(12.0, 64.0);
+        let (w, h) = (real_img.width() as f32, real_img.height() as f32);
+
+        // Direction is not a constant. A crop wider than it is tall holds
+        // horizontal text -- forcing VerticalRl on it packs 11 characters into
+        // 10 one-character columns, which is nothing like the page and reads
+        // worse than the too-small render it was meant to fix.
+        let direction = if w > h {
+            Direction::HorizontalTb
+        } else {
+            Direction::VerticalRl
+        };
+
+        // For R runs of N characters in a W x H crop, where a "run" is a column
+        // (vertical) or a line (horizontal):
+        //     vertical:   H ~= ceil(N/R) * px,  W ~= R * px
+        //     horizontal: W ~= ceil(N/R) * px,  H ~= R * px
+        // Eliminating px gives R ~= sqrt(N * across / along).
+        let (along, across) = match direction {
+            Direction::VerticalRl => (h, w),
+            Direction::HorizontalTb => (w, h),
+        };
+        let runs = ((chars as f32 * across / along).sqrt()).round().max(1.0);
+        let per_run = (chars as f32 / runs).ceil().max(1.0);
+        let font_px = (along / per_run).clamp(12.0, 64.0);
 
         let spec = RenderSpec {
             text: text.to_string(),
-            direction: Direction::VerticalRl,
+            direction,
             font_px,
-            cells_per_run: chars,
+            cells_per_run: per_run as usize,
             ..Default::default()
         };
         let Ok(synth_img) = render(&spec, &font) else {
@@ -83,12 +111,18 @@ fn main() {
 
         let d = synth.confidence - real.confidence;
         println!(
-            "{:<22} {:>6.3} {:>6.3} {:>+7.3}   {:>5.0}  {}",
+            "{:<22} {:>6.3} {:>6.3} {:>+7.3}  {}{:>3.0}x{:<2.0} {}",
             text.chars().take(11).collect::<String>(),
             real.confidence,
             synth.confidence,
             d,
+            if direction == Direction::VerticalRl {
+                "V"
+            } else {
+                "H"
+            },
             font_px,
+            runs,
             synth.text.chars().take(18).collect::<String>()
         );
         deltas.push(d);

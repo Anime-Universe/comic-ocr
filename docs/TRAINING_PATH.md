@@ -109,20 +109,41 @@ The median is the honest number. The +0.060 mean is dragged by one pair where
 the real crop scores 0.208 — far below the 0.60 line, so it is a genuinely
 unreadable scan — against a trivially clean synthetic render.
 
-**What it caught that CER did not.** Two pairs went the other way, both at the
-smallest rendered size (`font_px 12`), and both **hallucinated continuations
-past the end of the text**:
+**What it caught that CER did not**, and what fixing it revealed:
 
 ```
 第30話重苦しい闇の奥  ->  第30回国苦しい国の姿で静かに比較す   (0.655)
 LINK!私達7人の力     ->  LINK!私学人の女子ガノンの学の場      (0.662)
 ```
 
-Small synthetic renders are degenerate in a way the real crops at the same
-nominal scale are not, and generating 100k pairs without noticing would have
-poisoned the small-text end of the distribution. Worth noting the failure mode
-is *hallucinated continuation*, which is the same behaviour under investigation
-in Infinite-Verse#837.
+Two pairs came out *worse* than their real counterparts, both at the smallest
+rendered size. Diagnosing that took two attempts, and the first was wrong:
+
+| render model | worst delta | median |
+| --- | --- | --- |
+| one column, direction forced vertical | −0.206 | +0.023 |
+| column count estimated, direction still forced | **−0.339** | +0.036 |
+| column count estimated **and direction inferred** | **+0.002** | +0.036 |
+
+Estimating the column count was the obvious fix — an 11-character balloon is not
+one column, so `height / chars` underestimates glyph size — and on its own it
+made the result **worse**. The actual defect was forcing `VerticalRl` on every
+crop. `LINK!私達7人の力` sits in a crop wider than it is tall; it is *horizontal*
+text, and packing it into ten one-character columns produced something nothing
+like the page. Inferring direction from the crop's aspect ratio took that pair
+from 0.529 to 0.933, and every crop now reads its label.
+
+**The result is a cleaner and less comfortable signal.** With the renderer
+fixed, **all 11 pairs sit above their real counterparts** — worst delta +0.002,
+mean +0.114. There is no longer any pair where synthetic is harder than real.
+The generator produces uniformly easier crops than the pages it is meant to
+prepare a model for, and the composed-confidence weighting in
+[`TRAINING_EXPORT.md`](TRAINING_EXPORT.md) would over-trust them.
+
+Separately, hallucinated continuation survives every rendering fix — `…で静かに
+呼吸づ`, `…でガンの塔の結`, `…人達に!!` all appear after a correctly-read label.
+That is decoder behaviour rather than a rendering flaw, and it is the same
+pattern under investigation in Infinite-Verse#837.
 
 **The CER probe, by contrast, is saturated.** Eight labels the model
 reads essentially perfectly from pristine through jpeg 30, 3° rotation and
