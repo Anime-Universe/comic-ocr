@@ -172,10 +172,44 @@ live in what is still unmodelled:
 That is the next increment, and it is a redirection: **do not tune the
 degradation ranges further.** They are doing what they can.
 
-Separately, hallucinated continuation survives every rendering fix — `…で静かに
-呼吸づ`, `…でガンの塔の結`, `…人達に!!` all appear after a correctly-read label.
-That is decoder behaviour rather than a rendering flaw, and it is the same
-pattern under investigation in Infinite-Verse#837.
+### Retracted: the "hallucinated continuation" was a display bug
+
+An earlier version of this document reported that the model appends text after
+correctly reading a label, called it decoder behaviour, and connected it to
+Infinite-Verse#837. **All of that was an artifact of my own output formatting.**
+
+`compare_confidence` printed `label.chars().take(11)` beside the model's *full*
+reading, so a 22-character label appeared as 11 characters the model had
+continued past:
+
+```
+expected  第30話重苦しい闇の奥で静かに呼吸づきながら   (22 chars)
+printed   第30話重苦しい闇の奥                        (take(11))
+read      第30話重苦しい闇の奥で静かに呼吸づきながら   (exact)
+```
+
+Compared in full: **9 exact, 2 misread, zero overruns.**
+`examples/probe_termination` was right from the start, because it compared
+complete strings — it found zero overruns across 21 crops, and mean overrun
+going *negative* (−2.4 characters) on the longest labels.
+
+Two further notes, because the failure repeated before it was caught:
+
+- Diagnosing it produced a *second* wrong answer. `examples/geometry_vs_overrun`
+  was built to explain the phenomenon, concluded it was "geometry-sensitive,"
+  and that was reported as a correction. There was no phenomenon to be sensitive
+  to anything.
+- What resolved it was printing the **image dimensions**: 423px wide where the
+  stated layout predicts 238, which only fits a 22-character label. The engine
+  was separately verified deterministic (`examples/determinism`: 8 runs of one
+  image, bit-identical confidence), which is what localised the fault to this
+  crate rather than to the model.
+
+The example now prints the label length and a computed verdict (`exact` /
+`OVERRUN` / `misread`) instead of two strings clipped by different rules. **Never
+truncate one side of a comparison.**
+
+There is no evidence of non-termination in this model, in either direction.
 
 **The CER probe, by contrast, is saturated.** Eight labels the model
 reads essentially perfectly from pristine through jpeg 30, 3° rotation and
