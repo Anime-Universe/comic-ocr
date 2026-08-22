@@ -6,5 +6,6 @@
 //! third party's output), so weights trained here are ours without
 //! qualification.
 pub mod degrade;
+pub mod detect;
 pub mod page;
 pub mod render;
