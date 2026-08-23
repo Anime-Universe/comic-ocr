@@ -216,30 +216,7 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     // It is recognised by being an OUTLINE: large, and mostly not ink. A
     // 575x400 panel frame is ~1.7% ink; a text blob of the same bounds is far
     // denser.
-    // Default ON: an enclosure that holds nothing being neither emitted nor
-    // masked is a defect on its own terms. MASK_EMPTY=0 disables it.
-    //
-    // BUT THE NUMBER IS SYNTHETIC. Measured gains (recall unchanged on every
-    // corpus; sparse precision):
-    //   4242  72.1 -> 95.8     9001  76.7 -> 95.8
-    //   31337 70.5 -> 87.5      777  65.8 -> 84.3
-    // Those describe GENERATED pages. The failure signature there is identical
-    // 575x400 boxes on a regular lattice -- an artefact of how pages are
-    // synthesised, not a property of manga.
-    //
-    // On real pages the mechanism does not reproduce. Running the same
-    // predicate (large, and under 10% ink) over the page-sized examples:
-    // ZERO large-and-thin boxes on 5 of 5. A peer's independent count over 29
-    // real sparse staging pages found no per-page surplus either -- the panel
-    // detector emits exactly one panel on 18 of those 29.
-    //
-    // n=5 real pages is thin, and counts cannot see a SUBSTITUTION, only a
-    // surplus: one empty frame replacing one real panel reads as pd=1 and is
-    // invisible to both measurements. So this is "not observed on real pages",
-    // not "cannot happen there".
-    //
-    // Do not quote the sparse-precision figures as staging performance.
-    let mask_empty = std::env::var("MASK_EMPTY").map(|v| v != "0").unwrap_or(true);
+    let mask_empty = std::env::var("MASK_EMPTY").is_ok();
     let outline_max_density: f32 = std::env::var("OUTLINE_MAX_DENSITY")
         .ok()
         .and_then(|v| v.parse().ok())
@@ -325,112 +302,61 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     out
 }
 
-fn main() {
-    let font = SynthFont::from_path(
-        &std::env::var("COMIC_OCR_SYNTH_FONT")
-            .unwrap_or_else(|_| "/System/Library/Fonts/Hiragino Sans GB.ttc".into()),
-        0,
-    )
-    .expect("font");
-    let texts: Vec<String> = [
-        "そうだね",
-        "ちょっとまって",
-        "ウソでしょ",
-        "また迷路だし",
-        "ぎゃっ",
-        "少し黙っている",
-        "実戦剣術も一流です",
-        "素直にあやまるしか",
-    ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
 
+/// Does the empty-frame failure occur on REAL pages, or is it synthetic?
+///
+/// The generated corpus emits identical 575x400 boxes on a regular lattice --
+/// a signature of how pages are synthesised, not of manga. c3's staging counts
+/// show no per-page surplus on 29 real sparse pages, which predicts few or no
+/// empty-frame emissions here. This asks the same predicate the fix uses:
+/// is an emitted box LARGE and mostly NOT INK?
+fn main() {
     let spec = DetectSpec::default();
-    println!(
-        "{:>7} {:>10} {:>10} {:>6} {:>10} {:>10} {:>6}",
-        "truth", "base-rec", "base-prec", "found", "enc-rec", "enc-prec", "found"
-    );
-    println!("{}", "-".repeat(64));
-    let (mut b_sum, mut e_sum, mut n) = (0.0f32, 0.0f32, 0);
-    let (mut bp_sum, mut ep_sum) = (0.0f32, 0.0f32);
-    for target in [8usize, 16, 24, 40, 60] {
-        let (mut br, mut er) = (Vec::new(), Vec::new());
-        for seed in 0..3u64 {
-            // SEED_BASE lets the threshold be validated on pages it was not
-            // tuned on. A parameter fitted and measured on one sample is a
-            // description of that sample.
-            let base: u64 = std::env::var("SEED_BASE")
-                .ok()
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(4242);
-            let mut rng = StdRng::seed_from_u64(base + seed);
-            let ps = PageSpec {
-                width: 1200,
-                height: 1700,
-                target_regions: target,
-                ..Default::default()
-            };
-            let Ok((page, tp)) = render_page(&ps, &font, &texts, &mut rng) else {
-                continue;
-            };
-            let truth: Vec<Box2> = tp
-                .regions
-                .iter()
-                .map(|r| {
-                    let (x, y, w, h) = r.enclosure_bounds();
-                    Box2 {
-                        x,
-                        y,
-                        width: w,
-                        height: h,
-                    }
-                })
-                .collect();
-            let b = detect_regions(&page, &spec);
-            let e = detect_enclosure_first(&page, &spec);
-            let bs = score(&truth, &b, 0.5);
-            let es = score(&truth, &e, 0.5);
-            br.push((bs.recall, bs.precision, b.len() as f32));
-            er.push((es.recall, es.precision, e.len() as f32));
+    let dir = std::env::var("PAGES").unwrap_or_else(|_| "assets/examples".into());
+    let mut files: Vec<_> = std::fs::read_dir(&dir)
+        .expect("pages dir")
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.extension().map(|x| x == "jpg" || x == "png").unwrap_or(false))
+        .collect();
+    files.sort();
+
+    println!("{:<10} {:>6} {:>8} {:>10} {:>8}", "page", "boxes", "large", "large+thin", "biggest%");
+    println!("{}", "-".repeat(48));
+    let (mut tot_large_thin, mut pages_with) = (0usize, 0usize);
+    for f in &files {
+        let Ok(img) = image::open(f) else { continue };
+        let gray = img.to_luma8();
+        let page_area = (gray.width() * gray.height()) as f32;
+        let lvl = otsu_level(&gray);
+        let binary = threshold(&gray, lvl, ThresholdType::BinaryInverted);
+        let emitted = detect_enclosure_first(&gray, &spec);
+
+        let mut large = 0usize;
+        let mut large_thin = 0usize;
+        let mut biggest = 0.0f32;
+        for b in &emitted {
+            let frac = b.area() as f32 / page_area;
+            if frac > biggest { biggest = frac; }
+            if frac < 0.05 { continue; }
+            large += 1;
+            // ink density inside the box
+            let mut ink = 0u32;
+            for y in b.y..(b.y + b.height).min(binary.height()) {
+                for x in b.x..(b.x + b.width).min(binary.width()) {
+                    if binary.get_pixel(x, y).0[0] > 0 { ink += 1; }
+                }
+            }
+            let d = ink as f32 / b.area() as f32;
+            if d < 0.10 { large_thin += 1; }
         }
-        let k = br.len().max(1) as f32;
-        let (bm, bp, bf) = (
-            br.iter().map(|x| x.0).sum::<f32>() / k,
-            br.iter().map(|x| x.1).sum::<f32>() / k,
-            br.iter().map(|x| x.2).sum::<f32>() / k,
-        );
-        let (em, ep, ef) = (
-            er.iter().map(|x| x.0).sum::<f32>() / k,
-            er.iter().map(|x| x.1).sum::<f32>() / k,
-            er.iter().map(|x| x.2).sum::<f32>() / k,
-        );
-        b_sum += bm;
-        e_sum += em;
-        bp_sum += bp;
-        ep_sum += ep;
-        n += 1;
-        println!(
-            "{:>7} {:>9.1}% {:>9.1}% {:>6.0} {:>9.1}% {:>9.1}% {:>6.0}",
-            target,
-            100.0 * bm,
-            100.0 * bp,
-            bf,
-            100.0 * em,
-            100.0 * ep,
-            ef
-        );
+        if large_thin > 0 { pages_with += 1; }
+        tot_large_thin += large_thin;
+        println!("{:<10} {:>6} {:>8} {:>10} {:>7.1}%",
+            f.file_name().unwrap().to_string_lossy(), emitted.len(), large, large_thin, biggest * 100.0);
     }
-    println!("{}", "-".repeat(64));
-    println!(
-        "{:>7} {:>9.1}% {:>9.1}% {:>6} {:>9.1}% {:>9.1}%",
-        "mean",
-        100.0 * b_sum / n as f32,
-        100.0 * bp_sum / n as f32,
-        "",
-        100.0 * e_sum / n as f32,
-        100.0 * ep_sum / n as f32
-    );
+    println!("{}", "-".repeat(48));
+    println!("pages: {}   pages with a large+thin box: {}   total: {}",
+        files.len(), pages_with, tot_large_thin);
     println!();
-    println!("Recall alone is not a result: a detector that emits everything scores 100%.");
+    println!("PREDICTION (c3): few or none -> mechanism is synthetic-only.");
 }

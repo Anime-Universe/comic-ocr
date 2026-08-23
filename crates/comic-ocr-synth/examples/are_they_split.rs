@@ -27,17 +27,15 @@ use rand::rngs::StdRng;
 /// component it BELONGS to rather than merely the boxes it falls inside.
 fn components_labelled(
     img: &GrayImage,
-) -> (Vec<Box2>, Vec<u32>, Vec<u32>, image::ImageBuffer<Luma<u32>, Vec<u32>>) {
+) -> (Vec<Box2>, Vec<u32>, image::ImageBuffer<Luma<u32>, Vec<u32>>) {
     let labels = connected_components(img, Connectivity::Eight, Luma([0u8]));
     let max = labels.pixels().map(|p| p.0[0]).max().unwrap_or(0);
     let mut acc: Vec<Option<(u32, u32, u32, u32)>> = vec![None; max as usize + 1];
-    let mut ink: Vec<u32> = vec![0; max as usize + 1];
     for (x, y, px) in labels.enumerate_pixels() {
         let l = px.0[0] as usize;
         if l == 0 {
             continue;
         }
-        ink[l] += 1;
         match &mut acc[l] {
             Some((x0, y0, x1, y1)) => {
                 *x0 = (*x0).min(x);
@@ -50,7 +48,6 @@ fn components_labelled(
     }
     let mut boxes = Vec::new();
     let mut ids = Vec::new();
-    let mut inks = Vec::new();
     for (i, e) in acc.into_iter().enumerate() {
         if let Some((x0, y0, x1, y1)) = e {
             boxes.push(Box2 {
@@ -60,23 +57,20 @@ fn components_labelled(
                 height: (y1 - y0).max(1),
             });
             ids.push(i as u32);
-            inks.push(ink[i]);
         }
     }
-    (boxes, ids, inks, labels)
+    (boxes, ids, labels)
 }
 
 fn components(img: &GrayImage) -> Vec<Box2> {
     let labels = connected_components(img, Connectivity::Eight, Luma([0u8]));
     let max = labels.pixels().map(|p| p.0[0]).max().unwrap_or(0);
     let mut acc: Vec<Option<(u32, u32, u32, u32)>> = vec![None; max as usize + 1];
-    let mut ink: Vec<u32> = vec![0; max as usize + 1];
     for (x, y, px) in labels.enumerate_pixels() {
         let l = px.0[0] as usize;
         if l == 0 {
             continue;
         }
-        ink[l] += 1;
         match &mut acc[l] {
             Some((x0, y0, x1, y1)) => {
                 *x0 = (*x0).min(x);
@@ -113,7 +107,7 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     let page_area = (page.width() * page.height()) as f32;
 
     // Un-dilated: outlines are intact and two balloons are two components.
-    let (raw, raw_ids, raw_ink, raw_labels) = components_labelled(&binary);
+    let (raw, raw_ids, raw_labels) = components_labelled(&binary);
 
     // A container holds at least one other component and is not the page frame.
     // A CJK glyph is a container of its own counter -- 口, 日, 目, 田 all enclose
@@ -195,71 +189,13 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     // bounding box cannot do this: a panel's stroke lies inside the panel's
     // box, so it survived as "loose", merged, and produced a spurious box per
     // frame. A pixel belongs to exactly one component; that is the right unit.
-    let mut mask_labels: std::collections::HashSet<u32> = raw
+    let mask_labels: std::collections::HashSet<u32> = raw
         .iter()
         .zip(raw_ids.iter())
         .filter(|(b, _)| containers.iter().any(|c| c == *b))
         .map(|(_, id)| *id)
         .collect();
-    // An EMPTY enclosure is neither emitted nor masked, and that is the bug
-    // the sparse regime exposes. `held.is_empty()` correctly refuses to EMIT a
-    // panel that contains no region -- but it also drops that panel from the
-    // MASK, so its own stroke stays "loose", dilates, and is emitted as a
-    // panel-sized box from the merge path. Measured at 8 regions: 13 of 13
-    // isolated false positives were 575x400 at panel-grid coordinates.
-    //
-    // This is the same MASK-vs-EMIT conflation recorded above, one level
-    // deeper: there the emit list was used as the mask; here the mask is
-    // derived from a filter whose job is to decide what to EMIT.
-    //
-    // An enclosure that holds nothing cannot be recognised by what it holds.
-    // It is recognised by being an OUTLINE: large, and mostly not ink. A
-    // 575x400 panel frame is ~1.7% ink; a text blob of the same bounds is far
-    // denser.
-    // Default ON: an enclosure that holds nothing being neither emitted nor
-    // masked is a defect on its own terms. MASK_EMPTY=0 disables it.
-    //
-    // BUT THE NUMBER IS SYNTHETIC. Measured gains (recall unchanged on every
-    // corpus; sparse precision):
-    //   4242  72.1 -> 95.8     9001  76.7 -> 95.8
-    //   31337 70.5 -> 87.5      777  65.8 -> 84.3
-    // Those describe GENERATED pages. The failure signature there is identical
-    // 575x400 boxes on a regular lattice -- an artefact of how pages are
-    // synthesised, not a property of manga.
-    //
-    // On real pages the mechanism does not reproduce. Running the same
-    // predicate (large, and under 10% ink) over the page-sized examples:
-    // ZERO large-and-thin boxes on 5 of 5. A peer's independent count over 29
-    // real sparse staging pages found no per-page surplus either -- the panel
-    // detector emits exactly one panel on 18 of those 29.
-    //
-    // n=5 real pages is thin, and counts cannot see a SUBSTITUTION, only a
-    // surplus: one empty frame replacing one real panel reads as pd=1 and is
-    // invisible to both measurements. So this is "not observed on real pages",
-    // not "cannot happen there".
-    //
-    // Do not quote the sparse-precision figures as staging performance.
-    let mask_empty = std::env::var("MASK_EMPTY").map(|v| v != "0").unwrap_or(true);
-    let outline_max_density: f32 = std::env::var("OUTLINE_MAX_DENSITY")
-        .ok()
-        .and_then(|v| v.parse().ok())
-        .unwrap_or(0.10);
-    let mut masks = containers.clone();
-    if mask_empty {
-        for ((b, id), ink) in raw.iter().zip(raw_ids.iter()).zip(raw_ink.iter()) {
-            let a = b.area() as f32;
-            if b.area() < 2000 || a / page_area > spec.max_area_fraction {
-                continue;
-            }
-            if (*ink as f32) / a >= outline_max_density {
-                continue;
-            }
-            if !mask_labels.contains(id) {
-                mask_labels.insert(*id);
-                masks.push(b.clone());
-            }
-        }
-    }
+    let masks = containers.clone();
     containers.retain(|c| !masks.iter().any(|o| o != c && contains(c, o)));
 
     // Glyphs no container holds: merge those the old way.
@@ -325,6 +261,34 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     out
 }
 
+
+/// Are the sparse-page false positives SPLIT ENCLOSURES?
+///
+/// The floor sweep ruled out "sub-threshold noise admitted" (a floor is either
+/// non-binding or costs a real region). The surviving hypothesis is that a
+/// broken outline yields two partial containers, each holding some of the
+/// text. That is falsifiable without any threshold: if it is true, an unmatched
+/// box should have a NEIGHBOUR such that their union matches a truth region
+/// that neither matches alone.
+fn union(a: &Box2, b: &Box2) -> Box2 {
+    let x0 = a.x.min(b.x);
+    let y0 = a.y.min(b.y);
+    let x1 = (a.x + a.width).max(b.x + b.width);
+    let y1 = (a.y + a.height).max(b.y + b.height);
+    Box2 { x: x0, y: y0, width: x1 - x0, height: y1 - y0 }
+}
+
+fn iou_of(a: &Box2, b: &Box2) -> f32 {
+    let x0 = a.x.max(b.x);
+    let y0 = a.y.max(b.y);
+    let x1 = (a.x + a.width).min(b.x + b.width);
+    let y1 = (a.y + a.height).min(b.y + b.height);
+    if x1 <= x0 || y1 <= y0 { return 0.0; }
+    let inter = ((x1 - x0) as f32) * ((y1 - y0) as f32);
+    let uni = a.area() as f32 + b.area() as f32 - inter;
+    if uni <= 0.0 { 0.0 } else { inter / uni }
+}
+
 fn main() {
     let font = SynthFont::from_path(
         &std::env::var("COMIC_OCR_SYNTH_FONT")
@@ -333,104 +297,65 @@ fn main() {
     )
     .expect("font");
     let texts: Vec<String> = [
-        "そうだね",
-        "ちょっとまって",
-        "ウソでしょ",
-        "また迷路だし",
-        "ぎゃっ",
-        "少し黙っている",
-        "実戦剣術も一流です",
-        "素直にあやまるしか",
-    ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
+        "そうだね", "ちょっとまって", "ウソでしょ", "また迷路だし",
+        "ぎゃっ", "少し黙っている", "実戦剣術も一流です", "素直にあやまるしか",
+    ].iter().map(|s| s.to_string()).collect();
 
     let spec = DetectSpec::default();
-    println!(
-        "{:>7} {:>10} {:>10} {:>6} {:>10} {:>10} {:>6}",
-        "truth", "base-rec", "base-prec", "found", "enc-rec", "enc-prec", "found"
-    );
-    println!("{}", "-".repeat(64));
-    let (mut b_sum, mut e_sum, mut n) = (0.0f32, 0.0f32, 0);
-    let (mut bp_sum, mut ep_sum) = (0.0f32, 0.0f32);
-    for target in [8usize, 16, 24, 40, 60] {
-        let (mut br, mut er) = (Vec::new(), Vec::new());
-        for seed in 0..3u64 {
-            // SEED_BASE lets the threshold be validated on pages it was not
-            // tuned on. A parameter fitted and measured on one sample is a
-            // description of that sample.
-            let base: u64 = std::env::var("SEED_BASE")
-                .ok()
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(4242);
-            let mut rng = StdRng::seed_from_u64(base + seed);
-            let ps = PageSpec {
-                width: 1200,
-                height: 1700,
-                target_regions: target,
-                ..Default::default()
-            };
-            let Ok((page, tp)) = render_page(&ps, &font, &texts, &mut rng) else {
-                continue;
-            };
-            let truth: Vec<Box2> = tp
-                .regions
-                .iter()
-                .map(|r| {
-                    let (x, y, w, h) = r.enclosure_bounds();
-                    Box2 {
-                        x,
-                        y,
-                        width: w,
-                        height: h,
-                    }
-                })
-                .collect();
-            let b = detect_regions(&page, &spec);
-            let e = detect_enclosure_first(&page, &spec);
-            let bs = score(&truth, &b, 0.5);
-            let es = score(&truth, &e, 0.5);
-            br.push((bs.recall, bs.precision, b.len() as f32));
-            er.push((es.recall, es.precision, e.len() as f32));
+    let base: u64 = std::env::var("SEED_BASE").ok().and_then(|v| v.parse().ok()).unwrap_or(4242);
+    let target: usize = std::env::var("TARGET").ok().and_then(|v| v.parse().ok()).unwrap_or(8);
+
+    let (mut fps, mut paired, mut isolated, mut oversized) = (0usize, 0usize, 0usize, 0usize);
+    let mut iso_dims: Vec<(u32,u32,u32,u32)> = Vec::new();
+    println!("SEED_BASE={base} TARGET={target}");
+    for seed in 0..6u64 {
+        let mut rng = StdRng::seed_from_u64(base + seed);
+        let ps = PageSpec { width: 1200, height: 1700, target_regions: target, ..Default::default() };
+        let Ok((page, tp)) = render_page(&ps, &font, &texts, &mut rng) else { continue };
+        let truth: Vec<Box2> = tp.regions.iter().map(|r| {
+            let (x, y, w, h) = r.enclosure_bounds();
+            Box2 { x, y, width: w, height: h }
+        }).collect();
+        let emitted = detect_enclosure_first(&page, &spec);
+
+        // Which emitted boxes matched a truth region on their own.
+        let matched: Vec<bool> = emitted.iter()
+            .map(|e| truth.iter().any(|t| iou_of(e, t) >= 0.5))
+            .collect();
+
+        for (i, e) in emitted.iter().enumerate() {
+            if matched[i] { continue; }
+            fps += 1;
+            // Does SOME partner make it match a truth region it does not match alone?
+            let mut best_pair = 0.0f32;
+            for (j, o) in emitted.iter().enumerate() {
+                if i == j { continue; }
+                let u = union(e, o);
+                for t in &truth {
+                    let v = iou_of(&u, t);
+                    if v > best_pair { best_pair = v; }
+                }
+            }
+            // Is it merely a box swallowing a truth region (too big)?
+            let contains_truth = truth.iter().any(|t| iou_of(e, t) > 0.0 && e.area() > t.area() * 2);
+            if best_pair >= 0.5 { paired += 1; }
+            else if contains_truth { oversized += 1; }
+            else {
+                isolated += 1;
+                iso_dims.push((e.width, e.height, e.x, e.y));
+            }
         }
-        let k = br.len().max(1) as f32;
-        let (bm, bp, bf) = (
-            br.iter().map(|x| x.0).sum::<f32>() / k,
-            br.iter().map(|x| x.1).sum::<f32>() / k,
-            br.iter().map(|x| x.2).sum::<f32>() / k,
-        );
-        let (em, ep, ef) = (
-            er.iter().map(|x| x.0).sum::<f32>() / k,
-            er.iter().map(|x| x.1).sum::<f32>() / k,
-            er.iter().map(|x| x.2).sum::<f32>() / k,
-        );
-        b_sum += bm;
-        e_sum += em;
-        bp_sum += bp;
-        ep_sum += ep;
-        n += 1;
-        println!(
-            "{:>7} {:>9.1}% {:>9.1}% {:>6.0} {:>9.1}% {:>9.1}% {:>6.0}",
-            target,
-            100.0 * bm,
-            100.0 * bp,
-            bf,
-            100.0 * em,
-            100.0 * ep,
-            ef
-        );
     }
-    println!("{}", "-".repeat(64));
-    println!(
-        "{:>7} {:>9.1}% {:>9.1}% {:>6} {:>9.1}% {:>9.1}%",
-        "mean",
-        100.0 * b_sum / n as f32,
-        100.0 * bp_sum / n as f32,
-        "",
-        100.0 * e_sum / n as f32,
-        100.0 * ep_sum / n as f32
-    );
+    println!("  unmatched boxes (FP): {fps}");
+    println!("    pair with a neighbour to match a truth region: {paired}");
+    println!("    oversized (swallow a truth region alone):      {oversized}");
+    println!("    isolated (match nothing, alone or paired):     {isolated}");
     println!();
-    println!("Recall alone is not a result: a detector that emits everything scores 100%.");
+    iso_dims.sort_by_key(|d| d.0 * d.1);
+    println!("  isolated box sizes (w x h @ x,y), smallest first:");
+    for (w,h,x,y) in iso_dims.iter().take(14) {
+        println!("    {:>4}x{:<4} area={:>7} @ {},{}", w, h, w*h, x, y);
+    }
+    let big = iso_dims.iter().filter(|d| d.0*d.1 > 100_000).count();
+    println!("  panel-sized (area > 100k): {} of {}", big, iso_dims.len());
 }
