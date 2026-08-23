@@ -133,6 +133,28 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
             //
             // This is a floor on the ENCLOSURE, distinct from the floor on a
             // region. The smallest real balloon here is about 50x70.
+            // REFUTED as the fix for the sparse regime (measured 2026-08-23,
+            // SEED_BASE 9001 and 31337, held out):
+            //
+            //   floor  base 9001 sparse   base 31337 sparse
+            //   2000   95.8 / 76.7        87.5 / 70.5
+            //   3200   95.8 / 76.7        87.5 / 70.5
+            //
+            // Byte-identical. No container on either held-out corpus has an
+            // area between 2000 and 3200, so the floor is NOT BINDING off the
+            // corpus it was tuned on. On 4242 it does bind, and raising it
+            // costs a real region: recall 95.8 -> 91.7 to buy precision
+            // 72.1 -> 68.8. Worse on both axes.
+            //
+            // So the floor either does nothing or removes a true region. The
+            // sparse false positives are larger than this threshold reaches,
+            // which is consistent with them being enclosures SPLIT in two
+            // rather than sub-threshold noise admitted. A broken outline
+            // yields two partial containers, each holding some of the text --
+            // and both survive any floor that keeps the smallest real balloon.
+            //
+            // Note also what the identical rows say about this parameter: it
+            // was tuned on 4242 and is inert everywhere else measured.
             let enclosure_min: u32 = std::env::var("ENCLOSURE_MIN_AREA")
                 .ok()
                 .and_then(|v| v.parse().ok())
