@@ -1,6 +1,6 @@
 # Comic OCR Rust Context Manifest (llms-cor.txt)
 
-> HEAD: 72dcf66 Define the boundary model, and measure the schema drift nothing was checking (#5)  [WORKING TREE DIRTY — this corpus is not any committed state]
+> HEAD: af39a3c docs(training): detection has no path on this page, and needs one
 > Generated from the tree. Do not hand-edit; edit the generator.
 
 ## Documents (26)
@@ -31,10 +31,10 @@
 - [synthetic_data.md](docs/synthetic_data.md): This document explains the design, components, and workflow of the synthetic data generator located in [`comic
 - [training.md](docs/training.md): Two engines, not one bilingual model. This document describes both tracks, what
 
-## Crates (6)
+## Crates (7)
 
 ### `comic-ocr-cli`
-  (no public symbols found)
+- `src/vocab_corpus.rs`: CorpusReport, build_from_corpus
 
 ### `comic-ocr-core`
 - `src/ambiguity.rs`: AmbiguityType, ResolutionStatus, Hypothesis, AmbiguousProperty, new, evaluate_speaker_attribution
@@ -71,4 +71,10 @@
 - `src/handlers.rs`: OcrQuery, PredictResponse, health_handler, runtime_info_handler, predict_handler, eval_panel_handler, scene_compile_handler, scene_validate_handler, scene_layout_handler
 - `src/router.rs`: create_router
 - `src/state.rs`: Backend, inference_available, RuntimeMetrics, RuntimeState, new, record_request, record_success, record_failure
+
+### `comic-ocr-synth` — Synthetic training crops whose labels are true by construction.
+- `src/degrade.rs`: DegradeSpec, ScanQuality, sample, sample_at, apply
+- `src/detect.rs`: Box2, area, iou, DetectSpec, detect_regions, RecallReport, score
+- `src/page.rs`: Enclosure, RegionTruth, enclosure_bounds, PanelTruth, PageTruth, PageSpec, render_page
+- `src/render.rs`: Direction, RenderSpec, SynthFont, from_path, covers, uncovered, render, ink_coverage
 
