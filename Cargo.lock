@@ -557,6 +557,7 @@ dependencies = [
  "comic-ocr-ort",
  "image",
  "imageproc",
+ "jsonschema",
  "rand 0.8.7",
  "serde",
  "serde_json",
