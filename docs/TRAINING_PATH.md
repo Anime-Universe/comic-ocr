@@ -309,6 +309,65 @@ Fixing it at 7 publications is cheap; fixing it at 167 is a migration.
 
 ---
 
+## Detection has no path on this page, and needs one
+
+Everything above is about **reading glyphs**. Nothing here covers **finding
+panels and balloons**, and the first real-page measurements (2026-08-23) say that
+gap matters as much as the OCR one.
+
+    panel detector (manga-service, profile-based)
+      real page, effect-heavy      3 of 7 panels found
+      real page, clean gutters     8 of 10
+      synthetic golden corpus      4 of 5 fixtures, mean IoU 0.8576
+
+    text-region detector (comic-ocr enclosure-first)
+      real balloons (cc-100.jpg)   56 boxes for ~34 regions — 1.6x over-segmentation
+      synthetic pages              62 for 60, 42 for 40 — near exact
+
+Two detectors, different languages, no shared code, degrading in **opposite
+directions**: one under-detects, one over-segments. Both were tuned on pages we
+generate.
+
+### The same three unmodelled factors explain it
+
+The degradation finding above — that scan quality closes only about a fifth of
+the OCR gap, and the rest lives in **typography, crop context and ground** —
+applies to detection, and the mapping is direct:
+
+- **Ground** (paper grain, tone bleed from adjacent panels, uneven ink) is
+  exactly why a profile-based panel detector fails on an effect-heavy page.
+  Its whole method is "find rows and columns whose mean sits at an extreme", and
+  tone bleeding across a gutter destroys that extreme.
+- **Ground** again, inside a balloon, is why enclosure detection over-segments:
+  grain and uneven ink fragment what should be one component.
+- **Crop context** — real boxes clipping balloon borders, tails, and slivers of
+  adjacent text — is why real regions do not group as cleanly as drawn ones.
+
+So the redirection recorded above holds for detection too: **do not reach for
+scan-quality degradation.** JPEG, rotation, blur and noise are not what makes a
+real page hard, for reading or for finding. The synthetic corpus has **three
+distinct grey levels** where a real scan has hundreds, and the missing ones are
+tone and grain, not artefacts.
+
+### And detection has no training loop at all
+
+The OCR plan has three stages ending in a flywheel. Detection has none. Measured
+2026-08-23:
+
+- `panel_detector.rs` holds its constants as `const` and reads no fitted
+  configuration; `manga-service/src` contains **zero** references to a learned
+  parameter.
+- Panelscope **does** fit engine constants from human annotations
+  (`trainParametersFromAnnotations`) — extent, text density, luminance, edge
+  percentile, reading direction — and the result terminates in browser
+  IndexedDB.
+- The staging schema has 72 public tables and no table for a detector
+  configuration; no endpoint accepts one.
+
+**So review refines a detector, and not the one that runs at ingest.** Closing
+that is Infinite-Verse#845; the ranking question for which pages to review is
+there too.
+
 ## Two gaps that block every path
 
 ### The vocabulary — partly closed, 2026-08-21
