@@ -23,6 +23,45 @@ use imageproc::region_labelling::{Connectivity, connected_components};
 use rand::SeedableRng;
 use rand::rngs::StdRng;
 
+/// Component boxes, plus the label image so a pixel can be attributed to the
+/// component it BELONGS to rather than merely the boxes it falls inside.
+fn components_labelled(
+    img: &GrayImage,
+) -> (Vec<Box2>, Vec<u32>, image::ImageBuffer<Luma<u32>, Vec<u32>>) {
+    let labels = connected_components(img, Connectivity::Eight, Luma([0u8]));
+    let max = labels.pixels().map(|p| p.0[0]).max().unwrap_or(0);
+    let mut acc: Vec<Option<(u32, u32, u32, u32)>> = vec![None; max as usize + 1];
+    for (x, y, px) in labels.enumerate_pixels() {
+        let l = px.0[0] as usize;
+        if l == 0 {
+            continue;
+        }
+        match &mut acc[l] {
+            Some((x0, y0, x1, y1)) => {
+                *x0 = (*x0).min(x);
+                *y0 = (*y0).min(y);
+                *x1 = (*x1).max(x);
+                *y1 = (*y1).max(y);
+            }
+            slot => *slot = Some((x, y, x, y)),
+        }
+    }
+    let mut boxes = Vec::new();
+    let mut ids = Vec::new();
+    for (i, e) in acc.into_iter().enumerate() {
+        if let Some((x0, y0, x1, y1)) = e {
+            boxes.push(Box2 {
+                x: x0,
+                y: y0,
+                width: (x1 - x0).max(1),
+                height: (y1 - y0).max(1),
+            });
+            ids.push(i as u32);
+        }
+    }
+    (boxes, ids, labels)
+}
+
 fn components(img: &GrayImage) -> Vec<Box2> {
     let labels = connected_components(img, Connectivity::Eight, Luma([0u8]));
     let max = labels.pixels().map(|p| p.0[0]).max().unwrap_or(0);
@@ -68,7 +107,7 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     let page_area = (page.width() * page.height()) as f32;
 
     // Un-dilated: outlines are intact and two balloons are two components.
-    let raw = components(&binary);
+    let (raw, raw_ids, raw_labels) = components_labelled(&binary);
 
     // A container holds at least one other component and is not the page frame.
     // A CJK glyph is a container of its own counter -- 口, 日, 目, 田 all enclose
@@ -112,6 +151,16 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     // jobs and conflating them was the second bug here: dropping panel frames
     // from the emit list also dropped them from the mask, so panel stroke ink
     // became "loose", merged, and produced roughly one spurious box per frame.
+    // The label of every enclosure, so its OWN ink is suppressed. Masking by
+    // bounding box cannot do this: a panel's stroke lies inside the panel's
+    // box, so it survived as "loose", merged, and produced a spurious box per
+    // frame. A pixel belongs to exactly one component; that is the right unit.
+    let mask_labels: std::collections::HashSet<u32> = raw
+        .iter()
+        .zip(raw_ids.iter())
+        .filter(|(b, _)| containers.iter().any(|c| c == *b))
+        .map(|(_, id)| *id)
+        .collect();
     let masks = containers.clone();
     containers.retain(|c| !masks.iter().any(|o| o != c && contains(c, o)));
 
@@ -124,7 +173,23 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
             width: 1,
             height: 1,
         };
-        if px.0[0] > 0 && !masks.iter().any(|c| contains(c, &p)) {
+        // A pixel belongs to the SMALLEST enclosure containing it, and only
+        // that one may suppress it. Suppressing by any enclosure removes free
+        // text that merely sits inside a panel; suppressing by none lets panel
+        // and balloon strokes merge into spurious boxes. Both were tried and
+        // both lost — the first cost recall, the second precision.
+        let innermost = masks
+            .iter()
+            .filter(|c| contains(c, &p))
+            .min_by_key(|c| c.area());
+        let own_label = raw_labels.get_pixel(x, y).0[0];
+        let suppressed = mask_labels.contains(&own_label)
+            || match innermost {
+                // Inside an emitted enclosure: its box already represents this.
+                Some(c) => containers.iter().any(|e| e == c),
+                None => false,
+            };
+        if px.0[0] > 0 && !suppressed {
             loose.put_pixel(x, y, Luma([255]));
         }
     }
