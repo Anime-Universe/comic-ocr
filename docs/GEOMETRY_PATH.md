@@ -398,6 +398,54 @@ cleanest printed text in any volume and would dominate a confidence-weighted
 pool while teaching nothing about balloons. This is what `textRegion.role`'s
 `title`, `credit`, and `editorial` values are for.
 
+## Detection recall, measured
+
+Written 2026-08-22. This document called recall "the unmeasured risk, not
+detection precision" and said "we measure how well we read what we find and
+nothing about what we never found." That is no longer true, at least for a
+detector we own.
+
+`comic-ocr-synth` renders pages whose regions are known by construction, and
+`examples/measure_recall` scores a free local detector — Otsu → dilate →
+`connected_components`, all from `imageproc`, no model and no API spend —
+against that ground truth at IoU ≥ 0.50:
+
+| regions on page | recall | precision |
+| --- | --- | --- |
+| 8 | 87.5% | 87.5% |
+| 16 | 68.8% | 84.6% |
+| 24 | 79.2% | 95.0% |
+| 40 | 57.5% | 74.2% |
+| 60 | 63.3% | 86.4% |
+| **mean** | **71.2%** | **85.5%** |
+
+Mean IoU on matched pairs is 0.94 — when it finds a region, the box is right.
+**Roughly three regions in ten are never found at all**, and recall degrades
+with density, which is the same shape as the platform's trouble on dense pages.
+
+### Two features from this document, tested
+
+The classifier section proposes geometric features. Two were tried against the
+concrete problem of separating panel frames from balloons:
+
+- **Interior ink density — fails.** A panel frame is a hollow rectangle, so
+  rejecting sparse boxes looks obviously right. But **a balloon is also an
+  outline with a sparse interior**, and the filter discarded real balloons:
+  recall fell 71.2% → 32.2% to buy precision 59.2% → 79.2%. The feature is
+  listed here for balloon-versus-sound-effect, which is a different comparison;
+  applying it to balloon-versus-panel was my error, not the table's.
+- **Containment depth — works.** A panel contains balloons; a balloon contains
+  nothing. Dropping any detection that fully contains another lifted precision
+  59.2% → **85.5% with recall unchanged**. This is the containment forest that
+  replaces `find_primary_path`, and it earns its place on evidence.
+
+The detector is deliberately cheap and its numbers describe *it*, not the
+platform's engines. What transfers is the method and the fixture: Infinite-Verse#834
+rests on two engines agreeing across a density range, and agreement is not
+correctness — two engines can agree and both be wrong. A page whose regions are
+known by construction is the only thing that can tell them apart, and #834's own
+caveat says neither is known-correct until #833 exists.
+
 ## Order of work
 
 1. **Text training** — unchanged, per [`TRAINING_PATH.md`](TRAINING_PATH.md).
