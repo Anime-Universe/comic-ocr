@@ -347,6 +347,32 @@ fn main() {
     .collect();
 
     let spec = DetectSpec::default();
+    // A FIGURE WITHOUT A CORPUS IDENTIFIER IS NOT QUOTABLE. Layout mode,
+    // panel count and seed base determine the page geometry completely, so a
+    // number measured under one is not comparable to a number under another.
+    // The grid produced ONE panel size -- 564x389 on every page and every
+    // seed -- so "held out across four corpora" meant four samples of one
+    // geometry: the seeds varied text and placement, never layout.
+    //
+    // Printing the identifier with the table means a pasted number carries
+    // its provenance, rather than relying on whoever pastes it to remember.
+    {
+        let base_id: u64 = std::env::var("SEED_BASE")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(4242);
+        let layout = if std::env::var("IRREGULAR").is_ok() {
+            "guillotine"
+        } else {
+            "grid(4x2)"
+        };
+        let pc = std::env::var("PANEL_COUNT").unwrap_or_else(|_| "varies 3-6".into());
+        println!(
+            "corpus: layout={layout} panels={pc} seed_base={base_id} mask_empty={}",
+            std::env::var("MASK_EMPTY").map(|v| v != "0").unwrap_or(true)
+        );
+        println!("  (these figures are SYNTHETIC; no real-page ground truth exists — #833)");
+    }
     println!(
         "{:>7} {:>10} {:>10} {:>6} {:>10} {:>10} {:>6}",
         "truth", "base-rec", "base-prec", "found", "enc-rec", "enc-prec", "found"
@@ -365,10 +391,22 @@ fn main() {
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(4242);
             let mut rng = StdRng::seed_from_u64(base + seed);
+            let irregular = std::env::var("IRREGULAR").is_ok();
             let ps = PageSpec {
                 width: 1200,
                 height: 1700,
                 target_regions: target,
+                irregular_panels: irregular,
+                // Vary the panel count too -- a fixed count is the same
+                // regularity one level up from a fixed grid.
+                // PANEL_COUNT pins the count so regularity can be varied
+                // alone. Irregular pages otherwise carry 3-6 panels against
+                // the grid's 8, and fewer panels means less crowding -- a
+                // comparison has to match conditions, not just code.
+                panel_count: std::env::var("PANEL_COUNT")
+                    .ok()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(3 + (base.wrapping_add(seed) % 7) as u32),
                 ..Default::default()
             };
             let Ok((page, tp)) = render_page(&ps, &font, &texts, &mut rng) else {

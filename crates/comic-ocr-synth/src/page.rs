@@ -112,6 +112,12 @@ pub struct PageSpec {
     pub draw_panels: bool,
     /// Rows x columns of panels when `draw_panels` is set.
     pub panel_grid: (u32, u32),
+    /// Lay panels out by guillotine subdivision rather than a uniform grid.
+    /// A grid produces identical panels at identical offsets on every page,
+    /// which a detector can exploit without generalising.
+    pub irregular_panels: bool,
+    /// How many panels to subdivide into when `irregular_panels` is set.
+    pub panel_count: u32,
 }
 
 impl Default for PageSpec {
@@ -124,6 +130,8 @@ impl Default for PageSpec {
             draw_borders: true,
             draw_panels: true,
             panel_grid: (4, 2),
+            irregular_panels: false,
+            panel_count: 6,
         }
     }
 }
@@ -153,7 +161,69 @@ pub fn render_page<R: Rng>(
 
     // Panels first: text sits inside them, so they must exist before placement.
     let mut panels: Vec<PanelTruth> = Vec::new();
-    if spec.draw_panels {
+    if spec.draw_panels && spec.irregular_panels {
+        // A UNIFORM GRID IS NOT A MANGA PAGE. The fixed 4x2 layout put eight
+        // identical panels at identical offsets on every page, and a detector
+        // measured against it inherits that regularity: the empty-frame failure
+        // measured at 13-of-13 boxes of exactly 575x400 turned out not to occur
+        // on real pages at all, because real pages have no such lattice.
+        //
+        // Guillotine subdivision instead: split the page recursively, always
+        // cutting the largest remaining rectangle, at a ratio drawn away from
+        // the midpoint. That produces irregular panels of varying size and
+        // aspect -- structurally what a manga layout is, since most are built
+        // from full-width or full-height cuts rather than from a grid.
+        let gutter = 18u32;
+        let margin = 12u32;
+        let mut rects: Vec<(u32, u32, u32, u32)> = vec![(
+            margin,
+            margin,
+            spec.width.saturating_sub(margin * 2),
+            spec.height.saturating_sub(margin * 2),
+        )];
+        let want = spec.panel_count.max(1) as usize;
+        while rects.len() < want {
+            // Always split the largest, so panels stay comparable in scale
+            // rather than degenerating into one huge rect and many slivers.
+            let (bi, _) = rects
+                .iter()
+                .enumerate()
+                .max_by_key(|(_, r)| r.2 as u64 * r.3 as u64)
+                .unwrap();
+            let (x, y, w, h) = rects.swap_remove(bi);
+            // Cut across the longer axis; ratio away from centre so panels
+            // differ in size, which a grid never produces.
+            let ratio = rng.gen_range(0.32f32..0.68f32);
+            let (a, b) = if w >= h {
+                let cut = (w as f32 * ratio) as u32;
+                ((x, y, cut, h), (x + cut, y, w - cut, h))
+            } else {
+                let cut = (h as f32 * ratio) as u32;
+                ((x, y, w, cut), (x, y + cut, w, h - cut))
+            };
+            if a.2 < 80 || a.3 < 80 || b.2 < 80 || b.3 < 80 {
+                rects.push((x, y, w, h));
+                break;
+            }
+            rects.push(a);
+            rects.push(b);
+        }
+        for (x, y, w, h) in rects {
+            let (px, py) = (x + gutter / 2, y + gutter / 2);
+            let (pw, ph) = (w.saturating_sub(gutter), h.saturating_sub(gutter));
+            if pw < 40 || ph < 40 {
+                continue;
+            }
+            draw_hollow_rect_mut(&mut page, Rect::at(px as i32, py as i32).of_size(pw, ph), ink);
+            panels.push(PanelTruth {
+                index: panels.len(),
+                x: px,
+                y: py,
+                width: pw,
+                height: ph,
+            });
+        }
+    } else if spec.draw_panels {
         let (rows, cols) = spec.panel_grid;
         let (rows, cols) = (rows.max(1), cols.max(1));
         let gutter = 18u32;
