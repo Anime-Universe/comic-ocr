@@ -16,5 +16,6 @@ imageproc = "0.25"
 rand = "0.8"
 
 [dev-dependencies]
+jsonschema = { workspace = true }
 comic-ocr-ort = { path = "../comic-ocr-ort" }
 comic-ocr-core = { path = "../comic-ocr-core" }

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://infiniteverse.ai/schemas/detection_sample.json",
+  "title": "ComicOcrDetectionSample",
+  "description": "One page and every region on it, for training and evaluating detection.\n\nDistinct from ComicOcrTrainingPair, which is a CROP and its text and trains the reader. This is a PAGE and its regions, and trains the finder. Detection must come first: a transcriber cannot read a balloon nothing located, and a scene graph cannot relate panels nothing bounded.\n\nThe labels here are known BY CONSTRUCTION when `source` is `synthetic` -- the generator placed each region, so nothing inferred them and `confidence` does not apply. That is what lets detection training start before any human review exists: unlike the reader, the finder does not wait on an attested corpus.",
+  "type": "object",
+  "required": ["version", "source", "page", "regions"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": "1.0" },
+    "source": {
+      "description": "`synthetic` labels are placed by the generator and are exact. `attested` labels came from a human through the iPub envelope and carry that provenance. `candidate` must never appear here -- a machine's own output is not a label for its successor.",
+      "enum": ["synthetic", "attested"]
+    },
+    "page": {
+      "type": "object",
+      "required": ["path", "width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "width": { "type": "integer", "exclusiveMinimum": 0 },
+        "height": { "type": "integer", "exclusiveMinimum": 0 },
+        "digest": { "type": "string" }
+      }
+    },
+    "panels": {
+      "description": "Drawn panel frames, in page pixels. A page may legitimately have none -- a borderless bleed page is a real layout, not a detection failure, so an empty array is a claim and not a gap.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/box" }
+    },
+    "regions": {
+      "description": "Every text region on the page, GROUPED as a reader groups them: one entry per utterance or inscription, never one per glyph. Japanese text yields one connected component per kana, so a detector that reports components reports fragments -- this schema's unit is the thing a person would read aloud as one.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/region" }
+    }
+  },
+  "$defs": {
+    "box": {
+      "type": "object",
+      "required": ["x", "y", "width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "exclusiveMinimum": 0 },
+        "height": { "type": "integer", "exclusiveMinimum": 0 }
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": ["index", "box", "enclosure", "direction"],
+      "additionalProperties": false,
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "box": { "$ref": "#/$defs/box" },
+        "enclosure_box": {
+          "description": "The footprint the drawn enclosure occupies, which is larger than the text box for a balloon. Kept separate because the detector sees the enclosure and the reader wants the text -- scoring the wrong one silently penalises a correct detection.",
+          "$ref": "#/$defs/box"
+        },
+        "enclosure": {
+          "description": "What is drawn around the text. `none` is free text over the page, where sound effects and signage sit -- and is the case a frame-keyed detector cannot see at all.",
+          "enum": ["balloon", "caption-box", "none"]
+        },
+        "direction": { "enum": ["ltr", "rtl", "ttb"] },
+        "panel": {
+          "description": "Index into `panels`, when the region falls inside one. Null is meaningful: a sound effect in the gutter belongs to a moment without sitting inside a frame.",
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "text": {
+          "description": "Present for synthetic samples, where it is known by construction. Detection does not need it; carrying it means one generated page can serve both the finder and the reader.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
