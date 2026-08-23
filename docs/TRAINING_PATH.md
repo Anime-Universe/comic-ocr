@@ -398,11 +398,43 @@ A character vocabulary derived from our own corpus remains the goal: it is
 sized to what we actually encounter and removes the last structural tie to
 someone else's vocabulary.
 
-### The third party's terms are unresolved
+### The third party's terms — RESOLVED 2026-08-23
 
-Stage 2 distils from Gemini output. Most provider terms restrict using output to
-train a competing model, and that is not resolvable from inside this repository —
-it is a real constraint, not a technicality.
+**Owner decision: the business licence permits it.** Zach's words, recorded
+verbatim as the basis: *"We're good to continue with it. Our business license
+allows for it."*
+
+So stage 2 may distil from Gemini output, and the 3,004 transcriptions in staging
+are admissible as training labels. This is an owner's reading of a contract we
+hold, not an inference drawn inside this repository — which is exactly why it was
+never ours to settle.
+
+**What this does NOT change.** The ruling on `manga-ocr-base` stands untouched:
+initialising our weights from it still makes our model a derivative, and that
+verdict is about *weights we would inherit*, not about *output we are licensed to
+use*. The table above is unaffected.
+
+**What it unblocks.** Infinite-Verse#855's export compiler no longer waits on a
+terms question — its step 3 sequencing note asked precisely this and recorded it
+as asked nowhere. It is now asked and answered.
+
+**And what it re-prioritises.** Infinite-Verse#833 was argued as critical path on
+the grounds that attested pages might be the *only legitimate label source*. They
+are not — Gemini output is licensed. #833 remains necessary, but for the narrower
+and still-unmet reason: it is the only source of **real-page ground truth for
+measurement**. CER has nothing to score against without it, and stage 6's third
+gate stays blocked. The training track can now proceed alongside it rather than
+behind it.
+
+**The caveat that survives is engineering, not legal.** A model fine-tuned on a
+paid model's transcriptions carries that model's lineage in its behaviour even
+where it carries none in its licence — it will inherit the teacher's mistakes,
+and measuring that requires ground truth the teacher did not produce. That is an
+argument for attesting pages, not against distilling.
+
+For the original framing, retained because the reasoning still holds where a
+licence does not cover us: most provider terms restrict using output to train a
+competing model, and that is not resolvable from inside a repository.
 
 It is also precisely why stage 1 leads. A model that already reads glyphs needs
 far less of anyone else's output to specialise, and synthetic data carries no
