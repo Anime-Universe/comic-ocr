@@ -125,7 +125,19 @@ fn detect_enclosure_first(page: &GrayImage, spec: &DetectSpec) -> Vec<Box2> {
     let mut containers: Vec<Box2> = raw
         .iter()
         .filter(|c| {
-            if (c.area() as f32) / page_area > spec.max_area_fraction || c.area() < spec.min_area {
+            // An enclosure has to be big enough to BE one. `min_area: 400`
+            // admits a 21x21 box, which is a glyph counter -- 口, 日, 目 all
+            // enclose a loop just over that threshold. Measured on a sparse
+            // page: 9 emitted containers for 6 truth regions, and the three
+            // extras were 21x21, 21x21, 20x21.
+            //
+            // This is a floor on the ENCLOSURE, distinct from the floor on a
+            // region. The smallest real balloon here is about 50x70.
+            let enclosure_min: u32 = std::env::var("ENCLOSURE_MIN_AREA")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(2000);
+            if (c.area() as f32) / page_area > spec.max_area_fraction || c.area() < enclosure_min {
                 return false;
             }
             let held: Vec<&Box2> = raw.iter().filter(|o| contains(c, o)).collect();
@@ -259,7 +271,14 @@ fn main() {
     for target in [8usize, 16, 24, 40, 60] {
         let (mut br, mut er) = (Vec::new(), Vec::new());
         for seed in 0..3u64 {
-            let mut rng = StdRng::seed_from_u64(4242 + seed);
+            // SEED_BASE lets the threshold be validated on pages it was not
+            // tuned on. A parameter fitted and measured on one sample is a
+            // description of that sample.
+            let base: u64 = std::env::var("SEED_BASE")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(4242);
+            let mut rng = StdRng::seed_from_u64(base + seed);
             let ps = PageSpec {
                 width: 1200,
                 height: 1700,
