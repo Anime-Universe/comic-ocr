@@ -1,6 +1,6 @@
 # Synthetic Data Generation Pipeline
 
-This document explains the design, components, and workflow of the synthetic data generator located in [`comic_ocr_dev/synthetic_data_generator/`](comic_ocr_dev/synthetic_data_generator).
+This document explains the design, components, and workflow of the synthetic data generator located in `comic_ocr_dev/synthetic_data_generator/`.
 
 ---
 
@@ -33,35 +33,35 @@ flowchart TD
 
 ## Component Deep Dive
 
-### 1. `SyntheticDataGenerator` ([`generator.py`](comic_ocr_dev/synthetic_data_generator/generator.py))
+### 1. `SyntheticDataGenerator` (`generator.py`)
 
 - **Word Segmentation**: Uses `budou` (TinySegmenter) to break Japanese text into natural phrase chunks.
-- **Line Length Sampling**: Samples line lengths according to empirical manga line length probabilities from [`assets/len_to_p.csv`](assets/len_to_p.csv).
-- **Furigana Annotation Injection**: [`add_random_furigana()`](comic_ocr_dev/synthetic_data_generator/generator.py#L121-L167) identifies Kanji character groups using `unicodedata` and randomly injects `<ruby>Kanji<rt>Furigana</rt></ruby>` HTML tags (with 80% Hiragana, 15% Katakana, 5% general vocabulary).
+- **Line Length Sampling**: Samples line lengths according to empirical manga line length probabilities from [`assets/len_to_p.csv`](../assets/len_to_p.csv).
+- **Furigana Annotation Injection**: `add_random_furigana()` identifies Kanji character groups using `unicodedata` and randomly injects `<ruby>Kanji<rt>Furigana</rt></ruby>` HTML tags (with 80% Hiragana, 15% Katakana, 5% general vocabulary).
 - **Tate-chū-yoko (Horizontal in Vertical)**: Wraps short ASCII character strings (<=3 characters) in `<span style="text-combine-upright: all">` to render horizontal digits/letters inside vertical lines.
-- **Font Filtering**: Filters out characters unsupported by the chosen font based on [`font_map`](comic_ocr_dev/synthetic_data_generator/utils.py#L52-L56).
+- **Font Filtering**: Filters out characters unsupported by the chosen font based on `font_map`.
 
-### 2. `Renderer` ([`renderer.py`](comic_ocr_dev/synthetic_data_generator/renderer.py))
+### 2. `Renderer` (`renderer.py`)
 
-- **CSS Generator ([`get_css`](comic_ocr_dev/synthetic_data_generator/renderer.py#L294-L344))**:
+- **CSS Generator (`get_css`)**:
   - `writing-mode: vertical-rl;` (70% probability vertical, 30% horizontal).
   - Simulated font stroke using layered CSS `text-shadow`.
   - Custom font loading via `@font-face`.
-- **Text Screenshot ([`render_text`](comic_ocr_dev/synthetic_data_generator/renderer.py#L26-L48))**: Uses `html2image` to render transparent PNGs.
-- **Speech Bubble Generation ([`render_background`](comic_ocr_dev/synthetic_data_generator/renderer.py#L75-L146))**:
+- **Text Screenshot (`render_text`)**: Uses `html2image` to render transparent PNGs.
+- **Speech Bubble Generation (`render_background`)**:
   - Draws rounded rectangles using OpenCV (`cv2.ellipse` and `cv2.line`).
   - Applies `Albumentations.ElasticTransform` to warp rectangular contours into hand-drawn speech bubble shapes.
-  - Blends transparent text, speech bubble mask, and manga background art ([`BACKGROUND_DIR`](comic_ocr_dev/env.py#L7)).
+  - Blends transparent text, speech bubble mask, and manga background art (`BACKGROUND_DIR`).
 
-### 3. Font Glyph Scanner ([`scan_fonts.py`](comic_ocr_dev/synthetic_data_generator/scan_fonts.py))
+### 3. Font Glyph Scanner (`scan_fonts.py`)
 
 - Scans a directory of TrueType/OpenType fonts (`FONTS_ROOT`).
 - Tests character rendering using `fontTools.ttLib.TTFont` and Pillow drawing.
-- Outputs metadata to [`assets/fonts.csv`](assets/fonts.csv) with character counts and font labels (`common`, `regular`, `special`).
+- Outputs metadata to [`assets/fonts.csv`](../assets/fonts.csv) with character counts and font labels (`common`, `regular`, `special`).
 
 ---
 
-## Batch Execution & Package Structure ([`run_generate.py`](comic_ocr_dev/synthetic_data_generator/run_generate.py))
+## Batch Execution & Package Structure (`run_generate.py`)
 
 Generated data is partitioned into numeric packages (`0000`, `0001`, ...) to streamline parallel creation and memory allocation:
 

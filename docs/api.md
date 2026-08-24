@@ -6,17 +6,17 @@ This document provides the canonical specification for the library traits, data 
 
 ## 0. JSON Schemas
 
-Formal JSON Schema Draft-07 contracts are maintained in [`schemas/`](schemas/):
+Formal JSON Schema Draft-07 contracts are maintained in [`schemas/`](../schemas/):
 
-- [`schemas/ocr_result.json`](schemas/ocr_result.json): Authoritative payload schema for single text crop OCR predictions.
-- [`schemas/page_result.json`](schemas/page_result.json): Authoritative payload schema for full-page OCR with 2-Level topological reading order panel graphs.
-- [`schemas/pdp_decision.json`](schemas/pdp_decision.json): Authoritative payload schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation.
+- [`schemas/ocr_result.json`](../schemas/ocr_result.json): Authoritative payload schema for single text crop OCR predictions.
+- [`schemas/page_result.json`](../schemas/page_result.json): Authoritative payload schema for full-page OCR with 2-Level topological reading order panel graphs.
+- [`schemas/pdp_decision.json`](../schemas/pdp_decision.json): Authoritative payload schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation.
 
 ---
 
 ## 1. Rust Core Library API (`comic-ocr-core`)
 
-Located in [`crates/comic-ocr-core`](crates/comic-ocr-core).
+Located in [`crates/comic-ocr-core`](../crates/comic-ocr-core).
 
 ### `OcrEngine` Trait Definition
 
@@ -104,7 +104,7 @@ assert_eq!(post_process("テスト 123"), "テスト　１２３");
 
 ## 2. Polymorphic Decision Protocol API (`comic-ocr-pdp`)
 
-Located in [`crates/comic-ocr-pdp`](crates/comic-ocr-pdp).
+Located in [`crates/comic-ocr-pdp`](../crates/comic-ocr-pdp).
 
 ### `PanelEvaluator` Struct
 
@@ -136,7 +136,7 @@ pub struct PdpDecision {
 
 ## 3. Reflective Runtime Service REST API (`comic-ocr-runtime`)
 
-Located in [`crates/comic-ocr-runtime`](crates/comic-ocr-runtime).
+Located in [`crates/comic-ocr-runtime`](../crates/comic-ocr-runtime).
 
 ### Environment Configuration Schema (`RuntimeConfig`)
 
@@ -242,7 +242,7 @@ curl -s -F "image=@assets/examples/00.jpg" http://localhost:8000/v1/ocr/eval_pan
 
 ## 4. Command-Line Interface (`comic-ocr-cli`)
 
-Located in [`crates/comic-ocr-cli`](crates/comic-ocr-cli).
+Located in [`crates/comic-ocr-cli`](../crates/comic-ocr-cli).
 
 ```bash
 comic-ocr --image <PATH_TO_IMAGE> [FLAGS]
@@ -319,7 +319,7 @@ docker run -d -p 8000:8000 --name manga-runtime comic-ocr-runtime:v0.2.0
 
 ## 7. Benchmark Ground Truth Dataset (`tests/data/expected_results.json`)
 
-The test suite includes a canonical benchmark dataset located at [`tests/data/expected_results.json`](file:///Users/zachshallbetter/Projects/comic-ocr-rust/tests/data/expected_results.json) alongside baseline crop images in `tests/data/images/`.
+The test suite includes a canonical benchmark dataset referenced as `tests/data/expected_results.json` alongside baseline crop images in `tests/data/images/`.
 
 ### Expected Results Schema & Sample Pairs
 

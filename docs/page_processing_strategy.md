@@ -11,7 +11,7 @@ A complete manga page processing pipeline requires solving two distinct computer
 1. **Text Detection**: Locating *where* text regions exist on a page and extracting their spatial bounding boxes `(x, y, width, height)`.
 2. **Text Recognition**: Transcribing the raw image pixels inside a bounded region into Japanese text character strings.
 
-[`comic-ocr`](comic_ocr/ocr.py#L14-L53) is an end-to-end **Text Recognition Model** based on Hugging Face's [`VisionEncoderDecoderModel`](comic_ocr/ocr.py#L11-L12). When given a single un-cropped page image (e.g. 2000×3000 pixels), the image pre-processor scales the entire image down to a fixed tensor size (e.g. 224×224). At that resolution, individual character details across multiple distant speech bubbles become compressed and blurred, causing recognition errors.
+`comic-ocr` (`comic_ocr/ocr.py`) is an end-to-end **Text Recognition Model** based on Hugging Face's `VisionEncoderDecoderModel` (`comic_ocr/ocr.py`). When given a single un-cropped page image (e.g. 2000×3000 pixels), the image pre-processor scales the entire image down to a fixed tensor size (e.g. 224×224). At that resolution, individual character details across multiple distant speech bubbles become compressed and blurred, causing recognition errors.
 
 To process full pages, covers, and complex layouts accurately, `comic-ocr` is paired with a **panel-invariant text detector** in a two-stage pipeline.
 
@@ -97,7 +97,7 @@ sequenceDiagram
 - **Challenge**: Color cover titles (e.g. *"DRAGON QUEST"*, *"エデンの戦士たち"*) feature 3D shadows, gradient fills, stylized Japanese fonts, and complex artwork backgrounds.
 - **Strategy**:
   - The text detector isolates the title block as a discrete bounding box.
-  - [`comic-ocr`](comic_ocr/ocr.py) decodes stylized fonts accurately because its synthetic training pipeline ([`SyntheticDataGenerator`](comic_ocr_dev/synthetic_data_generator/generator.py#L15)) overlays text on background images with custom CSS font shadows and strokes ([`renderer.py`](comic_ocr_dev/synthetic_data_generator/renderer.py#L323-L334)).
+  - `comic-ocr` (`comic_ocr/ocr.py`) decodes stylized fonts accurately because its synthetic training pipeline (`SyntheticDataGenerator`, `generator.py`) overlays text on background images with custom CSS font shadows and strokes (`renderer.py`).
 
 ### 2. Text Crossing Panel Borders
 - **Challenge**: Speech bubbles or sound effects often overlap black panel border frames.
@@ -110,13 +110,13 @@ sequenceDiagram
 - **Challenge**: Text rendered directly over character artwork or background scenery without speech bubble outlines.
 - **Strategy**:
   - The detector identifies text stroke clusters even when no white speech bubble outline exists.
-  - `comic-ocr` processes single-channel grayscale conversions ([`img.convert("L").convert("RGB")`](comic_ocr/ocr.py#L52)), ensuring character contrast is preserved against background artwork.
+  - `comic-ocr` processes single-channel grayscale conversions (`img.convert("L").convert("RGB")`), ensuring character contrast is preserved against background artwork.
 
 ---
 
 ## Implementation Blueprint
 
-Below is an example Python integration showing how to pair a text region detector with [`MangaOcr`](comic_ocr/ocr.py#L14-L53) to process full manga pages:
+Below is an example Python integration showing how to pair a text region detector with `MangaOcr` (`comic_ocr/ocr.py`) to process full manga pages:
 
 ```python
 from pathlib import Path

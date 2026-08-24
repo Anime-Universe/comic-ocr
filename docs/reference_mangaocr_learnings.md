@@ -1,6 +1,6 @@
 # Reference ComicOCR Analysis & Architectural Learnings
 
-This document summarizes key takeaways, model footprint optimizations, dataset insights, and edge-case mitigations derived from analyzing the reference project [`_Reference-Projects/ComicOCR`](reference/ComicOCR).
+This document summarizes key takeaways, model footprint optimizations, dataset insights, and edge-case mitigations derived from analyzing the reference project `_Reference-Projects/ComicOCR`.
 
 ---
 
