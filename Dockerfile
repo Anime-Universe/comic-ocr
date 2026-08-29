@@ -1,5 +1,8 @@
 # Production Multi-Stage Dockerfile for Pure Rust Manga OCR Server
-FROM rust:1.88-slim AS builder
+# trixie, not bookworm: ort's prebuilt ONNX Runtime static libs are compiled
+# against GCC 13+ libstdc++ (_M_replace_cold); bookworm's GCC 12 cannot link
+# them — measured on the first real build of this Dockerfile.
+FROM rust:1.88-slim-trixie AS builder
 
 WORKDIR /usr/src/app
 
@@ -16,7 +19,7 @@ COPY crates/ crates/
 RUN cargo build --release -p comic-ocr-runtime
 
 # Production Runtime Stage
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 WORKDIR /app
 
