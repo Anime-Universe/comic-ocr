@@ -1,6 +1,6 @@
 # Comic OCR Rust Context Manifest (llms-cor.txt)
 
-> HEAD: af39a3c docs(training): detection has no path on this page, and needs one
+> HEAD: 9cfe366 Links inside docs/ resolve from docs/, not from the root
 > Generated from the tree. Do not hand-edit; edit the generator.
 
 ## Documents (26)
@@ -28,7 +28,7 @@
 - [reflective_rust_integration.md](docs/reflective_rust_integration.md): This document details how **Reflective Rust** (Rust Reflective Systems Architecture - RRSA) integrates into th
 - [rust_migration.md](docs/rust_migration.md): This document defines the normative architectural specifications, implementation blueprints, status honesty bo
 - [structure.md](docs/structure.md): This document outlines the directory structure, package organization, and component relationships across the `
-- [synthetic_data.md](docs/synthetic_data.md): This document explains the design, components, and workflow of the synthetic data generator located in [`comic
+- [synthetic_data.md](docs/synthetic_data.md): This document explains the design, components, and workflow of the synthetic data generator located in `comic_
 - [training.md](docs/training.md): Two engines, not one bilingual model. This document describes both tracks, what
 
 ## Crates (7)

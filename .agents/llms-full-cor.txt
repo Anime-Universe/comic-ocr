@@ -2709,11 +2709,43 @@ A character vocabulary derived from our own corpus remains the goal: it is
 sized to what we actually encounter and removes the last structural tie to
 someone else's vocabulary.
 
-### The third party's terms are unresolved
+### The third party's terms — RESOLVED 2026-08-23
 
-Stage 2 distils from Gemini output. Most provider terms restrict using output to
-train a competing model, and that is not resolvable from inside this repository —
-it is a real constraint, not a technicality.
+**Owner decision: the business licence permits it.** Zach's words, recorded
+verbatim as the basis: *"We're good to continue with it. Our business license
+allows for it."*
+
+So stage 2 may distil from Gemini output, and the 3,004 transcriptions in staging
+are admissible as training labels. This is an owner's reading of a contract we
+hold, not an inference drawn inside this repository — which is exactly why it was
+never ours to settle.
+
+**What this does NOT change.** The ruling on `manga-ocr-base` stands untouched:
+initialising our weights from it still makes our model a derivative, and that
+verdict is about *weights we would inherit*, not about *output we are licensed to
+use*. The table above is unaffected.
+
+**What it unblocks.** Infinite-Verse#855's export compiler no longer waits on a
+terms question — its step 3 sequencing note asked precisely this and recorded it
+as asked nowhere. It is now asked and answered.
+
+**And what it re-prioritises.** Infinite-Verse#833 was argued as critical path on
+the grounds that attested pages might be the *only legitimate label source*. They
+are not — Gemini output is licensed. #833 remains necessary, but for the narrower
+and still-unmet reason: it is the only source of **real-page ground truth for
+measurement**. CER has nothing to score against without it, and stage 6's third
+gate stays blocked. The training track can now proceed alongside it rather than
+behind it.
+
+**The caveat that survives is engineering, not legal.** A model fine-tuned on a
+paid model's transcriptions carries that model's lineage in its behaviour even
+where it carries none in its licence — it will inherit the teacher's mistakes,
+and measuring that requires ground truth the teacher did not produce. That is an
+argument for attesting pages, not against distilling.
+
+For the original framing, retained because the reasoning still holds where a
+licence does not cover us: most provider terms restrict using output to train a
+competing model, and that is not resolvable from inside a repository.
 
 It is also precisely why stage 1 leads. A model that already reads glyphs needs
 far less of anyone else's output to specialise, and synthetic data carries no
@@ -2818,17 +2850,17 @@ This document provides the canonical specification for the library traits, data 
 
 ## 0. JSON Schemas
 
-Formal JSON Schema Draft-07 contracts are maintained in [`schemas/`](schemas/):
+Formal JSON Schema Draft-07 contracts are maintained in [`schemas/`](../schemas/):
 
-- [`schemas/ocr_result.json`](schemas/ocr_result.json): Authoritative payload schema for single text crop OCR predictions.
-- [`schemas/page_result.json`](schemas/page_result.json): Authoritative payload schema for full-page OCR with 2-Level topological reading order panel graphs.
-- [`schemas/pdp_decision.json`](schemas/pdp_decision.json): Authoritative payload schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation.
+- [`schemas/ocr_result.json`](../schemas/ocr_result.json): Authoritative payload schema for single text crop OCR predictions.
+- [`schemas/page_result.json`](../schemas/page_result.json): Authoritative payload schema for full-page OCR with 2-Level topological reading order panel graphs.
+- [`schemas/pdp_decision.json`](../schemas/pdp_decision.json): Authoritative payload schema for Polymorphic Decision Protocol (PDP) multi-engine panel evaluation.
 
 ---
 
 ## 1. Rust Core Library API (`comic-ocr-core`)
 
-Located in [`crates/comic-ocr-core`](crates/comic-ocr-core).
+Located in [`crates/comic-ocr-core`](../crates/comic-ocr-core).
 
 ### `OcrEngine` Trait Definition
 
@@ -2916,7 +2948,7 @@ assert_eq!(post_process("テスト 123"), "テスト　１２３");
 
 ## 2. Polymorphic Decision Protocol API (`comic-ocr-pdp`)
 
-Located in [`crates/comic-ocr-pdp`](crates/comic-ocr-pdp).
+Located in [`crates/comic-ocr-pdp`](../crates/comic-ocr-pdp).
 
 ### `PanelEvaluator` Struct
 
@@ -2948,7 +2980,7 @@ pub struct PdpDecision {
 
 ## 3. Reflective Runtime Service REST API (`comic-ocr-runtime`)
 
-Located in [`crates/comic-ocr-runtime`](crates/comic-ocr-runtime).
+Located in [`crates/comic-ocr-runtime`](../crates/comic-ocr-runtime).
 
 ### Environment Configuration Schema (`RuntimeConfig`)
 
@@ -3054,7 +3086,7 @@ curl -s -F "image=@assets/examples/00.jpg" http://localhost:8000/v1/ocr/eval_pan
 
 ## 4. Command-Line Interface (`comic-ocr-cli`)
 
-Located in [`crates/comic-ocr-cli`](crates/comic-ocr-cli).
+Located in [`crates/comic-ocr-cli`](../crates/comic-ocr-cli).
 
 ```bash
 comic-ocr --image <PATH_TO_IMAGE> [FLAGS]
@@ -3131,7 +3163,7 @@ docker run -d -p 8000:8000 --name manga-runtime comic-ocr-runtime:v0.2.0
 
 ## 7. Benchmark Ground Truth Dataset (`tests/data/expected_results.json`)
 
-The test suite includes a canonical benchmark dataset located at [`tests/data/expected_results.json`](tests/data/expected_results.json) alongside baseline crop images in `tests/data/images/`.
+The test suite includes a canonical benchmark dataset referenced as `tests/data/expected_results.json` alongside baseline crop images in `tests/data/images/`.
 
 ### Expected Results Schema & Sample Pairs
 
@@ -3317,15 +3349,15 @@ This document presents a comprehensive code review of the Comic OCR codebase, as
 
 ## Executive Summary
 
-The `comic-ocr` codebase is a well-structured, focused machine learning application. It effectively separates the production inference package ([`comic_ocr/`](comic_ocr)) from the synthetic data generation and training suite ([`comic_ocr_dev/`](comic_ocr_dev)). The core technical innovation—using a headless browser engine (`html2image`) for synthetic rendering—delivers high layout quality for complex Japanese typography (vertical text, furigana, tate-chū-yoko) while maintaining a maintainable codebase.
+The `comic-ocr` codebase is a well-structured, focused machine learning application. It effectively separates the production inference package (`comic_ocr/`) from the synthetic data generation and training suite (`comic_ocr_dev/`). The core technical innovation—using a headless browser engine (`html2image`) for synthetic rendering—delivers high layout quality for complex Japanese typography (vertical text, furigana, tate-chū-yoko) while maintaining a maintainable codebase.
 
 ---
 
 ## Architectural Strengths
 
 1. **Clear Modular Boundaries**: Production runtime (`comic_ocr`) remains lightweight (~10 dependencies), avoiding dev-only dependencies like `html2image`, `opencv-python`, or `albumentations`.
-2. **Device Agnostic Design**: Handles CUDA, Apple Silicon MPS, and CPU fallback gracefully in [`MangaOcr.__init__`](comic_ocr/ocr.py#L23-L30).
-3. **Smart Warmup Cycle**: Performs an initial dummy inference run during constructor initialization ([`comic_ocr/ocr.py:35`](comic_ocr/ocr.py#L35)) to catch runtime errors early and warm up CUDA/MPS memory before accepting live user requests.
+2. **Device Agnostic Design**: Handles CUDA, Apple Silicon MPS, and CPU fallback gracefully in `MangaOcr.__init__` (`comic_ocr/ocr.py`).
+3. **Smart Warmup Cycle**: Performs an initial dummy inference run during constructor initialization (`comic_ocr/ocr.py:35`) to catch runtime errors early and warm up CUDA/MPS memory before accepting live user requests.
 4. **End-to-End Vision-Language Modeling**: Avoids error propagation from separate text line detection + text line recognition stages by recognizing entire speech bubbles in a single forward pass.
 
 ---
@@ -3333,29 +3365,29 @@ The `comic-ocr` codebase is a well-structured, focused machine learning applicat
 ## Technical Debt & Potential Defects
 
 ### 1. Deprecated Metric API (`datasets.load_metric`)
-- **Location**: [`comic_ocr_dev/training/metrics.py:7`](comic_ocr_dev/training/metrics.py#L7)
+- **Location**: `comic_ocr_dev/training/metrics.py:7`
 - **Issue**: `datasets.load_metric("cer")` uses the deprecated Hugging Face `datasets` metrics API, which emits deprecation warnings and may break in future releases.
 - **Recommendation**: Upgrade to the official [`evaluate`](https://huggingface.co/docs/evaluate/index) package (`import evaluate; self.cer_metric = evaluate.load("cer")`).
 
 ### 2. Invalid Wayland Clipboard Configuration
-- **Location**: [`comic_ocr/run.py:76`](comic_ocr/run.py#L76)
+- **Location**: `comic_ocr/run.py:76`
 - **Issue**: The line `pyperclip.set_clipboard("wl-clipboard")` attempts to configure `pyperclip` by passing a string. However, `pyperclip.set_clipboard()` is not standard Pyperclip API for backend selection.
 - **Risk**: Calling this code path under Wayland Linux sessions may throw an `AttributeError` or `TypeError`.
 - **Recommendation**: Verify Pyperclip backend configuration method or invoke `wl-copy` directly via `subprocess` if required.
 
 ### 3. Non-Thread-Safe Global Variable in Data Generation
-- **Location**: [`comic_ocr_dev/synthetic_data_generator/run_generate.py:53-54`](comic_ocr_dev/synthetic_data_generator/run_generate.py#L53-L54)
-- **Issue**: `run_generate.py` defines `global OUT_DIR` inside `run()` which worker threads access in helper function `f(args)` ([`run_generate.py:21`](comic_ocr_dev/synthetic_data_generator/run_generate.py#L21)).
+- **Location**: `comic_ocr_dev/synthetic_data_generator/run_generate.py:53-54`
+- **Issue**: `run_generate.py` defines `global OUT_DIR` inside `run()` which worker threads access in helper function `f(args)` (`run_generate.py:21`).
 - **Risk**: If `run()` is called concurrently across multiple packages in the same Python process, threads will collide on `OUT_DIR`.
 - **Recommendation**: Pass `OUT_DIR` explicitly in the argument tuple to `f(args)` instead of relying on module-global state.
 
 ### 4. Hardcoded User Home Directory Paths
-- **Location**: [`comic_ocr_dev/env.py:5-9`](comic_ocr_dev/comic_ocr_dev/env.py#L5-L9)
+- **Location**: `comic_ocr_dev/env.py:5-9`
 - **Issue**: Directory paths like `Path("~/data/jp_fonts").expanduser()` are hardcoded to fixed home directory paths.
 - **Recommendation**: Support override via environment variables (e.g. `os.getenv("FONTS_ROOT", ...)`).
 
 ### 5. Double Image Format Conversion
-- **Location**: [`comic_ocr/ocr.py:47`](comic_ocr/ocr.py#L47)
+- **Location**: `comic_ocr/ocr.py:47`
 - **Issue**: `img = img.convert("L").convert("RGB")` converts PIL images to 1-channel grayscale and then back to 3-channel RGB before feeding them to the image processor.
 - **Recommendation**: Document why 3-channel RGB conversion from grayscale is needed for Hugging Face `ViTImageProcessor` (which expects RGB input channels), or optimize preprocessing if single-channel model variants are introduced.
 
@@ -3514,23 +3546,23 @@ flowchart TD
 
 ## Repository Documentation Map
 
-- [**Master TODO & Implementation Ledger**](docs/TODO.md): Full audit checklist tracking completed tasks and next phase implementation goals.
-- [**Master Architecture & Systems Specification**](docs/MASTER_ARCHITECTURE_SPECIFICATION.md): Master technical specification unifying system evolution, Cargo workspace blueprints, PDP/IEPE doctrines, RRSA integration, theoretical solutions, findings, and migration roadmap.
-- [**API & Microservice Reference**](docs/api.md): Detailed reference for Rust library traits, JSON schemas, Reflective Runtime REST endpoints, CLI parameters, and Docker deployment.
-- [**Architecture & Doctrine Synthesis**](docs/architecture_and_doctrine.md): Unifies Reflective Rust (RRSA), Polymorphic Decision Protocol (PDP), IEPE intent-evidence loops, Draft Smarter scoring/probabilities, and Titan production Rust runtime blueprints.
-- [**Reflective Rust Integration & Gains**](docs/reflective_rust_integration.md): Deep dive into RRSA integration, zero-overhead PyO3 FFI, compile-time tensor shape checks, and CSG model self-description.
-- [**PDP Integration & Gains**](docs/pdp_integration.md): Details Polymorphic Decision Protocol integration, ACS consensus discounting, Brier calibration, and invalidation triggers.
-- [**IEPE Governance Integration & Gains**](docs/iepe_integration.md): Details Intent and Evidence Project Engine qualification trace, ticket-first discipline, and verification gates.
-- [**Agent, Skill & Automation Methods**](docs/agent_and_skill_methods.md): Details agent orchestration, `.agents/skills` taxonomy, and `scripts/gen-llms.py` context compilation.
-- [**Reference ComicOCR Analysis & Learnings**](docs/reference_mangaocr_learnings.md): Analysis of PaddleOCR/TrOCR reference project, ~8MB model size target, and long-sequence attention bug mitigations.
-- [**Page Processing Strategy**](docs/page_processing_strategy.md): Architecture map and strategies for full-page OCR, color cover handling, and cross-panel text bubbles.
-- [**Ingestion Loop Contract**](docs/ingestion_contract.md): Six-stage discover/decode/segment/normalize/recognize/emit contract binding the CLI, pipeline script, and REST runtime, with invariants, error classes, conformance tests, and current gaps.
-- [**iPub Format & Infinite Verse Integration Specification**](docs/ipub_format_and_infinite_verse_integration.md): Comprehensive specification of the iPub format, CAS asset manifests, page-semantics envelope schemas, database attachment rules, and Mode A/Mode B integration seams.
-- [**Flywheel, Distillation & Independent Reader Architectural Doctrine**](docs/FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Core architectural doctrine detailing VisionEncoderDecoder model scope, composed pair confidence, distillation error-correction, the independent reader principle, and held-out human evaluation set rules.
-- [**Rust Migration Specification**](docs/rust_migration.md): Technical specifications, blueprints, and verification gates for the Inference Bridge, PyO3 Python wheel, and Neural Model & PDP Architecture.
-- [**JSON Schema Suite & 12.jpg Execution Reference**](docs/json_schema_suite.md): Details all 7 canonical JSON Schema contracts, sample instances, and multi-schema execution results.
+- [**Master TODO & Implementation Ledger**](TODO.md): Full audit checklist tracking completed tasks and next phase implementation goals.
+- [**Master Architecture & Systems Specification**](MASTER_ARCHITECTURE_SPECIFICATION.md): Master technical specification unifying system evolution, Cargo workspace blueprints, PDP/IEPE doctrines, RRSA integration, theoretical solutions, findings, and migration roadmap.
+- [**API & Microservice Reference**](api.md): Detailed reference for Rust library traits, JSON schemas, Reflective Runtime REST endpoints, CLI parameters, and Docker deployment.
+- [**Architecture & Doctrine Synthesis**](architecture_and_doctrine.md): Unifies Reflective Rust (RRSA), Polymorphic Decision Protocol (PDP), IEPE intent-evidence loops, Draft Smarter scoring/probabilities, and Titan production Rust runtime blueprints.
+- [**Reflective Rust Integration & Gains**](reflective_rust_integration.md): Deep dive into RRSA integration, zero-overhead PyO3 FFI, compile-time tensor shape checks, and CSG model self-description.
+- [**PDP Integration & Gains**](pdp_integration.md): Details Polymorphic Decision Protocol integration, ACS consensus discounting, Brier calibration, and invalidation triggers.
+- [**IEPE Governance Integration & Gains**](iepe_integration.md): Details Intent and Evidence Project Engine qualification trace, ticket-first discipline, and verification gates.
+- [**Agent, Skill & Automation Methods**](agent_and_skill_methods.md): Details agent orchestration, `.agents/skills` taxonomy, and `scripts/gen-llms.py` context compilation.
+- [**Reference ComicOCR Analysis & Learnings**](reference_mangaocr_learnings.md): Analysis of PaddleOCR/TrOCR reference project, ~8MB model size target, and long-sequence attention bug mitigations.
+- [**Page Processing Strategy**](page_processing_strategy.md): Architecture map and strategies for full-page OCR, color cover handling, and cross-panel text bubbles.
+- [**Ingestion Loop Contract**](ingestion_contract.md): Six-stage discover/decode/segment/normalize/recognize/emit contract binding the CLI, pipeline script, and REST runtime, with invariants, error classes, conformance tests, and current gaps.
+- [**iPub Format & Infinite Verse Integration Specification**](ipub_format_and_infinite_verse_integration.md): Comprehensive specification of the iPub format, CAS asset manifests, page-semantics envelope schemas, database attachment rules, and Mode A/Mode B integration seams.
+- [**Flywheel, Distillation & Independent Reader Architectural Doctrine**](FLYWHEEL_DISTILLATION_ARCHITECTURAL_DOCTRINE.md): Core architectural doctrine detailing VisionEncoderDecoder model scope, composed pair confidence, distillation error-correction, the independent reader principle, and held-out human evaluation set rules.
+- [**Rust Migration Specification**](rust_migration.md): Technical specifications, blueprints, and verification gates for the Inference Bridge, PyO3 Python wheel, and Neural Model & PDP Architecture.
+- [**JSON Schema Suite & 12.jpg Execution Reference**](json_schema_suite.md): Details all 7 canonical JSON Schema contracts, sample instances, and multi-schema execution results.
 - [**Training Pair Export Specification**](TRAINING_EXPORT.md): Documents pair generation, silver/gold/evaluation isolation, rights grants, immutable manifests, and The Training Contract rules.
-- [**Code Review & Audit Report**](docs/code_review.md): Deep-dive audit report highlighting architectural strengths, known gaps, code smells, test coverage gaps, and refactoring roadmap.
+- [**Code Review & Audit Report**](code_review.md): Deep-dive audit report highlighting architectural strengths, known gaps, code smells, test coverage gaps, and refactoring roadmap.
 
 ---
 
@@ -4176,7 +4208,7 @@ A complete manga page processing pipeline requires solving two distinct computer
 1. **Text Detection**: Locating *where* text regions exist on a page and extracting their spatial bounding boxes `(x, y, width, height)`.
 2. **Text Recognition**: Transcribing the raw image pixels inside a bounded region into Japanese text character strings.
 
-[`comic-ocr`](comic_ocr/ocr.py#L14-L53) is an end-to-end **Text Recognition Model** based on Hugging Face's [`VisionEncoderDecoderModel`](comic_ocr/ocr.py#L11-L12). When given a single un-cropped page image (e.g. 2000×3000 pixels), the image pre-processor scales the entire image down to a fixed tensor size (e.g. 224×224). At that resolution, individual character details across multiple distant speech bubbles become compressed and blurred, causing recognition errors.
+`comic-ocr` (`comic_ocr/ocr.py`) is an end-to-end **Text Recognition Model** based on Hugging Face's `VisionEncoderDecoderModel` (`comic_ocr/ocr.py`). When given a single un-cropped page image (e.g. 2000×3000 pixels), the image pre-processor scales the entire image down to a fixed tensor size (e.g. 224×224). At that resolution, individual character details across multiple distant speech bubbles become compressed and blurred, causing recognition errors.
 
 To process full pages, covers, and complex layouts accurately, `comic-ocr` is paired with a **panel-invariant text detector** in a two-stage pipeline.
 
@@ -4262,7 +4294,7 @@ sequenceDiagram
 - **Challenge**: Color cover titles (e.g. *"DRAGON QUEST"*, *"エデンの戦士たち"*) feature 3D shadows, gradient fills, stylized Japanese fonts, and complex artwork backgrounds.
 - **Strategy**:
   - The text detector isolates the title block as a discrete bounding box.
-  - [`comic-ocr`](comic_ocr/ocr.py) decodes stylized fonts accurately because its synthetic training pipeline ([`SyntheticDataGenerator`](comic_ocr_dev/synthetic_data_generator/generator.py#L15)) overlays text on background images with custom CSS font shadows and strokes ([`renderer.py`](comic_ocr_dev/synthetic_data_generator/renderer.py#L323-L334)).
+  - `comic-ocr` (`comic_ocr/ocr.py`) decodes stylized fonts accurately because its synthetic training pipeline (`SyntheticDataGenerator`, `generator.py`) overlays text on background images with custom CSS font shadows and strokes (`renderer.py`).
 
 ### 2. Text Crossing Panel Borders
 - **Challenge**: Speech bubbles or sound effects often overlap black panel border frames.
@@ -4275,13 +4307,13 @@ sequenceDiagram
 - **Challenge**: Text rendered directly over character artwork or background scenery without speech bubble outlines.
 - **Strategy**:
   - The detector identifies text stroke clusters even when no white speech bubble outline exists.
-  - `comic-ocr` processes single-channel grayscale conversions ([`img.convert("L").convert("RGB")`](comic_ocr/ocr.py#L52)), ensuring character contrast is preserved against background artwork.
+  - `comic-ocr` processes single-channel grayscale conversions (`img.convert("L").convert("RGB")`), ensuring character contrast is preserved against background artwork.
 
 ---
 
 ## Implementation Blueprint
 
-Below is an example Python integration showing how to pair a text region detector with [`MangaOcr`](comic_ocr/ocr.py#L14-L53) to process full manga pages:
+Below is an example Python integration showing how to pair a text region detector with `MangaOcr` (`comic_ocr/ocr.py`) to process full manga pages:
 
 ```python
 from pathlib import Path
@@ -4435,7 +4467,7 @@ comic-ocr-rust/
 
 # Reference ComicOCR Analysis & Architectural Learnings
 
-This document summarizes key takeaways, model footprint optimizations, dataset insights, and edge-case mitigations derived from analyzing the reference project [`_Reference-Projects/ComicOCR`](reference/ComicOCR).
+This document summarizes key takeaways, model footprint optimizations, dataset insights, and edge-case mitigations derived from analyzing the reference project `_Reference-Projects/ComicOCR`.
 
 ---
 
@@ -4748,11 +4780,11 @@ graph TD
 
 ### 2. Development Package (`comic_ocr_dev`)
 - Used for reproducing model training or generating synthetic datasets.
-- Contains additional heavy dependencies specified in [`comic_ocr_dev/requirements.txt`](comic_ocr_dev/requirements.txt): `html2image`, `albumentations`, `opencv-python`, `datasets`, `wandb`, `budou`, `torchinfo`, `scikit-image`, `fontTools`.
+- Contains additional heavy dependencies specified in `comic_ocr_dev/requirements.txt`: `html2image`, `albumentations`, `opencv-python`, `datasets`, `wandb`, `budou`, `torchinfo`, `scikit-image`, `fontTools`.
 
 ---
 
-## Static Assets Taxonomy ([`assets/`](assets))
+## Static Assets Taxonomy ([`assets/`](../assets))
 
 - **`vocab.csv`**: Contains all Japanese characters supported by the target tokenizer/model vocabulary.
 - **`fonts.csv`**: Index generated by `scan_fonts.py` containing paths to installed TTF/OTF fonts, supported characters per font, and structural font labels (`common`, `regular`, `special`).
@@ -4764,7 +4796,7 @@ graph TD
 
 # Synthetic Data Generation Pipeline
 
-This document explains the design, components, and workflow of the synthetic data generator located in [`comic_ocr_dev/synthetic_data_generator/`](comic_ocr_dev/synthetic_data_generator).
+This document explains the design, components, and workflow of the synthetic data generator located in `comic_ocr_dev/synthetic_data_generator/`.
 
 ---
 
@@ -4797,35 +4829,35 @@ flowchart TD
 
 ## Component Deep Dive
 
-### 1. `SyntheticDataGenerator` ([`generator.py`](comic_ocr_dev/synthetic_data_generator/generator.py))
+### 1. `SyntheticDataGenerator` (`generator.py`)
 
 - **Word Segmentation**: Uses `budou` (TinySegmenter) to break Japanese text into natural phrase chunks.
-- **Line Length Sampling**: Samples line lengths according to empirical manga line length probabilities from [`assets/len_to_p.csv`](assets/len_to_p.csv).
-- **Furigana Annotation Injection**: [`add_random_furigana()`](comic_ocr_dev/synthetic_data_generator/generator.py#L121-L167) identifies Kanji character groups using `unicodedata` and randomly injects `<ruby>Kanji<rt>Furigana</rt></ruby>` HTML tags (with 80% Hiragana, 15% Katakana, 5% general vocabulary).
+- **Line Length Sampling**: Samples line lengths according to empirical manga line length probabilities from [`assets/len_to_p.csv`](../assets/len_to_p.csv).
+- **Furigana Annotation Injection**: `add_random_furigana()` identifies Kanji character groups using `unicodedata` and randomly injects `<ruby>Kanji<rt>Furigana</rt></ruby>` HTML tags (with 80% Hiragana, 15% Katakana, 5% general vocabulary).
 - **Tate-chū-yoko (Horizontal in Vertical)**: Wraps short ASCII character strings (<=3 characters) in `<span style="text-combine-upright: all">` to render horizontal digits/letters inside vertical lines.
-- **Font Filtering**: Filters out characters unsupported by the chosen font based on [`font_map`](comic_ocr_dev/synthetic_data_generator/utils.py#L52-L56).
+- **Font Filtering**: Filters out characters unsupported by the chosen font based on `font_map`.
 
-### 2. `Renderer` ([`renderer.py`](comic_ocr_dev/synthetic_data_generator/renderer.py))
+### 2. `Renderer` (`renderer.py`)
 
-- **CSS Generator ([`get_css`](comic_ocr_dev/synthetic_data_generator/renderer.py#L294-L344))**:
+- **CSS Generator (`get_css`)**:
   - `writing-mode: vertical-rl;` (70% probability vertical, 30% horizontal).
   - Simulated font stroke using layered CSS `text-shadow`.
   - Custom font loading via `@font-face`.
-- **Text Screenshot ([`render_text`](comic_ocr_dev/synthetic_data_generator/renderer.py#L26-L48))**: Uses `html2image` to render transparent PNGs.
-- **Speech Bubble Generation ([`render_background`](comic_ocr_dev/synthetic_data_generator/renderer.py#L75-L146))**:
+- **Text Screenshot (`render_text`)**: Uses `html2image` to render transparent PNGs.
+- **Speech Bubble Generation (`render_background`)**:
   - Draws rounded rectangles using OpenCV (`cv2.ellipse` and `cv2.line`).
   - Applies `Albumentations.ElasticTransform` to warp rectangular contours into hand-drawn speech bubble shapes.
-  - Blends transparent text, speech bubble mask, and manga background art ([`BACKGROUND_DIR`](comic_ocr_dev/env.py#L7)).
+  - Blends transparent text, speech bubble mask, and manga background art (`BACKGROUND_DIR`).
 
-### 3. Font Glyph Scanner ([`scan_fonts.py`](comic_ocr_dev/synthetic_data_generator/scan_fonts.py))
+### 3. Font Glyph Scanner (`scan_fonts.py`)
 
 - Scans a directory of TrueType/OpenType fonts (`FONTS_ROOT`).
 - Tests character rendering using `fontTools.ttLib.TTFont` and Pillow drawing.
-- Outputs metadata to [`assets/fonts.csv`](assets/fonts.csv) with character counts and font labels (`common`, `regular`, `special`).
+- Outputs metadata to [`assets/fonts.csv`](../assets/fonts.csv) with character counts and font labels (`common`, `regular`, `special`).
 
 ---
 
-## Batch Execution & Package Structure ([`run_generate.py`](comic_ocr_dev/synthetic_data_generator/run_generate.py))
+## Batch Execution & Package Structure (`run_generate.py`)
 
 Generated data is partitioned into numeric packages (`0000`, `0001`, ...) to streamline parallel creation and memory allocation:
 
