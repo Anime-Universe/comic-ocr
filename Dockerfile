@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Cargo.toml Cargo.lock* ./
-COPY .cargo/ .cargo/
 COPY crates/ crates/
 
 # Build release binaries
